@@ -68,8 +68,17 @@ export function Menu({
     () =>
       scenarios.map((s) => {
         const same = scenarios.filter((x) => x.level === s.level);
-        const a = (same.indexOf(s) / same.length) * Math.PI * 2 + s.level * 0.7 - Math.PI / 2;
-        const r = 36 + (s.level - 1) * 38;
+        // visual only: a stable pseudo-random scatter, so the dots look like a real radar sweep.
+        // Each level lives in the band just inside its own ring (between the previous ring and this one).
+        const h = (k: number) => {
+          let x = 0;
+          for (const ch of `${s.id}:${k}`) x = (Math.imul(x, 31) + ch.charCodeAt(0)) | 0;
+          return ((x >>> 0) % 10000) / 10000;
+        };
+        const step = Math.PI * 2 / same.length;
+        const a = same.indexOf(s) * step + (h(1) - 0.5) * step * 0.9 + s.level * 0.7 - Math.PI / 2;
+        const ring = 36 + (s.level - 1) * 38;
+        const r = s.level === 1 ? 12 + h(2) * 30 : ring - 32 + h(2) * 36;
         return { s, x: 200 + Math.cos(a) * r, y: 200 + Math.sin(a) * r };
       }),
     [scenarios],
