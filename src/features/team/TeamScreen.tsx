@@ -224,12 +224,13 @@ export function TeamScreen({
                 <div style={{ display: "grid", gap: 4 }}>
                   {ranked.map((r) => (
                     <div key={r.user_id} className="turn" style={{ display: "flex", gap: 8, alignItems: "center", background: r.user_id === userId ? "rgba(63,224,255,0.07)" : undefined }}>
-                      <span className="t-display" style={{ width: 26, color: r.rank === 1 ? "var(--hud-gold)" : undefined }}>{r.rank}</span>
+                      <span className="t-display" style={{ width: 28, flex: "none", textAlign: "center", color: r.rank === 1 ? "var(--hud-gold)" : undefined }}>{r.rank}</span>
                       <span style={{ flex: 1, minWidth: 0 }}>
                         <span className="t-ui" style={{ display: "block" }}>{r.role === "leader" && <Crown size={11} style={{ display: "inline", marginRight: 4 }} />}{r.display_name}{r.user_id === userId ? ` (${tr("вы")})` : ""}</span>
                         <span className="dim t-mono" style={{ fontSize: 11 }}>{rankFor(r.points).name} · {tr("игр")} {r.games} · {tr("побед")} {r.wins}</span>
                       </span>
-                      <span className="t-mono" style={{ color: "var(--hud-gold)" }}>{r.points}</span>
+                      <span className="t-mono" style={{ color: "var(--hud-gold)", minWidth: 56, flex: "none", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{r.points}</span>
+                      {leader && r.user_id === userId && <span aria-hidden style={{ width: 30, flex: "none" }} />}
                       {leader && r.user_id !== userId && (
                         <button className="icon-btn" aria-label={tr("Убрать {name}", { name: r.display_name })} disabled={busy} onClick={() => window.confirm(tr("Убрать {name} из команды?", { name: r.display_name })) && run(async () => {
                           await removeMember(team.id, r.user_id);
