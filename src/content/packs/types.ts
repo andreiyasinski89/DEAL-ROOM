@@ -1,6 +1,7 @@
 import type { Channel } from "../../engine/types";
 import type { Lang } from "../../i18n";
-import type { Beat, BeatTag } from "../data/beats";
+import type { Beat, BeatTag, Opt } from "../data/beats";
+import type { CloserId, EventId, OpenerId } from "../data/moves";
 import type { Vocab } from "../data/vocab";
 
 /**
@@ -91,6 +92,26 @@ export type MiniText = {
   >;
 };
 
+/** One answer of an extra move: the line, the technique (strong answers) or mistake (weak ones) and the coach note. */
+export type Mv = { t: string; label: string; note: string };
+export type Mv4 = [Mv, Mv, Mv, Mv];
+
+/**
+ * Texts of the building blocks that change the SHAPE of a case (see data/moves.ts for the skeleton):
+ * events in the middle of the talk, other ways to open and to close, the "client opens up" step,
+ * and the extra wording variants of every objection beat.
+ */
+export type Extras = {
+  events: Record<EventId, { line: string; opts: Mv4; bye: string; why: string }>;
+  openers: Record<OpenerId, { line: string; opts: Mv4 }>;
+  closers: Record<CloserId, { line: string; opts: Mv4 }>;
+  story: { hint: string; opts: Mv4; bye: string; why: string };
+  /** First-person remark of each persona about their situation (the client "opens up"). */
+  stories: Record<string, string>;
+  /** One more wording of the client line (soft/hard), of the pushback and of every answer, per beat. */
+  beatsAlt: Record<BeatTag, { soft: string; hard: string; push: string; alt: [Opt, Opt, Opt, Opt] }>;
+};
+
 export type ContentPack = {
   lang: Lang;
   beats: Record<BeatTag, Beat>;
@@ -99,4 +120,5 @@ export type ContentPack = {
   tpl: Tpl;
   /** null for Russian: the mini-case source IS Russian. */
   mini: MiniText | null;
+  extras: Extras;
 };

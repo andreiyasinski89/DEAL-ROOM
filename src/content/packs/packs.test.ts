@@ -80,7 +80,7 @@ describe.each(PACKS)("content pack: $lang", (pack) => {
 
   it("has no empty texts and only known placeholders", () => {
     const bad: string[] = [];
-    const source = { beats: pack.beats, vocab: pack.vocab, personas: pack.personas, tpl: pack.tpl, mini: pack.mini };
+    const source = { beats: pack.beats, vocab: pack.vocab, personas: pack.personas, tpl: pack.tpl, mini: pack.mini, extras: pack.extras };
     for (const [path, s] of strings(source)) {
       if (!s.trim() && !/voice\.\w+\.(pre|post)/.test(path)) bad.push(`${path}: empty`);
       for (const m of s.matchAll(/\{([^{}|]*)\}/g)) if (!KNOWN.has(m[1])) bad.push(`${path}: {${m[1]}}`);
@@ -161,6 +161,30 @@ describe.each(PACKS)("content pack: $lang", (pack) => {
     } else {
       expect(json.match(/[А-Яа-яЁё]/g)).toBeNull();
     }
+  });
+
+  it("the extra moves are complete and their labels are translated", () => {
+    const ex = pack.extras;
+    const rx = ruPack.extras;
+    expect(Object.keys(ex.stories).sort()).toEqual(ruPersonas.map((p) => p.id).sort());
+    const shared = new Set(["Монолог", "Критика конкурента", "Ультиматум", "Співчуття", "Брехня", "Опора на документ", "Альтернатива каналу", "Короткий старт"]);
+    const same: string[] = [];
+    const groups: [string, { opts: unknown[] }[], { opts: unknown[] }[]][] = [
+      ["events", Object.values(ex.events), Object.values(rx.events)],
+      ["openers", Object.values(ex.openers), Object.values(rx.openers)],
+      ["closers", Object.values(ex.closers), Object.values(rx.closers)],
+    ];
+    for (const [name, a, b] of groups)
+      a.forEach((e, i) => (e.opts as { label: string }[]).forEach((o, k) => {
+        if (o.label === (b[i].opts as { label: string }[])[k].label && !shared.has(o.label)) same.push(`${name}: ${o.label}`);
+      }));
+    expect(same).toEqual([]);
+    for (const tag of Object.keys(rx.beatsAlt) as (keyof typeof rx.beatsAlt)[])
+      rx.beatsAlt[tag].alt.forEach((o, i) => {
+        const t = ex.beatsAlt[tag].alt[i];
+        expect(!!t.tech, `${tag} alt ${i} technique`).toBe(!!o.tech);
+        expect(!!t.mistake, `${tag} alt ${i} mistake`).toBe(!!o.mistake);
+      });
   });
 
   it("translates every mistake and technique label (none left identical to the Russian original)", () => {

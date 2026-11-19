@@ -1,3 +1,4 @@
+import { ruExtras } from "./ruExtras";
 import { RU_AUTO_END } from "../../engine/engine";
 import { beats } from "../data/beats";
 import { personas } from "../data/personas";
@@ -102,4 +103,4 @@ const tpl: Tpl = {
   },
 };
 
-export const ruPack: ContentPack = { lang: "ru", beats, vocab, personas: personaText, tpl, mini: null };
+export const ruPack: ContentPack = { lang: "ru", beats, vocab, personas: personaText, tpl, mini: null, extras: ruExtras };
