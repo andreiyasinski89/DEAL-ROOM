@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ChevronLeft, ChevronRight, FileDown, GitFork, Image as ImageIcon, LineChart, Lock, RotateCcw, Trophy } from "lucide-react";
+import { ArrowLeft, ChevronLeft, Home, ChevronRight, FileDown, GitFork, Image as ImageIcon, LineChart, Lock, RotateCcw, Trophy } from "lucide-react";
 import type { Quality, Scenario } from "../engine/types";
 import { bestPath, buildDebrief, fmtTime, type Debrief as DebriefData } from "../engine/debrief";
 import { getNode } from "../engine/engine";
@@ -392,6 +392,9 @@ export function Debrief({
           </button>
           <button className="btn ghost" onClick={onMenu}>
             <Trophy size={14} style={{ display: "inline", marginRight: 6 }} />{tr("Следующий кейс")} [N]
+          </button>
+          <button className="btn" onClick={onMenu}>
+            <Home size={14} style={{ display: "inline", marginRight: 6 }} />{tr("В меню")} [M]
           </button>
         </div>
         <div className="t-mono dim" style={{ fontSize: 12, marginTop: 8, minHeight: 18 }} role="status">

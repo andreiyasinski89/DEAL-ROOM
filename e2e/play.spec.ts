@@ -39,6 +39,10 @@ test("a scripted game can be won with the keyboard-free flow and shows the debri
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("dr_sessions") ?? "[]"));
   expect(saved).toHaveLength(1);
   expect(saved[0]).toMatchObject({ scenarioId: "mwr-l3-irina-accountant", outcome: "sale" });
+
+  // the debrief has an explicit way back to the main screen
+  await page.getByRole("button", { name: /В меню/ }).click();
+  await expect(page.getByText("КАРТА МИССИЙ")).toBeVisible();
 });
 
 test("lying to the client loses the game and is recorded as a loss", async ({ page }) => {

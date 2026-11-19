@@ -176,5 +176,6 @@ const pl: Record<string, string> = {
   "Начать": "Zacznij",
   "Далее": "Dalej",
   "Живых игр с ИИ осталось сегодня: {left} из {max}. Обновится в {time}.": "Pozostało dziś gier z AI: {left} z {max}. Odnowi się o {time}.",
+  "В меню": "Do menu",
 };
 export default pl;

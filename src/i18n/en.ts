@@ -176,5 +176,6 @@ const en: Record<string, string> = {
   "Начать": "Start",
   "Далее": "Next",
   "Живых игр с ИИ осталось сегодня: {left} из {max}. Обновится в {time}.": "Live AI games left today: {left} of {max}. Resets at {time}.",
+  "В меню": "To menu",
 };
 export default en;
