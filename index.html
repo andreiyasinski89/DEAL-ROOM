@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#05070D" />
+    <meta name="description" content="Deal Room — тренажёр продаж и работы с возражениями в стиле тактического HUD. 100 кейсов, живой клиент на ИИ, разбор полётов." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <title>DEAL ROOM — тренажёр продаж</title>
+    <!-- critical CSS: the page is dark and shows the logo before any script has loaded -->
+    <style>
+      html, body { margin: 0; background: #05070d; color: #e6f1ff; }
+      .splash { min-height: 100vh; display: grid; place-items: center; font: 900 clamp(28px, 6vw, 56px)/1 "Orbitron", "Segoe UI", system-ui, sans-serif; letter-spacing: 0.08em; text-shadow: 0 0 24px rgba(63, 224, 255, 0.5); }
+      .splash b { color: #3fe0ff; }
+    </style>
+  </head>
+  <body>
+    <div id="root"><div class="splash" aria-hidden="true">DEAL<b>ROOM</b></div></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

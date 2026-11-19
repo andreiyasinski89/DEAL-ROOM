@@ -1,0 +1,6 @@
+# Minimal Supabase CLI config. The function verifies the user's token itself
+# (supabase.auth.getUser), which also works with the new asymmetric signing keys.
+project_id = "deal-room"
+
+[functions.live-client]
+verify_jwt = false
