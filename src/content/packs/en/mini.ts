@@ -13,9 +13,9 @@ export const mini: MiniText = {
     goldenKey: "Honesty, numbers based on her own trip, the right to think it over",
   },
   briefing:
-    "You are calling Irina, an acquaintance of an acquaintance. She travels 2–3 times a year and finds accommodation on Booking herself. You are offering her MWR Life membership at the Elite level: $340, of which $100 is the company's registration fee and $240 goes as points to the Travel Advantage account; after that the subscription is $120 per month. The goal: register Elite or agree on a next step.",
+    "You are calling Irina, an acquaintance of an acquaintance. She travels 2–3 times a year and finds accommodation on Booking herself. You are offering her MWR Life membership at the Elite level: $340; $100 is the company's registration fee and 120 points are credited to the Travel Advantage account at registration; after that the subscription is $120 per month (each renewal gives 120 points). The goal: register Elite or agree on a next step.",
   hiddenContext:
-    "Irina's friend put money into a similar club: she was promised payback within two months and could only get out after half a year. Irina's husband is against any “schemes”: that is her hidden objection. Facts to check yourself against: Elite is $340 ($100 company fee, $240 as points on the Travel Advantage account), subscription $120 per month; income is possible only from building your own network, with no guarantees.",
+    "Irina's friend put money into a similar club: she was promised payback within two months and could only get out after half a year. Irina's husband is against any “schemes”: that is her hidden objection. Facts to check yourself against: Elite is $340 ($100 company fee, 120 points on the Travel Advantage account at registration), subscription $120 per month (a renewal gives 120 points); income is possible only from building your own network, with no guarantees.",
   nodes: {
     n1: {
       text: "Hello? Yes, this is Irina. Is this about that travel club?.. Is this network marketing again?",
@@ -76,7 +76,7 @@ export const mini: MiniText = {
       text: "Okay, suppose I do travel at least once a year. How much does it cost to join? And what guarantees do I have that I won't lose money?",
       hint: "The word “guarantees” is a trap. What can you really guarantee and what can't you?",
       choices: {
-        a: { text: "Elite is $340: $100 is the company's registration fee, $240 goes as points to your Travel Advantage account, then the subscription is $120 per month. I don't guarantee savings, but let's check on your last trip: where did you go and how much did you pay?", technique: "An honest answer + a check on her data", coachNote: "The price is stated directly, no guarantees invented, and the check is on her numbers. For an analyst that is ideal." },
+        a: { text: "Elite is $340: $100 is the company's registration fee, 120 points are credited to your Travel Advantage account, then the subscription is $120 per month and each renewal gives another 120 points. I don't guarantee savings, but let's check on your last trip: where did you go and how much did you pay?", technique: "An honest answer + a check on her data", coachNote: "The price is stated directly, no guarantees invented, and the check is on her numbers. For an analyst that is ideal." },
         b: { text: "It's an investment, it will pay off from the first trip: I guarantee it.", mistake: "False promise", coachNote: "The word “guarantee” here is a straight road to a complaint and a refund." },
         c: { text: "$340 and another $120 a month. It's up to you.", mistake: "A cold delivery", coachNote: "A number without value and without care leaves the client alone with doubts." },
         d: { text: "Let's not talk about money but about emotions: imagine yourself in Bali at sunset...", mistake: "Evading the question", coachNote: "The analyst asked a concrete question: an answer “about emotions” irritates her." },
@@ -97,7 +97,7 @@ export const mini: MiniText = {
       hint: "A clear, soft next step is needed now: no pressure and no invented scarcity.",
       choices: {
         a: { text: "I suggest this: first I'll send a calculation for your Turkey trip, and if the numbers suit you, we'll register Elite together. Deal?", technique: "Closing on a verifiable step", coachNote: "The client decides on the numbers: a sale with no risk of a refund." },
-        b: { text: "We can register Elite today: $340, of which $100 is the registration fee and $240 goes as points to the Travel Advantage account, then $120 per month. I'll send all terms in writing. Does that suit you?", technique: "Alternative close", coachNote: "All payments are named directly and the terms are in writing. A good second path to a win." },
+        b: { text: "We can register Elite today: $340; $100 is the company's fee and 120 points are credited to the Travel Advantage account, then $120 per month. I'll send all terms in writing. Does that suit you?", technique: "Alternative close", coachNote: "All payments are named directly and the terms are in writing. A good second path to a win." },
         c: { text: "Great! Only today there are 2 places left on the promotion!", mistake: "Lie about scarcity", coachNote: "Invented scarcity destroys the trust you have just earned." },
         d: { text: "Good. Send me your passport and card details right now and I'll register you.", mistake: "Pressure for speed", coachNote: "Asking for card details over the phone is too abrupt a step for a client who has only just thawed." },
       },

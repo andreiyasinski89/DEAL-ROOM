@@ -40,7 +40,7 @@ function skeleton(s: Scenario) {
   };
 }
 
-const KNOWN = new Set(["name", "nameVoc", "product", "productAcc", "next", "proof", "third", "thirdWho", "tier", "tierPrice", "tierPoints", "fee", "sub", "bye", "why", "label"]);
+const KNOWN = new Set(["name", "nameVoc", "product", "renewPoints", "terms", "renew", "n", "productAcc", "next", "proof", "third", "thirdWho", "tier", "tierPrice", "tierPoints", "fee", "sub", "bye", "why", "label"]);
 
 /** Every string inside a value, with its path (for readable failures). */
 function strings(v: unknown, path = "", out: [string, string][] = []): [string, string][] {
@@ -112,6 +112,18 @@ describe.each(PACKS)("content pack: $lang", (pack) => {
     expect(bad).toEqual([]);
     expect(json).not.toMatch(/€|(?<!\p{L})zł(?!\p{L})|\bPLN\b|\bUAH\b|грн|₴|₽/u);
     expect(mentionsRubles(json)).toBe(false);
+  });
+
+  it("points are always one of the real amounts: 120 / 490 at registration, 120 / 240 per renewal", () => {
+    const bad: string[] = [];
+    for (const m of json.matchAll(/(\d+)\s*(?:баллов|балів|points|punktów)/g)) if (![120, 240, 490].includes(Number(m[1]))) bad.push(m[0]);
+    expect(bad).toEqual([]);
+    expect(json).not.toMatch(/\$(?:240|490)\b/);
+  });
+
+  it("no text says the rest of the Elite price becomes points", () => {
+    const re = { en: /the rest (?:is|comes) (?:as )?points/i, pl: /reszta (?:to|w) punkt/i, uk: /решта (?:—|-) бали|решта балами/i }[pack.lang as "en" | "pl" | "uk"];
+    expect(json).not.toMatch(re);
   });
 
   it("every case states prices, the fee, the subscription and that there are no guarantees", () => {

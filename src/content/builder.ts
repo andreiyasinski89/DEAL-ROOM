@@ -15,7 +15,7 @@ import { mistakeCode } from "./data/mistakes";
 import { tierFacts, type Tier } from "./data/mwr";
 import type { Vocab } from "./data/vocab";
 import { ruPack } from "./packs/ru";
-import type { ContentPack, Psy, VocabText } from "./packs/types";
+import type { ContentPack, Psy, Tpl, VocabText } from "./packs/types";
 
 export type CaseSpec = {
   id: string;
@@ -48,14 +48,14 @@ const FEMALE_IDS = new Set(["irina", "svetlana", "olga", "natalia", "elena", "an
 /** Psychotype code from the Russian source label. */
 const PSY: Record<string, Psy> = { "Аналитик": "analyst", "Драйвер": "driver", "Экспрессив": "expressive", "Миротворец": "peacemaker" };
 
-type Ctx = { name: string; nameVoc: string; vocab: VocabText; female: boolean; tier: Tier; perMonth: string };
+type Ctx = { name: string; nameVoc: string; vocab: VocabText; female: boolean; tier: Tier; tpl: Tpl };
 
 /**
  * Fills placeholders (two passes, because vocab strings contain placeholders too) and gendered forms:
  * Russian «сказал(а)» and the generic {male|female} used by the other languages.
  */
 export function fillText(text: string, c: Ctx): string {
-  const facts = tierFacts(c.tier, c.perMonth);
+  const facts = tierFacts(c.tier, c.tpl.perMonth, (n) => c.tpl.points.replace("{n}", String(n)));
   const map: Record<string, string> = {
     name: c.name,
     nameVoc: c.nameVoc,
@@ -68,6 +68,9 @@ export function fillText(text: string, c: Ctx): string {
     tier: facts.tier,
     tierPrice: facts.tierPrice,
     tierPoints: facts.tierPoints,
+    renewPoints: facts.renewPoints,
+    terms: c.tpl.terms + (c.tier === "Elite" ? c.tpl.termsRest : ""),
+    renew: c.tpl.renew,
     fee: facts.fee,
     sub: facts.sub,
   };
@@ -106,7 +109,7 @@ export function buildScenario(spec: CaseSpec, pack: ContentPack = ruPack): Scena
   const { level, tier } = spec;
   const { persona, vocab, female, nameVoc } = localised(spec, pack);
   const { tpl } = pack;
-  const ctx: Ctx = { name: persona.name, nameVoc, vocab, female, tier, perMonth: tpl.perMonth };
+  const ctx: Ctx = { name: persona.name, nameVoc, vocab, female, tier, tpl };
   const f = (s: string) => fillText(s, ctx);
   const retain = vocab.mode === "retain";
   const hard = level >= 4;
@@ -315,7 +318,7 @@ export function scenarioMeta(spec: CaseSpec, pack: ContentPack = ruPack): Omit<S
   const { level, tier } = spec;
   const { persona, vocab, female, nameVoc } = localised(spec, pack);
   const { tpl } = pack;
-  const ctx: Ctx = { name: persona.name, nameVoc, vocab, female, tier, perMonth: tpl.perMonth };
+  const ctx: Ctx = { name: persona.name, nameVoc, vocab, female, tier, tpl };
   const f = (s: string) => fillText(s, ctx);
   const retain = vocab.mode === "retain";
   const hasHidden = level >= 2; // the hidden-objection branch exists from level 2

@@ -4,6 +4,10 @@ import type { Tpl } from "../types";
 export const tpl: Tpl = {
   quote: ["“", "”"],
   title: "{name}: {label}",
+  points: "{n} points",
+  terms: "{fee} is the company's registration fee, and {tierPoints} are credited to the Travel Advantage account at registration",
+  termsRest: "; how the rest of the amount is allocated has to be checked in the company's documents",
+  renew: "each subscription renewal credits {renewPoints}",
   perMonth: "per month",
   tutorialTitle: "Case 0: How to play",
   channel: { call: "phone call", meeting: "face-to-face meeting", chat: "messenger chat", zoom: "Zoom presentation" },
@@ -50,7 +54,7 @@ export const tpl: Tpl = {
       note: "The client checks and decides for themselves: a sale with no risk of a refund.",
     },
     b: {
-      sell: "I can register {tier} right away: {tierPrice}, of which {fee} is the registration fee and {tierPoints} goes as points to your Travel Advantage account; after that, {sub}. All terms in writing. Does that suit you?",
+      sell: "I can register {tier} right away: {tierPrice}: {terms}; after that, {sub}. All terms in writing. Does that suit you?",
       retain: "I can open the contract and the {sub} subscription terms with you right now and we decide together whether to continue. Does that suit you?",
       tech: "Alternative close",
       note: "All payments are named directly and the terms are in writing: a good second path.",
@@ -64,7 +68,7 @@ export const tpl: Tpl = {
       retain: { text: "{name}: “Agreed: {next}. Let's do it. Thank you for no pressure.”", reason: "SALE CLOSED: the client stays in touch, everything was clarified honestly and without pressure." },
     },
     saleSoft: {
-      sell: { text: "{name}: “Okay, let's register {tier}. Send me the terms in writing.”", reason: "SALE CLOSED: {tier} registered with a full understanding of the payments: {tierPrice} (of which {fee} is the company fee and {tierPoints} is points) and {sub}." },
+      sell: { text: "{name}: “Okay, let's register {tier}. Send me the terms in writing.”", reason: "SALE CLOSED: {tier} registered with a full understanding of the payments: {tierPrice} ({terms}) and {sub}." },
       retain: { text: "{name}: “Okay, let's open the contract and decide calmly. Thank you for no tricks.”", reason: "SALE CLOSED: the subscription terms were gone through together, and the client made an informed decision." },
     },
     partialNext: {
@@ -85,7 +89,7 @@ export const tpl: Tpl = {
     objection: "Hidden objection",
     red: "The client's red button",
     gold: "The golden key",
-    facts: "Facts to check yourself against: {tier} is {tierPrice} ({fee} company fee, {tierPoints} as points on the Travel Advantage account), subscription {sub}; income is possible only from building your own network, with no guarantees.",
+    facts: "Facts to check yourself against: {tier} is {tierPrice} ({terms}), subscription {sub} ({renew}); income is possible only from building your own network, with no guarantees.",
     level5: "The client may exaggerate competitors' offers: check the facts.",
   },
 };

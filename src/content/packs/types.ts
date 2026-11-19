@@ -9,7 +9,7 @@ import type { Vocab } from "../data/vocab";
  * TypeScript refuses an incomplete pack and the tests check placeholders and facts.
  *
  * Placeholders in text: {name} {product} {productAcc} {next} {proof} {third} {thirdWho}
- *                       {tier} {tierPrice} {tierPoints} {fee} {sub}
+ *                       {tier} {tierPrice} {tierPoints} {renewPoints} {terms} {renew} {fee} {sub}
  * Gender (the speaker is the client): Russian uses «сказал(а)»; every language may use {male|female}.
  */
 export type VocabText = Pick<Vocab, "label" | "product" | "productAcc" | "next" | "proof" | "third" | "thirdWho" | "brief" | "open">;
@@ -37,6 +37,14 @@ export type Tpl = {
   quote: [string, string];
   /** "{name}: {label}", the case title. */
   title: string;
+  /** Points with a unit: "{n} баллов", "{n} points" (always 120, 240 or 490: no plural problems). */
+  points: string;
+  /** The registration terms as one clause: {fee} {tierPoints}. Placeholder {terms}. */
+  terms: string;
+  /** Added to {terms} for Elite only: the company facts do not say where the rest of the price goes. */
+  termsRest: string;
+  /** What a subscription renewal gives: {renewPoints}. Placeholder {renew}. */
+  renew: string;
   /** "per month" after the subscription amount: "{sub}" = "$120 " + this. */
   perMonth: string;
   /** Title of the tutorial case ("Case 0"). */

@@ -4,6 +4,10 @@ import type { Tpl } from "../types";
 export const tpl: Tpl = {
   quote: ["„", "”"],
   title: "{name}: {label}",
+  points: "{n} punktów",
+  terms: "{fee} to opłata rejestracyjna firmy, a przy rejestracji na konto Travel Advantage trafia {tierPoints}",
+  termsRest: "; podział pozostałej części kwoty trzeba sprawdzić w dokumentach firmy",
+  renew: "każde przedłużenie abonamentu daje {renewPoints}",
   perMonth: "miesięcznie",
   tutorialTitle: "Przypadek 0: Jak grać",
   channel: { call: "rozmowa telefoniczna", meeting: "spotkanie osobiste", chat: "rozmowa w komunikatorze", zoom: "prezentacja na Zoomie" },
@@ -50,7 +54,7 @@ export const tpl: Tpl = {
       note: "Klient sam sprawdza i decyduje — sprzedaż bez ryzyka zwrotu.",
     },
     b: {
-      sell: "Mogę od razu zarejestrować {tier}: {tierPrice}, z czego {fee} to opłata rejestracyjna, a {tierPoints} to punkty na twoje konto Travel Advantage; dalej {sub}. Wszystkie warunki na piśmie. Pasuje?",
+      sell: "Mogę od razu zarejestrować {tier}: {tierPrice}: {terms}; dalej {sub}. Wszystkie warunki na piśmie. Pasuje?",
       retain: "Mogę od razu otworzyć z tobą umowę i warunki abonamentu {sub} i razem zdecydować, czy kontynuować. Pasuje?",
       tech: "Zamknięcie z alternatywą",
       note: "Wszystkie płatności nazwano wprost, warunki są na piśmie — dobra druga droga.",
@@ -64,7 +68,7 @@ export const tpl: Tpl = {
       retain: { text: "{name}: „Umowa stoi — {next}. Zróbmy to. Dziękuję, że bez presji”.", reason: "SALE CLOSED: klient pozostaje w kontakcie, wszystko wyjaśniono uczciwie i bez presji." },
     },
     saleSoft: {
-      sell: { text: "{name}: „Dobrze, zapisujemy {tier}. Warunki proszę przesłać na piśmie”.", reason: "SALE CLOSED: zarejestrowano {tier} przy pełnym zrozumieniu płatności: {tierPrice} (z czego {fee} to opłata dla firmy, a {tierPoints} to punkty) i {sub}." },
+      sell: { text: "{name}: „Dobrze, zapisujemy {tier}. Warunki proszę przesłać na piśmie”.", reason: "SALE CLOSED: zarejestrowano {tier} przy pełnym zrozumieniu płatności: {tierPrice} ({terms}) i {sub}." },
       retain: { text: "{name}: „Dobrze, otwórzmy umowę i zdecydujmy spokojnie. Dziękuję, że bez sztuczek”.", reason: "SALE CLOSED: warunki abonamentu omówiono wspólnie, klient podjął świadomą decyzję." },
     },
     partialNext: {
@@ -85,7 +89,7 @@ export const tpl: Tpl = {
     objection: "Ukryte zastrzeżenie",
     red: "Czerwony przycisk klienta",
     gold: "Złoty klucz",
-    facts: "Fakty do samodzielnego sprawdzenia: {tier} — {tierPrice} ({fee} opłata dla firmy, {tierPoints} w punktach na konto Travel Advantage), abonament {sub}; zarobek jest możliwy tylko z rozwijania własnej sieci, gwarancji nie ma.",
+    facts: "Fakty do samodzielnego sprawdzenia: {tier} — {tierPrice} ({terms}), abonament {sub} ({renew}); zarobek jest możliwy tylko z rozwijania własnej sieci, gwarancji nie ma.",
     level5: "Klient może wyolbrzymiać oferty konkurentów — sprawdzaj fakty.",
   },
 };

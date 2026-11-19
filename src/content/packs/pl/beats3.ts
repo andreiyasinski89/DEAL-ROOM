@@ -116,7 +116,7 @@ export const beats3: Partial<Record<BeatTag, Beat>> = {
     hard: ["Cena to absurd. Wbrew zdrowemu rozsądkowi.", "{tierPrice}? Nie, to nie podlega dyskusji."],
     opts: [
       { t: "Rozumiem. A gdyby cena była w porządku, czy coś jeszcze by cię zatrzymało?", tech: "Sprawdzenie ukrytego zastrzeżenia", note: "Sprawdzono, czy to prawdziwe zastrzeżenie." },
-      { t: "Zobaczmy, z czego składa się {tierPrice}: {fee} rejestracja i {tierPoints} w punktach na konto.", tech: "Praca z ceną", note: "Reagujesz na to, co padło, ale nie sprawdzasz, czy to prawdziwe." },
+      { t: "Zobaczmy, co obejmuje {tierPrice}: {terms}.", tech: "Praca z ceną", note: "Reagujesz na to, co padło, ale nie sprawdzasz, czy to prawdziwe." },
       { t: "Drogo w porównaniu z czym? U innych jeszcze drożej, a jakość gorsza, więc nic nie tracisz!", mistake: "Spór", note: "Kłócisz się z zastrzeżeniem, które może być fałszywe." },
       { t: "Mogę wynegocjować zniżkę 30% od razu, jeśli zdecydujesz się dziś.", mistake: "Zmyślona zniżka", note: "Zniżek przy fałszywym zastrzeżeniu obiecywać nie wolno i to nie rozwiązuje problemu." },
     ],

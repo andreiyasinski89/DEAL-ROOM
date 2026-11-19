@@ -11,12 +11,14 @@ const choicesOf = () =>
 
 describe("MWR Life facts", () => {
   it("constants match the agreed prices", () => {
-    expect(MWR.tiers.Elite).toEqual({ price: 340, points: 240 });
-    expect(MWR.tiers.Turbo).toEqual({ price: 590, points: 490 });
+    expect(MWR.tiers.Elite).toEqual({ price: 340, points: 120, renewPoints: 120 });
+    expect(MWR.tiers.Turbo).toEqual({ price: 590, points: 490, renewPoints: 240 });
     expect(MWR.fee).toBe(100);
     expect(MWR.subscription).toBe(120);
-    // price = company fee + points for both tiers
-    for (const t of Object.values(MWR.tiers)) expect(t.price).toBe(MWR.fee + t.points);
+    // Turbo: price = fee + points. Elite: $340 - $100 - 120 points leaves $120 the company facts do not explain,
+    // so no text may claim that "the rest" of the Elite price becomes points (see the next tests)
+    expect(MWR.tiers.Turbo.price).toBe(MWR.fee + MWR.tiers.Turbo.points);
+    expect(MWR.tiers.Elite.price).not.toBe(MWR.fee + MWR.tiers.Elite.points);
     expect(usd(340)).toBe("$340");
     expect(tierFacts("Turbo").sub).toBe("$120 в месяц");
   });

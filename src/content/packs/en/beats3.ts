@@ -116,7 +116,7 @@ export const beats3: Partial<Record<BeatTag, Beat>> = {
     hard: ["The price is absurd. Beyond common sense.", "{tierPrice}? No, that's not up for discussion."],
     opts: [
       { t: "I understand. If the price were fine, would anything else stop you?", tech: "Testing for a hidden objection", note: "You checked whether this is the real objection." },
-      { t: "Let's see what {tierPrice} is made of: {fee} registration and {tierPoints} as points on your account.", tech: "Working with the price", note: "You respond to what was said, but don't check whether it is real." },
+      { t: "Let's see what {tierPrice} includes: {terms}.", tech: "Working with the price", note: "You respond to what was said, but don't check whether it is real." },
       { t: "Expensive compared to what? Others are even more expensive and the quality is worse, so you lose nothing!", mistake: "Arguing", note: "You argue with an objection that may be false." },
       { t: "I can knock off 30% right now if you decide today.", mistake: "Invented discount", note: "You have no right to promise discounts over a false objection, and it doesn't solve the problem." },
     ],

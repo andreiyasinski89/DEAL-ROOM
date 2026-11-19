@@ -13,9 +13,9 @@ export const mini: MiniText = {
     goldenKey: "Uczciwość, liczby na jej własnej podróży, prawo do namysłu",
   },
   briefing:
-    "Dzwonisz do Ireny, znajomej znajomych. Podróżuje 2–3 razy w roku, nocleg szuka sama na Bookingu. Proponujesz jej członkostwo MWR Life na poziomie Elite: $340, z czego $100 to opłata rejestracyjna firmy, a $240 to punkty na konto Travel Advantage; dalej abonament $120 miesięcznie. Cel: zarejestrować Elite lub umówić następny krok.",
+    "Dzwonisz do Ireny, znajomej znajomych. Podróżuje 2–3 razy w roku, nocleg szuka sama na Bookingu. Proponujesz jej członkostwo MWR Life na poziomie Elite: $340; $100 to opłata rejestracyjna firmy, a przy rejestracji na konto Travel Advantage trafia 120 punktów; dalej abonament $120 miesięcznie (każde przedłużenie daje 120 punktów). Cel: zarejestrować Elite lub umówić następny krok.",
   hiddenContext:
-    "Przyjaciółka Ireny zainwestowała w podobny klub, obiecano jej zwrot w dwa miesiące, a wyjść udało się dopiero po pół roku. Mąż Ireny jest przeciw wszelkim „schematom” — to jej ukryte zastrzeżenie. Fakty do samodzielnego sprawdzenia: Elite — $340 ($100 opłata dla firmy, $240 w punktach na konto Travel Advantage), abonament $120 miesięcznie; zarobek jest możliwy tylko z rozwijania własnej sieci, gwarancji nie ma.",
+    "Przyjaciółka Ireny zainwestowała w podobny klub, obiecano jej zwrot w dwa miesiące, a wyjść udało się dopiero po pół roku. Mąż Ireny jest przeciw wszelkim „schematom” — to jej ukryte zastrzeżenie. Fakty do samodzielnego sprawdzenia: Elite — $340 ($100 opłata dla firmy, 120 punktów na konto Travel Advantage przy rejestracji), abonament $120 miesięcznie (przedłużenie daje 120 punktów); zarobek jest możliwy tylko z rozwijania własnej sieci, gwarancji nie ma.",
   nodes: {
     n1: {
       text: "Halo? Tak, mówi Irena. To w sprawie tego klubu podróży?.. To znowu marketing sieciowy?",
@@ -76,7 +76,7 @@ export const mini: MiniText = {
       text: "No dobrze, załóżmy, że jeżdżę przynajmniej raz w roku. A ile kosztuje wejście? I jakie mam gwarancje, że nie stracę pieniędzy?",
       hint: "Słowo „gwarancje” to pułapka. Co naprawdę możesz zagwarantować, a czego nie?",
       choices: {
-        a: { text: "Elite to $340: $100 to opłata rejestracyjna firmy, $240 to punkty na twoje konto Travel Advantage, dalej abonament $120 miesięcznie. Oszczędności nie gwarantuję, ale sprawdźmy na twojej ostatniej podróży: dokąd jechałaś i ile zapłaciłaś?", technique: "Uczciwa odpowiedź + sprawdzenie na jej danych", coachNote: "Cena podana wprost, gwarancji nie zmyślono, sprawdzenie jest na jej liczbach. Dla analityka to ideał." },
+        a: { text: "Elite to $340: $100 to opłata rejestracyjna firmy, na twoje konto Travel Advantage trafia 120 punktów, dalej abonament $120 miesięcznie, a każde przedłużenie daje kolejne 120 punktów. Oszczędności nie gwarantuję, ale sprawdźmy na twojej ostatniej podróży: dokąd jechałaś i ile zapłaciłaś?", technique: "Uczciwa odpowiedź + sprawdzenie na jej danych", coachNote: "Cena podana wprost, gwarancji nie zmyślono, sprawdzenie jest na jej liczbach. Dla analityka to ideał." },
         b: { text: "To inwestycja, zwróci się już z pierwszej podróży — gwarantuję.", mistake: "Fałszywa obietnica", coachNote: "Słowo „gwarantuję” to tu prosta droga do skargi i zwrotu." },
         c: { text: "$340 i jeszcze $120 miesięcznie. Decyduj sama.", mistake: "Chłodne podanie", coachNote: "Liczba bez wartości i bez troski — klientka zostaje sam na sam z wątpliwościami." },
         d: { text: "Nie mówmy o pieniądzach, tylko o emocjach: wyobraź sobie siebie na Bali o zachodzie słońca...", mistake: "Unikanie pytania", coachNote: "Analityczka zadała konkretne pytanie — odpowiedź „o emocjach” ją irytuje." },
@@ -97,7 +97,7 @@ export const mini: MiniText = {
       hint: "Teraz potrzebny jest jasny, łagodny następny krok — bez presji i bez zmyślonej rzadkości.",
       choices: {
         a: { text: "Proponuję tak: najpierw prześlę wyliczenie dla twojej Turcji, a jeśli liczby ci odpowiadają — razem zarejestrujemy Elite. Zgoda?", technique: "Zamknięcie na weryfikowalny krok", coachNote: "Klientka sama decyduje na liczbach — sprzedaż bez ryzyka zwrotu." },
-        b: { text: "Elite można zarejestrować już dziś: $340, z czego $100 to rejestracja, a $240 to punkty na konto Travel Advantage, dalej $120 miesięcznie. Wszystkie warunki prześlę na piśmie. Pasuje?", technique: "Zamknięcie z alternatywą", coachNote: "Wszystkie płatności nazwano wprost, warunki są na piśmie. Dobra druga droga do wygranej." },
+        b: { text: "Elite można zarejestrować już dziś: $340; $100 to opłata dla firmy, a na konto Travel Advantage trafia 120 punktów, dalej $120 miesięcznie. Wszystkie warunki prześlę na piśmie. Pasuje?", technique: "Zamknięcie z alternatywą", coachNote: "Wszystkie płatności nazwano wprost, warunki są na piśmie. Dobra druga droga do wygranej." },
         c: { text: "Świetnie! Tylko dziś zostały 2 miejsca w promocji!", mistake: "Kłamstwo o rzadkości", coachNote: "Zmyślona rzadkość niszczy zaufanie, które dopiero co zdobyto." },
         d: { text: "Dobrze. Prześlij paszport i dane karty od razu — zarejestruję.", mistake: "Presja na tempo", coachNote: "Proszenie o dane karty przez telefon to zbyt gwałtowny krok wobec klientki, która dopiero co ochłonęła." },
       },
