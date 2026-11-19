@@ -175,5 +175,6 @@ const en: Record<string, string> = {
   "Пропустить": "Skip",
   "Начать": "Start",
   "Далее": "Next",
+  "Живых игр с ИИ осталось сегодня: {left} из {max}. Обновится в {time}.": "Live AI games left today: {left} of {max}. Resets at {time}.",
 };
 export default en;

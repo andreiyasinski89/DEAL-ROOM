@@ -162,6 +162,37 @@ describe("AI daily quota (ai_consume)", () => {
   });
 });
 
+describe("AI quota status (ai_status)", () => {
+  const D = "00000000-0000-0000-0000-00000000000d";
+  it("is read-only and reflects what ai_consume has counted", async () => {
+    await db.exec(`insert into auth.users (id, email) values ('${D}', 'dora@example.com')`);
+    await as(D, async () => {
+      expect(await rpc("ai_status")).toMatchObject({ ok: true, sessions_used: 0, sessions_left: 10, turns_used: 0, turns_left: 200 });
+      await rpc("ai_consume", true);
+      await rpc("ai_consume", false);
+      await rpc("ai_consume", true);
+      expect(await rpc("ai_status")).toMatchObject({ sessions_used: 2, sessions_left: 8, turns_used: 3, turns_left: 197 });
+      // asking many times changes nothing
+      for (let i = 0; i < 5; i++) await rpc("ai_status");
+      expect(await rpc("ai_status")).toMatchObject({ sessions_used: 2, turns_used: 3 });
+    });
+  });
+  it("uses the limits it is given and never goes below zero", async () => {
+    await as(D, async () => {
+      expect(await rpc("ai_status", 2, 3)).toMatchObject({ sessions_left: 0, turns_left: 0 });
+      expect(await rpc("ai_status", 50, 500)).toMatchObject({ sessions_left: 48, turns_left: 497 });
+    });
+  });
+  it("shows each player only their own numbers; anonymous visitors are refused", async () => {
+    await as(A, async () => {
+      expect(await rpc("ai_status")).toMatchObject({ sessions_used: 0, turns_used: 0 });
+    });
+    await as(null, async () => {
+      expect(await denied(() => rpc("ai_status"))).toMatch(/permission denied/);
+    });
+  });
+});
+
 describe("teams", () => {
   let code = "";
   let teamId = "";

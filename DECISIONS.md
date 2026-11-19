@@ -112,3 +112,10 @@
 - **Bug avoided:** the hosting headers had `Permissions-Policy: microphone=()`, which would have blocked the microphone on the deployed site. Now `microphone=(self)` in `vercel.json` and `netlify.toml`, guarded by a test.
 - **Limits raised to 10 live games and 200 turns per day** (was 5/120; 10 games x 14 turns + a debrief each = 150). The Edge Function now passes the limits to `ai_consume()` explicitly from `LIMITS`, so changing them needs only a function redeploy, no SQL; the SQL defaults (003) were updated for fresh installs.
 - **E2E for dictation** fakes the signed-in session, the cloud function (`page.route`) and the recognition class (both the standard and the prefixed name, because Chrome has both). It is skipped when `.env.local` is missing, because the build must know the cloud.
+
+## Live-games badge on the main screen
+
+- **`ai_status()`** (`005_ai_status.sql`): a read-only SECURITY DEFINER function returning today's used/left sessions and turns for the caller. Limits are passed by the app (from `LIMITS`), like for `ai_consume()`, so they stay in one place. Tested on real Postgres (24 SQL tests): it never changes a counter, each player sees only their own numbers, anonymous callers are refused, `left` never goes below zero.
+- **Badge** in the menu header (icon + `7/10`, tone ok / low (≤ 3 games or < 25 % of turns) / empty, tooltip with the reset time as a local clock time, i18n RU/EN/PL). Refetched whenever the main screen is shown. Hidden when signed out, when the cloud is off, or when the migration has not been run: a quota badge must never produce an error message.
+- **`LIMITS` moved to `supabase/functions/_shared/limits.ts`** (re-exported from `live.ts`) so the menu can show the numbers without bundling the prompts.
+- Reset time is the next UTC midnight (the database day, `current_date`).

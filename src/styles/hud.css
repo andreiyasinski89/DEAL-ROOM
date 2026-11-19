@@ -251,3 +251,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* dictation: the mic button pulses while listening */
 .btn.rec { border-color: var(--hud-red); color: var(--hud-red); background: rgba(255, 77, 94, 0.12); animation: recpulse 1.2s ease-in-out infinite; }
 @keyframes recpulse { 50% { box-shadow: 0 0 16px rgba(255, 77, 94, 0.6); } }
+
+/* live-games badge in the menu header */
+.tag.quota { display: inline-flex; align-items: center; gap: 4px; cursor: help; padding: 3px 8px; }
+.tag.quota.ok { color: var(--hud-cyan); border-color: rgba(63, 224, 255, 0.45); }
+.tag.quota.low { color: var(--hud-gold); border-color: rgba(255, 181, 71, 0.6); }
+.tag.quota.empty { color: var(--hud-red); border-color: rgba(255, 77, 94, 0.7); }

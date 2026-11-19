@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
-import { Flame, GraduationCap, Lock, User, Users } from "lucide-react";
+import { Bot, Flame, GraduationCap, Lock, User, Users } from "lucide-react";
 import type { Scenario } from "../engine/types";
 import { LANGS, T, useI18n } from "../i18n";
 import { Panel } from "./parts";
 import { CHANNEL_LABEL } from "./labels";
+import { nextResetLocal, quotaTone, type Quota } from "../live/quota";
 import { isLevelUnlocked, UNLOCK_N, type Progress } from "./progress";
 
 const LEVELS = [T("Стажёр"), T("Новичок"), T("Практик"), T("Профи"), T("Акула")];
@@ -31,6 +32,7 @@ export function Menu({
   sound,
   onSound,
   onTutorial,
+  quota,
 }: {
   scenarios: Scenario[];
   progress: Progress;
@@ -48,6 +50,8 @@ export function Menu({
   sound: boolean;
   onSound: (v: boolean) => void;
   onTutorial: () => void;
+  /** Remaining live (AI) games today; null when signed out or not available. */
+  quota: Quota | null;
 }) {
   const { tr, lang, setLang } = useI18n();
   // start on the highest unlocked level that still has unplayed cases
@@ -87,6 +91,16 @@ export function Menu({
           <button className="icon-btn" onClick={onProfile}>
             <User size={12} /> {tr("Профиль")} · {rank}
           </button>
+          {quota && (
+            <span
+              className={`tag quota ${quotaTone(quota)}`}
+              role="status"
+              title={tr("Живых игр с ИИ осталось сегодня: {left} из {max}. Обновится в {time}.", { left: quota.sessionsLeft, max: quota.sessionsMax, time: nextResetLocal(new Date(), lang) })}
+              aria-label={tr("Живых игр с ИИ осталось сегодня: {left} из {max}. Обновится в {time}.", { left: quota.sessionsLeft, max: quota.sessionsMax, time: nextResetLocal(new Date(), lang) })}
+            >
+              <Bot size={11} aria-hidden /> {quota.sessionsLeft}/{quota.sessionsMax}
+            </span>
+          )}
           <span className="tag cyan">
             {tr("ПРОЙДЕНО")} {done}/{scenarios.length}
           </span>

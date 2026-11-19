@@ -2,6 +2,7 @@ import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } fro
 import { TUTORIAL_ID } from "./content/ids";
 import { loadSoundSetting, play, setSoundEnabled } from "./sound";
 import { dailyCase, dailyDone, makeRecord, mergeRecords, rankFor, streakDays, totalPoints, unlockedAchievements, type SessionRecord } from "./engine/profile";
+import { fetchQuota, type Quota } from "./live/quota";
 import { loadLocal, newId, saveLocal, syncSessions, uploadAchievements, uploadSession } from "./features/account/sessions";
 import { cloudConfigured, supabase } from "./features/account/supabase";
 import { useAuth } from "./features/account/useAuth";
@@ -85,6 +86,7 @@ function Game({ lib }: { lib: Lib }) {
   const [runId, setRunId] = useState(0);
   const [game, setGame] = useState<FinishedGame | null>(null);
   const [syncNote, setSyncNote] = useState("");
+  const [quotaRaw, setQuotaRaw] = useState<Quota | null>(null);
   const recordsRef = useRef(records);
   useEffect(() => {
     recordsRef.current = records;
@@ -151,6 +153,17 @@ function Game({ lib }: { lib: Lib }) {
     };
   }, [userId]);
 
+  // remaining live (AI) games: refreshed every time the main screen is shown (e.g. after a live game)
+  useEffect(() => {
+    if (!userId || screen !== "menu") return;
+    let alive = true;
+    void fetchQuota().then((q) => alive && setQuotaRaw(q));
+    return () => {
+      alive = false;
+    };
+  }, [userId, screen]);
+  const quota = userId ? quotaRaw : null;
+
   const select = useCallback((id: string) => {
     setSelectedId(id);
     setScreen("briefing");
@@ -216,6 +229,7 @@ function Game({ lib }: { lib: Lib }) {
           sound={sound}
           onSound={changeSound}
           onTutorial={startTutorial}
+          quota={quota}
         />
       )}
       {screen === "profile" && (
