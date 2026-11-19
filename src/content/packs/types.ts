@@ -1,0 +1,94 @@
+import type { Channel } from "../../engine/types";
+import type { Lang } from "../../i18n";
+import type { Beat, BeatTag } from "../data/beats";
+import type { Vocab } from "../data/vocab";
+
+/**
+ * A language pack holds EVERY piece of scenario text for one language. Russian is assembled from the
+ * original data modules; the other languages are full translations with exactly the same shape, so
+ * TypeScript refuses an incomplete pack and the tests check placeholders and facts.
+ *
+ * Placeholders in text: {name} {product} {productAcc} {next} {proof} {third} {thirdWho}
+ *                       {tier} {tierPrice} {tierPoints} {fee} {sub}
+ * Gender (the speaker is the client): Russian uses «сказал(а)»; every language may use {male|female}.
+ */
+export type VocabText = Pick<Vocab, "label" | "product" | "productAcc" | "next" | "proof" | "third" | "thirdWho" | "brief" | "open">;
+
+export type PersonaText = {
+  name: string;
+  profession: string;
+  psychotype: string;
+  pain: string;
+  hiddenMotive: string;
+  redButton: string;
+  goldenKey: string;
+  /** Vocative of the name for greetings ("Dzień dobry, Olgo!"); defaults to the name. */
+  voc?: string;
+};
+
+export type Psy = "analyst" | "driver" | "expressive" | "peacemaker";
+
+type Move = { t: string; mistake: string; note: string };
+type Tech = { sell: string; retain: string; tech: string; note: string };
+type End = { text: string; reason: string };
+
+export type Tpl = {
+  /** Opening and closing quotation marks used around a spoken line. */
+  quote: [string, string];
+  /** "{name}: {label}", the case title. */
+  title: string;
+  /** "per month" after the subscription amount: "{sub}" = "$120 " + this. */
+  perMonth: string;
+  /** Title of the tutorial case ("Case 0"). */
+  tutorialTitle: string;
+  channel: Record<Channel, string>;
+  /** Each psychotype colours some client lines: 4 variants of a prefix and of a suffix. */
+  voice: Record<Psy, { pre: string[]; post: string[] }>;
+  hint: { trust: string; value: string; other: string; rec: string; open: string; close: string };
+  /** Prefix of a hidden objection when the client finally says it. */
+  reveal: string;
+  open: { a: Tech; b: Tech; c: Move; d: Move; lostText: string; lostReason: string };
+  close: { soft: string; hard: string; a: Tech; b: Tech; c: Move; d: Move };
+  endings: {
+    saleClean: { sell: End; retain: End };
+    saleSoft: { sell: End; retain: End };
+    partialNext: { sell: End; retain: End };
+    partialVague: End;
+    lostClose: End;
+  };
+  /** "{name}: «{bye}»" and "GAME OVER: {why}" with the right quotes. */
+  /** Automatic endings when irritation maxes out / trust hits zero. */
+  autoEnd: { irritation: { text: string; reason: string }; trust: { text: string; reason: string } };
+  lostBye: string;
+  gameOver: string;
+  briefing: { channelWord: string; firstStep: string; goal: string; known: string };
+  hidden: { objection: string; red: string; gold: string; facts: string; level5: string };
+};
+
+/** Hand-written level-3 case "Skeptic accountant": its texts per language (the graph is shared). */
+export type MiniText = {
+  title: string;
+  persona: PersonaText;
+  briefing: string;
+  hiddenContext: string;
+  nodes: Record<
+    string,
+    {
+      text: string;
+      hint?: string;
+      /** Ending reason (for ending nodes). */
+      reason?: string;
+      choices?: Record<string, { text: string; technique?: string; mistake?: string; coachNote: string }>;
+    }
+  >;
+};
+
+export type ContentPack = {
+  lang: Lang;
+  beats: Record<BeatTag, Beat>;
+  vocab: Record<string, VocabText>;
+  personas: Record<string, PersonaText>;
+  tpl: Tpl;
+  /** null for Russian: the mini-case source IS Russian. */
+  mini: MiniText | null;
+};

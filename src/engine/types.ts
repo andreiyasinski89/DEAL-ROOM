@@ -26,6 +26,8 @@ export type Choice = {
   quality: Quality;
   technique?: string;
   mistake?: string;
+  /** Language-independent code of the mistake (drives the growth advice in the debrief). */
+  mistakeCode?: string;
   coachNote: string;
 };
 
@@ -64,6 +66,8 @@ export type Persona = {
   goldenKey: string;
 };
 
+export type AutoEnd = { irritation: { text: string; reason: string }; trust: { text: string; reason: string } };
+
 export type Scenario = {
   id: string;
   title: string;
@@ -74,6 +78,8 @@ export type Scenario = {
   objectionTags: string[];
   briefing: string;
   hiddenContext: string;
+  /** Texts of the automatic endings (scale limits); Russian is used when absent. */
+  autoEnd?: AutoEnd;
   initialState: { trust: number; interest: number; irritation: number; flags: Record<string, boolean> };
   startNodeId: string;
   nodes: Record<string, ScenarioNode>;
@@ -88,6 +94,7 @@ export type HistoryEntry = {
   quality: Quality;
   technique?: string;
   mistake?: string;
+  mistakeCode?: string;
   coachNote: string;
   delta: { trust: number; interest: number; irritation: number };
   after: { trust: number; interest: number; irritation: number };

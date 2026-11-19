@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { handleLive, type Deps } from "./handler.ts";
 import {
-  CLIENT_SYSTEM, CURRENCY_RULE, DEBRIEF_SYSTEM, LIMITS, MWR_FACTS, clean, mentionsRubles, clientUser, ethicsViolation, parseRequest, validateDebrief, validateEval,
+  CLIENT_SYSTEM, CURRENCY_RULE, DEBRIEF_SYSTEM, debriefSystem, LIMITS, MWR_FACTS, clean, mentionsRubles, clientUser, ethicsViolation, parseRequest, validateDebrief, validateEval,
   type LiveRequest,
 } from "./live.ts";
 
@@ -320,4 +320,96 @@ describe("currency: dollars or euros only", () => {
     expect(r.status).toBe(502);
     expect(await r.json()).toMatchObject({ error: "bad_model_output", detail: expect.stringContaining("USD/EUR") });
   });
+});
+
+describe("languages: ru, en, pl, uk", () => {
+  it("the request carries the language (Russian when missing or unknown)", () => {
+    expect(req().lang).toBe("ru");
+    expect(req({ lang: "xx" as never }).lang).toBe("ru");
+    for (const lang of ["ru", "en", "pl", "uk"] as const) expect(req({ lang }).lang).toBe(lang);
+  });
+
+  it.each([
+    ["ru", "по-русски"],
+    ["en", "English"],
+    ["pl", "polski"],
+    ["uk", "українською"],
+  ] as const)("the client prompt tells the model to speak %s", (lang, word) => {
+    const sys = CLIENT_SYSTEM(req().scenario, lang);
+    expect(sys).toContain(word);
+    expect(sys).toContain(CURRENCY_RULE);
+  });
+
+  it("the debrief prompt names the language and the word for a turn", () => {
+    expect(debriefSystem("en")).toContain("English");
+    expect(debriefSystem("en")).toContain("Turn 3");
+    expect(debriefSystem("pl")).toContain("Ruch 3");
+    expect(debriefSystem("uk")).toContain("Хід 3");
+    expect(debriefSystem("uk")).toContain(CURRENCY_RULE);
+  });
+
+  it.each([
+    "I guarantee you'll earn it back in two months",
+    "We guarantee a full refund",
+    "It will pay for itself quickly",
+    "You will earn $3000 a month",
+    "Only 2 spots left today",
+    "Take out a loan, it's an investment",
+    "Gwarantuję, że to się zwróci",
+    "Zarobisz $2000 miesięcznie",
+    "Zostało tylko 2 miejsca",
+    "Weź kredyt, to inwestycja",
+    "Гарантую, що це окупиться",
+    "Ви заробите $2000 на місяць",
+    "Залишилося лише 2 місця",
+    "Візьміть кредит, це інвестиція",
+  ])("flags a promise in any language: %s", (t) => expect(ethicsViolation(t)).not.toBeNull());
+
+  it.each([
+    "I don't guarantee savings, but let's check your last trip",
+    "There are no income guarantees here",
+    "Elite is $340: $100 is the company's fee",
+    "Oszczędności nie gwarantuję, ale sprawdźmy ostatnią podróż",
+    "Gwarancji dochodu nie ma",
+    "Економію не гарантую, але давайте перевіримо",
+    "Гарантій доходу немає",
+  ])("does not flag honest wording: %s", (t) => expect(ethicsViolation(t)).toBeNull());
+
+  it("the mistake label and the added note are in the language of the conversation", () => {
+    const raw = { reply: "Hmm.", trustDelta: 5, interestDelta: 3, irritationDelta: -2, quality: "excellent", coachNote: "Nice.", isEnding: false };
+    const en = validateEval(raw, req({ lang: "en", player: "I guarantee it will pay for itself" }))!;
+    expect(en.mistake).toBe("False promise (auto-check)");
+    expect(en.coachNote).toContain("Never promise income");
+    const pl = validateEval(raw, req({ lang: "pl", player: "Gwarantuję zwrot" }))!;
+    expect(pl.mistake).toBe("Fałszywa obietnica (autokontrola)");
+    const uk = validateEval(raw, req({ lang: "uk", player: "Гарантую дохід" }))!;
+    expect(uk.mistake).toBe("Хибна обіцянка (автоперевірка)");
+    expect(ethicsViolation("Гарантирую", "ru")).toBe("Ложное обещание (автопроверка)");
+  });
+
+  it("an empty coach note falls back to a message in the language", () => {
+    const raw = { reply: "Hmm.", trustDelta: 1, interestDelta: 1, irritationDelta: 0, quality: "good", coachNote: "", isEnding: false };
+    expect(validateEval(raw, req({ lang: "en" }))!.coachNote).toBe("The move rating is unavailable.");
+    expect(validateEval(raw, req({ lang: "uk" }))!.coachNote).toBe("Оцінка ходу недоступна.");
+  });
+
+  it.each([
+    "The flight cost about 90,000 rubles",
+    "Hotel for 4000 roubles",
+    "It was 500 hryvnias in total",
+    "Lot kosztował 900 złotych",
+    "Hotel za 500 zł",
+    "Bilet kosztował 3000 rubli",
+    "Переліт обійшовся у 2000 гривень",
+    "Готель за 800 грн",
+    "Це 5000 ₴ за поїздку",
+  ])("detects other currencies in any language: %s", (t) => expect(mentionsRubles(t)).toBe(true));
+
+  it.each([
+    "The flight cost about $1,200 and the hotel €900",
+    "Lot kosztował około $1 200, hotel — €900",
+    "Obietnice „złotych gór” nikogo nie przekonują",
+    "Переліт коштував приблизно $1 200, готель — €900",
+    "Золоті гори нікого не переконують",
+  ])("does not flag dollars, euros or idioms: %s", (t) => expect(mentionsRubles(t)).toBe(false));
 });

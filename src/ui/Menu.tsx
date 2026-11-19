@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Bot, Flame, GraduationCap, Lock, User, Users } from "lucide-react";
 import type { Scenario } from "../engine/types";
-import { LANGS, T, useI18n } from "../i18n";
+import { LANGS, LOCALE, T, useI18n } from "../i18n";
 import { Panel } from "./parts";
 import { CHANNEL_LABEL } from "./labels";
 import { nextResetLocal, quotaTone, type Quota } from "../live/quota";
@@ -95,8 +95,8 @@ export function Menu({
             <span
               className={`tag quota ${quotaTone(quota)}`}
               role="status"
-              title={tr("Живых игр с ИИ осталось сегодня: {left} из {max}. Обновится в {time}.", { left: quota.sessionsLeft, max: quota.sessionsMax, time: nextResetLocal(new Date(), lang) })}
-              aria-label={tr("Живых игр с ИИ осталось сегодня: {left} из {max}. Обновится в {time}.", { left: quota.sessionsLeft, max: quota.sessionsMax, time: nextResetLocal(new Date(), lang) })}
+              title={tr("Живых игр с ИИ осталось сегодня: {left} из {max}. Обновится в {time}.", { left: quota.sessionsLeft, max: quota.sessionsMax, time: nextResetLocal(new Date(), LOCALE[lang]) })}
+              aria-label={tr("Живых игр с ИИ осталось сегодня: {left} из {max}. Обновится в {time}.", { left: quota.sessionsLeft, max: quota.sessionsMax, time: nextResetLocal(new Date(), LOCALE[lang]) })}
             >
               <Bot size={11} aria-hidden /> {quota.sessionsLeft}/{quota.sessionsMax}
             </span>

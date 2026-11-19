@@ -6,6 +6,7 @@ import { fetchQuota, type Quota } from "./live/quota";
 import { loadLocal, newId, saveLocal, syncSessions, uploadAchievements, uploadSession } from "./features/account/sessions";
 import { cloudConfigured, supabase } from "./features/account/supabase";
 import { useAuth } from "./features/account/useAuth";
+import { useI18n, type Lang } from "./i18n";
 import { Boot } from "./ui/Boot";
 import type { FinishedGame } from "./ui/Deal";
 import { loadProgress, type Progress } from "./ui/progress";
@@ -13,7 +14,7 @@ import type { LiveAccess } from "./ui/screens";
 
 // Everything beyond the boot screen is loaded on demand, and the heavy parts are fetched
 // while the boot animation plays: the first paint only needs React and a few KB of code.
-const loadContent = () => import("./content/bundle");
+const loadContent = (lang: Lang) => import("./content/bundle").then((m) => m.loadLibrary(lang));
 const Menu = lazy(() => import("./ui/Menu").then((m) => ({ default: m.Menu })));
 const Briefing = lazy(() => import("./ui/screens").then((m) => ({ default: m.Briefing })));
 const Deal = lazy(() => import("./ui/Deal").then((m) => ({ default: m.Deal })));
@@ -49,16 +50,20 @@ const Loading = () => (
 );
 
 export default function App() {
+  const { lang } = useI18n();
   const [lib, setLib] = useState<Lib | null>(null);
   const [booted, setBooted] = useState(() => !!read("session", "dr_booted"));
 
+  // The scenario library is per language; the previous one stays on screen until the new one is ready.
   useEffect(() => {
     let alive = true;
-    void loadContent().then((m) => alive && setLib(m));
-    void import("./ui/Menu"); // warm up the first screen
+    void loadContent(lang).then((m) => alive && setLib(m));
     return () => {
       alive = false;
     };
+  }, [lang]);
+  useEffect(() => {
+    void import("./ui/Menu"); // warm up the first screen
   }, []);
 
   const bootDone = useCallback(() => {
@@ -77,6 +82,11 @@ export default function App() {
 function Game({ lib }: { lib: Lib }) {
   const { allScenarios, scenarioById, tutorialCase } = lib;
   const auth = useAuth();
+  const { tr } = useI18n();
+  const trRef = useRef(tr);
+  useEffect(() => {
+    trRef.current = tr;
+  }, [tr]);
   const [screen, setScreen] = useState<Screen>("menu");
   const [fx, setFx] = useState(() => read("local", "dr_fx") !== "off");
   const [free, setFree] = useState(() => read("local", "dr_free") === "on");
@@ -146,7 +156,7 @@ function Game({ lib }: { lib: Lib }) {
       setRecords(res.records);
       saveLocal(res.records);
       const err = res.error ?? (await uploadAchievements(supabase!, userId, unlockedAchievements(res.records)));
-      if (alive) setSyncNote(err ? `Синхронизация не удалась: ${err}` : `Синхронизировано. Загружено игр: ${res.uploaded}.`);
+      if (alive) setSyncNote(err ? trRef.current("Синхронизация не удалась: {err}", { err }) : trRef.current("Синхронизировано. Загружено игр: {n}.", { n: res.uploaded }));
     })();
     return () => {
       alive = false;
@@ -184,7 +194,7 @@ function Game({ lib }: { lib: Lib }) {
       setRecords(next);
       saveLocal(next);
       if (supabase && userId) {
-        void uploadSession(supabase, userId, rec).then((err) => err && setSyncNote(`Игра сохранена только локально: ${err}`));
+        void uploadSession(supabase, userId, rec).then((err) => err && setSyncNote(trRef.current("Игра сохранена только локально: {err}", { err })));
         void uploadAchievements(supabase, userId, unlockedAchievements(next));
       }
     },
@@ -233,7 +243,7 @@ function Game({ lib }: { lib: Lib }) {
         />
       )}
       {screen === "profile" && (
-        <Profile records={records} scenarios={allScenarios} auth={auth} syncNote={syncNote} onBack={toMenu} onOpenCase={select} />
+        <Profile records={records} scenarios={allScenarios} tagLabels={lib.tagLabels} auth={auth} syncNote={syncNote} onBack={toMenu} onOpenCase={select} />
       )}
       {screen === "team" && <TeamScreen scenarios={allScenarios} auth={auth} onBack={toMenu} onPlay={select} />}
       {screen === "briefing" && <Briefing scenario={scenario} onBack={toMenu} onStart={start} live={liveAccess} onLive={startLive} />}

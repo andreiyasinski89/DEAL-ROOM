@@ -1,9 +1,10 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { translate } from "./index";
+import { loadDict, translate } from "./index";
 import en from "./en";
 import pl from "./pl";
+import uk from "./uk";
 
 const root = join(__dirname, "..");
 
@@ -36,17 +37,17 @@ describe("translations", () => {
     expect(keys.size).toBeGreaterThan(100);
   });
 
-  it.each([["en", en], ["pl", pl]] as const)("%s has a translation for every text used in the app", (_l, dict) => {
+  it.each([["en", en], ["pl", pl], ["uk", uk]] as const)("%s has a translation for every text used in the app", (_l, dict) => {
     const missing = [...keys].filter((k) => !(k in dict) || !dict[k].trim());
     expect(missing).toEqual([]);
   });
 
-  it.each([["en", en], ["pl", pl]] as const)("%s keeps the {placeholders} of the original", (_l, dict) => {
+  it.each([["en", en], ["pl", pl], ["uk", uk]] as const)("%s keeps the {placeholders} of the original", (_l, dict) => {
     const bad = [...keys].filter((k) => k in dict && vars(k) !== vars(dict[k]));
     expect(bad).toEqual([]);
   });
 
-  it.each([["en", en], ["pl", pl]] as const)("%s has no stale entries (texts nobody uses)", (_l, dict) => {
+  it.each([["en", en], ["pl", pl], ["uk", uk]] as const)("%s has no stale entries (texts nobody uses)", (_l, dict) => {
     expect(Object.keys(dict).filter((k) => !keys.has(k))).toEqual([]);
   });
 
@@ -55,11 +56,24 @@ describe("translations", () => {
     for (const [name, dict] of [["en", en], ["pl", pl]] as const)
       for (const [k, v] of Object.entries(dict)) if (/[А-Яа-яЁё]/.test(v) && !allowed.has(k)) throw new Error(`${name}: "${k}" → "${v}"`);
   });
+
+  it("Ukrainian texts use no Russian-only letters (ы э ъ ё)", () => {
+    for (const [k, v] of Object.entries(uk)) if (/[ыэъёЫЭЪЁ]/.test(v)) throw new Error(`uk: "${k}" → "${v}"`);
+  });
+
+  it("Ukrainian texts are really translated (not the Russian original), except shared words", () => {
+    const same = Object.entries(uk).filter(([k, v]) => k === v && /[А-Яа-яЁё]/.test(k) && k.length > 12 && k !== "через {n} дн.");
+    expect(same.map(([k]) => k)).toEqual([]);
+  });
 });
 
 describe("translate()", () => {
   it("returns Russian as is and fills variables", () => {
     expect(translate("ru", "Ход {n}", { n: 3 })).toBe("Ход 3");
+  });
+  it("loads a dictionary on demand and then translates", async () => {
+    await loadDict("pl");
+    expect(translate("pl", "Назад")).toBe("Wstecz");
   });
   it("falls back to the Russian text when a translation is missing", () => {
     expect(translate("en", "нет такого перевода")).toBe("нет такого перевода");

@@ -102,14 +102,14 @@ export function Debrief({
   /** Present only when the AI mode is available (signed in, cloud configured). */
   onLive?: () => void;
 }) {
+  const { tr } = useI18n();
   const d = useMemo(
-    () => buildDebrief(scenario, game.state, game.outcome, game.reason, game.durationSec),
-    [scenario, game],
+    () => buildDebrief(scenario, game.state, game.outcome, game.reason, game.durationSec, tr),
+    [scenario, game, tr],
   );
   const best = useMemo(() => bestPath(scenario), [scenario]);
   const bestLocked = scenario.level >= 4 && attempts < 2;
 
-  const { tr } = useI18n();
   const [view, setView] = useState<View>("stories");
   const [intro, setIntro] = useState(fx);
   const [idx, setIdx] = useState(0);
@@ -183,7 +183,7 @@ export function Debrief({
 
   const savePng = useCallback(async () => {
     try {
-      const blob = await renderStoryPng(d, scenario.title, scenario.persona.name);
+      const blob = await renderStoryPng(d, scenario.title, scenario.persona.name, tr);
       download(blob, `deal-room-${scenario.id}.png`);
       setMsg(tr("Картинка 9:16 сохранена"));
     } catch {

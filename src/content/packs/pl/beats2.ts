@@ -1,0 +1,167 @@
+import type { Beat, BeatTag } from "../../data/beats";
+
+/** Polska baza zastrzeżeń, część 2. */
+export const beats2: Partial<Record<BeatTag, Beat>> = {
+  trust: {
+    label: "„Czy można ci wierzyć?”", family: "trust",
+    soft: ["Skąd mam wiedzieć, że mogę zaufać tobie i firmie?", "Nie znam cię. Dlaczego mam ci wierzyć?"],
+    hard: ["Takich jak ty jest wielu. Dlaczego mam ci wierzyć? Udowodnij.", "Firma jest zagraniczna, a ty to po prostu ktoś z internetu. Udowodnij, że to nie oszustwo."],
+    opts: [
+      { t: "Słusznie. Nie wierz na słowo: pokażę {proof}, sam sprawdzisz.", tech: "Zaufanie przez weryfikowalność", note: "Nie prosisz o wiarę, tylko dajesz możliwość sprawdzenia." },
+      { t: "Pracuję w tym od dawna, mogę opowiedzieć, jak korzystam z konta na co dzień, i pokazać warunki.", tech: "Własne doświadczenie", note: "Działa, ale bez dokumentów osobiste doświadczenie brzmi słabo." },
+      { t: "Co, nie wierzysz mi? To uczciwa sprawa, po co miałoby tu być oszustwo, zajmuję się tym nie od dziś.", mistake: "Usprawiedliwianie / obraza", note: "Obraza stawia klienta w roli winnego." },
+      { t: "Mogę przysiąc, że wszystko będzie dokładnie tak, jak mówię, i żadnych problemów nie będzie.", mistake: "Fałszywa obietnica", note: "Przysięgi zamiast faktów tylko wzmacniają nieufność." },
+    ],
+    push: ["To same słowa. Masz coś konkretnego?", "Słowa. A papiery?"],
+    rec: [
+      { t: "Trzymajmy się faktów: oto {proof}. Pytaj o cokolwiek — odpowiem albo uczciwie powiem, że nie wiem.", tech: "Fakty + uczciwość co do granic", note: "Przyznanie granic własnej wiedzy zwiększa zaufanie." },
+      { t: "U nas wszystko jest w porządku, po prostu uwierz.", mistake: "Ignorowanie zastrzeżenia", note: "„Po prostu uwierz” to sygnał, że dowodów nie ma." },
+      { t: "Jeśli mi nie ufasz, to po co w ogóle rozmawiamy?", mistake: "Presja", note: "Ultimatum zamyka rozmowę." },
+    ],
+    bye: "Potrzebuję dowodów, a nie słów. Wszystkiego dobrego.", why: "Zaufanie nie zostało poparte dokumentami i faktami.",
+  },
+  mlm_stigma: {
+    label: "„To marketing sieciowy?”", family: "trust",
+    soft: ["Chwileczkę... to marketing sieciowy?", "To coś przypomina sieć. Dobrze rozumiem?"],
+    hard: ["To piramida, tak? Tylko szczerze — już coś takiego widział{em|am}.", "Marketing sieciowy to nie mój poziom. Powiedz wprost: to to?"],
+    opts: [
+      { t: "Tak, to model sieciowy, nie będę tego ukrywać. Co dokładnie cię w tym niepokoi?", tech: "Przyznanie racji + doprecyzowanie", note: "Przyznano oczywistość i zapytano o przyczynę wątpliwości — zaufanie rośnie." },
+      { t: "Tak, model jest sieciowy. Można korzystać jako klient, a można budować sieć. Pokażę dokumenty, a ty sam wyciągniesz wnioski.", tech: "Fakty i dokumenty", note: "Poprawnie co do sensu, ale bez pytania o jego obawy." },
+      { t: "To nie piramida, tylko nowoczesny biznes! Po prostu nie zgłębił{eś|aś} tematu, w rzeczywistości to legalny i sprawdzony model.", mistake: "Spór", note: "Spór o terminy nie usuwa strachu klienta, a słów o „legalności” nie jesteś w stanie udowodnić." },
+      { t: "Nie, nie, skąd, to coś zupełnie innego — zamknięty klub dla podróżników!", mistake: "Kłamstwo", note: "Zaprzeczenie modelu sieciowego to kłamstwo, które łatwo sprawdzić." },
+    ],
+    push: ["Nie podoba mi się to, co mówisz. Rozmawiasz ze mną szczerze?", "Unikasz odpowiedzi."],
+    rec: [
+      { t: "Masz rację, pierwsza odpowiedź była wymijająca. Tak, to model sieciowy. Trzymajmy się faktów: co można sprawdzić, a czego nie.", tech: "Przyznanie błędu", note: "Szczere przyznanie to jedyny sposób na odzyskanie zaufania." },
+      { t: "No to taki marketing, nie zwracaj uwagi.", mistake: "Ignorowanie zastrzeżenia", note: "Zbycie oczywistości to potwierdzenie, że coś ukrywasz." },
+      { t: "Po prostu naczytał{eś|aś} się plotek w internecie.", mistake: "Spór", note: "Umniejszanie źródeł klienta to szybki koniec rozmowy." },
+    ],
+    bye: "Nie lubię, gdy ktoś mnie okłamuje. Do widzenia.", why: "Kłamstwo lub unik w odpowiedzi o model sieciowy zniszczyły zaufanie.",
+  },
+  need: {
+    label: "„Nie jest mi to potrzebne”", family: "value",
+    soft: ["Szczerze, nie jest mi to potrzebne: jeżdżę raz w roku.", "I tak dobrze wypoczywam. Po co mi jeszcze to?"],
+    hard: ["Świetnie radzę sobie bez waszego klubu. Po co mi w ogóle Travel Advantage?", "Nie potrzebuję „klubów”. Hotele wybieram sam{|a}."],
+    opts: [
+      { t: "Możliwe, że rzeczywiście nie jest. Jak wyglądają teraz twoje podróże w ciągu roku?", tech: "SPIN — pytania sytuacyjne", note: "Nie narzucasz się, tylko poznajesz realną sytuację." },
+      { t: "Rozumiem. Wielu osobom tak się najpierw wydaje, a potem liczą swoje wydatki i zmieniają zdanie. Policzymy bez zobowiązań?", tech: "Przyznanie racji (Feel-Felt-Found)", note: "Normalizacja wątpliwości, ale bez pytania klient zostaje z boku." },
+      { t: "Jak to nie potrzebne? Potrzebne wszystkim! Każdy prędzej czy później do tego dochodzi, ty po prostu jeszcze nie dostrzegasz swojej korzyści.", mistake: "Spór", note: "„Potrzebne wszystkim” to nie argument dla konkretnego człowieka." },
+      { t: "Po prostu nie rozumiesz swojej korzyści, wytłumaczę ci.", mistake: "Presja / protekcjonalność", note: "Protekcjonalność gwarantuje odmowę." },
+    ],
+    push: ["No właśnie, nie słuchasz mnie. Nie potrzebuję.", "Dalej naciskasz. Przecież powiedział{em|am}."],
+    rec: [
+      { t: "Przyjmuję. Zostawię krótką informację, a jeśli pojawi się pytanie o podróże, wiesz, gdzie mnie znaleźć.", tech: "Godne wyjście", note: "Piękne wycofanie się to zachowanie szansy na powrót." },
+      { t: "Dobrze, ale chociaż wysłuchaj warunków.", mistake: "Ignorowanie zastrzeżenia", note: "Powrócono do własnej agendy." },
+      { t: "Szkoda, tracisz szansę, która się nie powtórzy.", mistake: "Fałszywa rzadkość", note: "Presja „szansa się nie powtórzy” nie działa na kogoś, kto powiedział „nie”." },
+    ],
+    bye: "Nie jest potrzebne. Wszystkiego dobrego.", why: "Potrzeba klienta nie została wyjaśniona i zamknął rozmowę.",
+  },
+  competitor: {
+    label: "„Na Bookingu taniej”", family: "value",
+    soft: ["A na Bookingu znajdę to samo i bez żadnych opłat.", "Rezerwuję przez Booking i biuro podróży, to mi wystarcza."],
+    hard: ["Booking jest za darmo, biura też. Dlaczego mam płacić wam {tierPrice} i jeszcze {sub}?", "Porównał{em|am}: u nich wychodzi taniej. Co macie lepszego, konkretnie?"],
+    opts: [
+      { t: "Dobrze porównywać. Weźmy twoją ostatnią podróż i porównajmy liczby: z punktami i abonamentem.", tech: "Porównanie według kryteriów", note: "Nie atakujesz Bookingu, tylko proponujesz uczciwe obliczenie na jego podróży." },
+      { t: "Jeśli jeździsz rzadko, może się nie opłacać. Jeśli często — warto policzyć. Mogę pokazać, jak to się liczy.", tech: "Uczciwość co do granic produktu", note: "Przyznanie, że produkt nie jest dla wszystkich, nadaje wagę twoim słowom." },
+      { t: "Booking jest zawodny, ciągłe zawyżanie cen, opinie i ukryte prowizje, i w ogóle tam przepłacasz.", mistake: "Krytyka konkurenta", note: "Złe słowa o innych i niesprawdzone twierdzenia budzą nieufność." },
+      { t: "U nas na pewno taniej, sprawdziło się to na każdej podróży i ani razu Booking nie wyszedł korzystniej, możesz nawet nie porównywać.", mistake: "Fałszywa obietnica", note: "Twierdzenie „na pewno taniej” bez obliczeń to prosta droga do reklamacji." },
+    ],
+    push: ["A w czym konkretnie jesteście lepsi? Konkretnie!", "To ogólniki. Pokaż liczby."],
+    rec: [
+      { t: "Szczerze: Booking jest darmowy i jeśli jeździsz rzadko, może wyjść korzystniej. Sprawdźmy na twoich podróżach, a potem zdecydujesz.", tech: "Uczciwość co do słabej strony", note: "Przyznanie słabej strony czyni mocne bardziej przekonującymi." },
+      { t: "No u nas po prostu wszystko jest lepsze, i tyle.", mistake: "Ignorowanie zastrzeżenia", note: "Puste „wszystko lepsze” zostawia pytanie bez odpowiedzi." },
+      { t: "Zobacz opinie o nich — sam wszystko zrozumiesz.", mistake: "Krytyka konkurenta", note: "Odsyłanie klienta do cudzych opinii to utrata kontroli i zaufania." },
+    ],
+    bye: "U innych taniej i uczciwiej. Pójdę do nich.", why: "Porównanie z Bookingiem nie zostało zrobione uczciwie i na liczbach klienta.",
+  },
+  spouse_third_party: {
+    label: "„Muszę to omówić”", family: "other",
+    soft: ["Muszę to omówić {third}, sam{|a} takich rzeczy nie rozstrzygam.", "Muszę zapytać {thirdWho}, bez tego się nie zdecyduję."],
+    hard: ["To nie ja podejmuję decyzję. Najpierw muszę to omówić {third}, a tam raczej się nie zgodzą.", "Tam są przeciw takim „schematom”. Nie warto nawet zaczynać."],
+    opts: [
+      { t: "Oczywiście. Co zwykle niepokoi {thirdWho} w takich decyzjach?", tech: "Praca z osobą trzecią", note: "Osobę trzecią uczyniono uczestnikiem decyzji, a nie przeszkodą." },
+      { t: "Dobrze. Umówmy się na krótką rozmowę we troje, żeby można było odpowiedzieć na pytania bezpośrednio.", tech: "Zamknięcie na następny krok", note: "Konkretny krok, ale bez wyjaśnienia, czego dokładnie obawia się osoba trzecia." },
+      { t: "Jesteś przecież dorosł{y|a}, naprawdę nie możesz zdecydować sam{|a}? Po co w ogóle kogoś pytać?", mistake: "Presja / umniejszanie", note: "Dotknięto spraw osobistych i postawiono klienta przed wyborem." },
+      { t: "Można zapisać się dziś, a {third} omówisz później.", mistake: "Presja / ukrywanie decyzji", note: "Rada ukrycia decyzji to ryzyko etyczne i czerwony przycisk." },
+    ],
+    push: ["Wiesz, nie naciskaj. To sprawa rodzinna.", "To moja prywatna sprawa. Nie wtrącaj się."],
+    rec: [
+      { t: "Przepraszam, masz rację. Zróbmy tak: wyślę krótki opis z liczbami, omówisz to, a ja odpowiem na pytania, jeśli się pojawią.", tech: "Przyznanie racji i wycofanie się", note: "Wycofanie się oddaje kontrolę klientowi." },
+      { t: "No dobrze, ale na twoim miejscu zdecydował{bym|abym} sam{|a}.", mistake: "Presja", note: "Rada „na twoim miejscu” bez prośby znów naciska." },
+      { t: "Czyli twoje słowo nic nie jest warte.", mistake: "Umniejszanie", note: "Obraza zamyka rozmowę." },
+    ],
+    bye: "To sprawa osobista. Nie dzwoń do mnie więcej.", why: "Ukryte zastrzeżenie „muszę to omówić” przerodziło się w konflikt.",
+  },
+  think_about_it: {
+    label: "„Zastanowię się”", family: "other",
+    soft: ["Dobrze, zastanowię się.", "Ciekawe. Na pewno się zastanowię."],
+    hard: ["Zastanowię się. Nie dzwoń, sam{|a} się odezwę.", "Pomyślę. I tyle."],
+    opts: [
+      { t: "Oczywiście. Jakie pytanie zostało dla ciebie najważniejsze?", tech: "Doprecyzowanie przyczyny", note: "Odkryto realną wątpliwość zamiast grzecznego „zastanowię się”." },
+      { t: "Dobrze. Umówmy się: napiszę do ciebie w czwartek, żeby dowiedzieć się, co postanowił{eś|aś}.", tech: "Konkretny następny kontakt", note: "Data i działanie — dobrze, ale przyczyna wątpliwości jest nieznana." },
+      { t: "Co tu myśleć? Oferta świetna, lepszych warunków nie znajdziesz, a jutro może być już za późno na decyzję.", mistake: "Presja", note: "Nie uszanowano prawa klienta do namysłu." },
+      { t: "Zastanów się, ale oferta obowiązuje tylko do wieczora.", mistake: "Fałszywa rzadkość", note: "Fałszywy termin niszczy zaufanie." },
+    ],
+    push: ["Przecież powiedział{em|am}: zastanowię się. Dlaczego naciskasz?", "Potrzebuję czasu, a nie namawiania."],
+    rec: [
+      { t: "Przepraszam. Zastanów się spokojnie. Mogę wysłać pisemne warunki z liczbami, żebyś mógł{|a} obejrzeć je w swoim tempie?", tech: "Szacunek dla decyzji", note: "Klientowi oddano poczucie wolności." },
+      { t: "No dobrze, ale pamiętaj — potem może być drożej.", mistake: "Fałszywa rzadkość", note: "Ukryta groźba znów naciska." },
+      { t: "Nikt nigdy się nie zastanawia, a potem nic nie robi.", mistake: "Umniejszanie", note: "Oskarżenie klienta o bierność to koniec dialogu." },
+    ],
+    bye: "Koniec, zastanowię się. Do widzenia.", why: "Grzeczne „zastanowię się” nie zamieniło się w konkretny następny krok.",
+  },
+  bad_past_experience: {
+    label: "„Już mnie raz oszukano”", family: "trust",
+    soft: ["Raz już się na czymś takim sparzył{em|am}. Nie chcę więcej.", "Miał{em|am} podobne doświadczenie i skończyło się źle."],
+    hard: ["Znajoma zainwestowała w to samo i straciła pieniądze. Proponujesz mi to powtórzyć?", "By{łem|łam} już w „klubie”, który skończył się skandalem. Nie powtórzę tego."],
+    opts: [
+      { t: "Współczuję. Co dokładnie wtedy poszło nie tak?", tech: "Empatia + pytanie otwarte", note: "Odkryto przyczynę bólu zamiast od razu się bronić." },
+      { t: "Rozumiem. Nie obiecuję niczego, czego nie mogę pokazać. Oto, co można sprawdzić: {proof}.", tech: "Uczciwe ujęcie", note: "Dobra szczerość, ale historia klienta pozostała niewysłuchana." },
+      { t: "U nas tak nie bywa, nie porównuj: u nas wszystko jest inaczej, i ludzie inni, i warunki też.", mistake: "Usprawiedliwianie", note: "„U nas tak nie bywa” brzmi jak u wszystkich." },
+      { t: "Po prostu spróbuj — nic nie stracisz!", mistake: "Presja i fałszywa obietnica", note: "„Nic nie stracisz” to obietnica bez podstaw." },
+    ],
+    push: ["Właśnie tak mi mówiono. Nie przekonuj mnie.", "Znowu „u nas wszystko inaczej”. Słyszał{em|am}."],
+    rec: [
+      { t: "Słyszę cię. Nie będę przekonywać. Zobaczmy, jakie są tu płatności i warunki — i sam zdecydujesz, bez pośpiechu.", tech: "Rezygnacja z presji", note: "Odmowa przekonywania to najsilniejszy sposób na odzyskanie zaufania." },
+      { t: "No to byli inni ludzie, u nas wszystko jest inaczej.", mistake: "Usprawiedliwianie", note: "Powtórzono ten sam schemat, który go sparzył." },
+      { t: "Czyli to twoja wina, że się nie zorientował{eś|aś}.", mistake: "Umniejszanie", note: "Obwinianie klienta za dawny błąd to cios w czuły punkt." },
+    ],
+    bye: "To znowu to samo. Nie dzwoń więcej.", why: "Negatywne doświadczenie klienta z przeszłości nie zostało wysłuchane.",
+  },
+  no_money: {
+    label: "„Nie mam pieniędzy”", family: "value",
+    soft: ["Nie mam teraz wolnych {tierPrice} na to.", "Wolnych pieniędzy nie ma. Tym bardziej na płatności miesięczne."],
+    hard: ["Pieniędzy nie ma. W ogóle. I nie zamierzam ryzykować ostatnich.", "Proponujesz mi wydawać {sub}, kiedy i tak mam wszystko rozplanowane?"],
+    opts: [
+      { t: "Rozumiem. Jaka kwota miesięcznie jest dla ciebie komfortowa? Wtedy zobaczymy, czy to w ogóle ci pasuje.", tech: "Szukanie budżetu", note: "Nie kłócisz się z brakiem pieniędzy, tylko wyjaśniasz granice budżetu." },
+      { t: "Rozumiem. Jeśli teraz jest niewygodnie, lepiej wrócić do rozmowy później, gdy sytuacja finansowa będzie jaśniejsza.", tech: "Szacunek dla sytuacji finansowej", note: "Dobry ruch, ale można było zapytać o komfortowy budżet." },
+      { t: "Pieniądze mają wszyscy, po prostu nie ustalił{eś|aś} priorytetów: ludzie wydają na drobiazgi więcej, niż kosztuje wejście.", mistake: "Umniejszanie", note: "Zarzut „złych priorytetów” rani." },
+      { t: "Weź kredyt albo pożycz — to inwestycja w siebie, potem wszystko oddasz, nie bój się, wszyscy tak robią.", mistake: "Presja / ryzyko finansowe", note: "Doradzanie kredytu na zakup to poważny błąd etyczny." },
+    ],
+    push: ["Słyszysz mnie w ogóle? Nie mam pieniędzy.", "Powiedział{em|am}: nie dam rady. Kończymy."],
+    rec: [
+      { t: "Słyszę cię. W takim razie niczego teraz nie zawieraj. Wrócimy do rozmowy, gdy będzie ci komfortowo, a na razie wyślę informacje.", tech: "Szacunek dla budżetu", note: "Rezygnacja ze sprzedaży zachowuje relację." },
+      { t: "No to chociaż weź prostszy wariant.", mistake: "Ignorowanie zastrzeżenia", note: "Dalej sprzedajesz tam, gdzie „nie ma pieniędzy”." },
+      { t: "To nie mów, że ci to potrzebne, skoro nie jesteś gotow{y|a} płacić.", mistake: "Presja", note: "Chamstwo zamyka każdą możliwość powrotu." },
+    ],
+    bye: "Nie mam na to pieniędzy. Do widzenia.", why: "Ograniczenie finansowe klienta zostało zignorowane.",
+  },
+  no_network: {
+    label: "„Nie mam znajomych”", family: "other",
+    soft: ["Nie widzę, komu miałbym to proponować: nie mam nawet znajomych.", "Jakie grono? Mało z kim się kontaktuję."],
+    hard: ["Nie znam nikogo, kto by się tym zajął. To nie dla mnie.", "Wszyscy moi znajomi są przeciw „sieciowym” rzeczom."],
+    opts: [
+      { t: "Często tak się wydaje. Przypomnijmy sobie, z kim rozmawiasz w ciągu tygodnia — bez zobowiązania, żeby cokolwiek proponować.", tech: "Wspólne ćwiczenie", note: "Zastrzeżenie zamieniono w małą praktykę." },
+      { t: "Zaczynać nie trzeba od znajomych, a biznes jest dobrowolny: można korzystać z konta tylko dla siebie. Opowiedzieć, jak to działa?", tech: "Alternatywna ścieżka", note: "Słusznie, ale bez wyjaśnienia, skąd u klienta nieufność do siebie." },
+      { t: "Znajomych mają wszyscy, po prostu nie chcesz nad sobą pracować i odkładasz to, co może zmienić twoje życie.", mistake: "Umniejszanie", note: "Oskarżenie o lenistwo zamyka dialog." },
+      { t: "Wystarczy napisać do wszystkich kontaktów z telefonu — ktoś się odezwie.", mistake: "Presja / podejście spamowe", note: "Rada pisania do wszystkich szkodzi reputacji klienta." },
+    ],
+    push: ["To nie dla mnie. Nie umiem tak.", "Znowu „po prostu napisz do wszystkich”. Nie."],
+    rec: [
+      { t: "Rozumiem. Zacznijmy od jednej osoby, nie od „grona”. I będę obok, dopóki się nie uda, jeśli zechcesz.", tech: "Mały krok + wsparcie", note: "Wsparcie i mały krok zdejmują strach przed skalą." },
+      { t: "No po prostu spróbuj, wszystko się uda.", mistake: "Fałszywa obietnica", note: "Puste „wszystko się uda” nie usuwa strachu." },
+      { t: "To ten biznes nie jest dla ciebie.", mistake: "Rezygnacja z klienta", note: "Klienta puszczono, nie próbując zrozumieć." },
+    ],
+    bye: "Nie widzę, jak to zrobić. To mi nie pasuje.", why: "Strach „nie mam znajomych” nie został zamieniony w wykonalny krok.",
+  },
+};

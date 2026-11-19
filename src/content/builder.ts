@@ -10,13 +10,15 @@ import type {
   Scenario,
   ScenarioNode,
 } from "../engine/types";
-import { beats, type BeatTag, type Opt, type Beat, type Tag } from "./data/beats";
+import { beats as ruBeats, type BeatTag, type Opt, type Beat, type Tag } from "./data/beats";
+import { mistakeCode } from "./data/mistakes";
 import { tierFacts, type Tier } from "./data/mwr";
 import type { Vocab } from "./data/vocab";
+import { ruPack } from "./packs/ru";
+import type { ContentPack, Psy, VocabText } from "./packs/types";
 
 export type CaseSpec = {
   id: string;
-  title: string;
   level: Level;
   vocab: Vocab;
   tier: Tier;
@@ -30,8 +32,6 @@ export type CaseSpec = {
   seed: number;
 };
 
-const CHANNEL_RU: Record<Channel, string> = { call: "телефонный звонок", meeting: "личная встреча", chat: "переписка в мессенджере", zoom: "Zoom-презентация" };
-
 const START: Record<Level, { trust: number; interest: number; irritation: number }> = {
   1: { trust: 50, interest: 40, irritation: 5 },
   2: { trust: 45, interest: 35, irritation: 10 },
@@ -42,15 +42,23 @@ const START: Record<Level, { trust: number; interest: number; irritation: number
 /** Negative effects are scaled by level: forgiving at level 1, harsh at level 5. */
 const NEG: Record<Level, number> = { 1: 0.7, 2: 0.85, 3: 1, 4: 1.15, 5: 1.3 };
 
-const FEMALE = new Set(["Ирина", "Светлана", "Ольга", "Наталья", "Елена", "Анна", "Марина", "Юлия", "Татьяна", "Вера", "Ксения", "Полина", "Лариса", "Алла", "Зоя"]);
+/** Gender of the client (language independent: by persona id). */
+const FEMALE_IDS = new Set(["irina", "svetlana", "olga", "natalia", "elena", "anna", "marina", "yulia", "tatyana", "vera", "ksenia", "polina", "larisa", "alla", "zoya"]);
 
-type Ctx = { name: string; vocab: Vocab; female: boolean; tier: Tier };
+/** Psychotype code from the Russian source label. */
+const PSY: Record<string, Psy> = { "Аналитик": "analyst", "Драйвер": "driver", "Экспрессив": "expressive", "Миротворец": "peacemaker" };
 
-/** Fills placeholders (two passes, because vocab strings contain placeholders too) and gendered forms. */
+type Ctx = { name: string; nameVoc: string; vocab: VocabText; female: boolean; tier: Tier; perMonth: string };
+
+/**
+ * Fills placeholders (two passes, because vocab strings contain placeholders too) and gendered forms:
+ * Russian «сказал(а)» and the generic {male|female} used by the other languages.
+ */
 export function fillText(text: string, c: Ctx): string {
-  const facts = tierFacts(c.tier);
+  const facts = tierFacts(c.tier, c.perMonth);
   const map: Record<string, string> = {
     name: c.name,
+    nameVoc: c.nameVoc,
     product: c.vocab.product,
     productAcc: c.vocab.productAcc,
     next: c.vocab.next,
@@ -64,21 +72,13 @@ export function fillText(text: string, c: Ctx): string {
     sub: facts.sub,
   };
   let s = text;
-  for (let pass = 0; pass < 2; pass++)
-    s = s.replace(/\{([A-Za-z]+)\}/g, (m, k: string) => (k in map ? map[k] : m));
-  // gendered forms: «сказал(а)» → «сказала» / «сказал»
+  for (let pass = 0; pass < 2; pass++) s = s.replace(/\{([A-Za-z]+)\}/g, (m, k: string) => (k in map ? map[k] : m));
+  s = s.replace(/\{([^{}|]*)\|([^{}|]*)\}/g, (_, m: string, f: string) => (c.female ? f : m));
   return s.replace(/(\p{L}+)\(а\)/gu, (_, stem: string) => (c.female ? `${stem}а` : stem));
 }
 
-function voice(p: Persona, seed: number): { pre: string; post: string } {
-  const v = (seed >> 1) % 4;
-  switch (p.psychotype) {
-    case "Аналитик": return { pre: "", post: [" Только конкретику, без воды.", " Мне нужны факты, а не эмоции.", " Цифры, пожалуйста.", " Без общих слов."][v] };
-    case "Драйвер": return { pre: "", post: [" Давайте быстрее.", " Короче, по делу.", " Время дорого.", " Суть, пожалуйста."][v] };
-    case "Экспрессив": return { pre: ["Ой, ну даже не знаю... ", "Слушайте, я в сомнениях... ", "Ох, как всё сложно... ", "Вау, но... "][v], post: "" };
-    default: return { pre: ["Мне неловко, но... ", "Не хочу вас обижать, но... ", "Только не обижайтесь... ", "Знаете, я стесняюсь, но... "][v], post: "" };
-  }
-}
+/** Lower-cases the first letter only (keeps names such as "Booking" intact). */
+const lcFirst = (s: string) => (s.length > 1 && s[1] === s[1].toLowerCase() ? s[0].toLowerCase() + s.slice(1) : s);
 
 const baseEffects = (q: Quality, level: Level, recovery = false): Effects => {
   const k = NEG[level];
@@ -94,29 +94,41 @@ const baseEffects = (q: Quality, level: Level, recovery = false): Effects => {
 
 const withFlags = (e: Effects, flags: Record<string, boolean>): Effects => (Object.keys(flags).length ? { ...e, setFlags: flags } : e);
 
-const HINT: Record<Beat["family"], string> = {
-  trust: "Клиент проверяет вас на честность: ему нужны проверяемые факты и документы, а не заверения.",
-  value: "За этим возражением стоит вопрос о ценности. Что вы знаете о поездках и тратах клиента?",
-  other: "Не спорьте и не давите. Что поможет клиенту принять решение в его темпе?",
-};
+/** The persona and vocabulary of a case in the language of the pack. */
+function localised(spec: CaseSpec, pack: ContentPack) {
+  const { voc, ...text } = pack.personas[spec.persona.id];
+  const persona: Persona = { ...spec.persona, ...text };
+  const vocab = { ...spec.vocab, ...pack.vocab[spec.vocab.key] };
+  return { persona, vocab, female: FEMALE_IDS.has(spec.persona.id), nameVoc: voc ?? persona.name };
+}
 
-export function buildScenario(spec: CaseSpec): Scenario {
-  const { vocab, persona, level, tier } = spec;
-  const ctx: Ctx = { name: persona.name, vocab, female: FEMALE.has(persona.name), tier };
+export function buildScenario(spec: CaseSpec, pack: ContentPack = ruPack): Scenario {
+  const { level, tier } = spec;
+  const { persona, vocab, female, nameVoc } = localised(spec, pack);
+  const { tpl } = pack;
+  const ctx: Ctx = { name: persona.name, nameVoc, vocab, female, tier, perMonth: tpl.perMonth };
   const f = (s: string) => fillText(s, ctx);
   const retain = vocab.mode === "retain";
   const hard = level >= 4;
+  const psy: Psy = PSY[spec.persona.psychotype] ?? "peacemaker";
   const nodes: Record<string, ScenarioNode> = {};
   const endings: Record<string, ScenarioNode> = {};
 
-  const choice = (id: string, o: Opt, quality: Quality, next: string | ConditionalNext[], effects: Effects): Choice => ({
+  /** Voice of the persona: a prefix or suffix chosen deterministically. */
+  const voice = (seed: number) => {
+    const v = (seed >> 1) % 4;
+    const set = tpl.voice[psy];
+    return { pre: set.pre[v] ?? "", post: set.post[v] ?? "" };
+  };
+
+  const choice = (id: string, o: Opt, ru: Opt, quality: Quality, next: string | ConditionalNext[], effects: Effects): Choice => ({
     id,
     text: f(o.t),
     next,
     effects,
     quality,
     ...(o.tech ? { technique: o.tech } : {}),
-    ...(o.mistake ? { mistake: o.mistake } : {}),
+    ...(o.mistake ? { mistake: o.mistake, mistakeCode: mistakeCode(ru.mistake) } : {}),
     coachNote: o.note,
   });
 
@@ -126,9 +138,10 @@ export function buildScenario(spec: CaseSpec): Scenario {
 
   /** One objection beat: client node, pushback node and its own GAME OVER ending. */
   const addBeat = (id: string, tag: BeatTag, progress: string | ConditionalNext[], seed: number, reveal = false) => {
-    const b = beats[tag];
+    const b: Beat = pack.beats[tag];
+    const r: Beat = ruBeats[tag];
     // the persona's voice colours every other line, not all of them
-    const v = seed % 2 === 0 ? voice(persona, seed) : { pre: "", post: "" };
+    const v = seed % 2 === 0 ? voice(seed) : { pre: "", post: "" };
     const lines = hard ? b.hard : b.soft;
     const say = lines[seed % lines.length];
     const lostId = `lost_${id}`;
@@ -143,15 +156,15 @@ export function buildScenario(spec: CaseSpec): Scenario {
       type: "client",
       id,
       mood: tag === "aggression" ? "irritated" : hard ? "doubtful" : "neutral",
-      text: f(`${reveal ? "Вообще-то, скажу честно. " : ""}${v.pre}${say}${v.post}`),
-      hint: HINT[b.family],
+      text: f(`${reveal ? tpl.reveal : ""}${v.pre}${say}${v.post}`),
+      hint: tpl.hint[b.family],
       tag,
       choices: [
-        choice("a", b.opts[0], "excellent", progress, withFlags(baseEffects("excellent", level), good)),
-        choice("b", b.opts[1], "good", progress, withFlags(baseEffects("good", level), trust || value ? good : {})),
+        choice("a", b.opts[0], r.opts[0], "excellent", progress, withFlags(baseEffects("excellent", level), good)),
+        choice("b", b.opts[1], r.opts[1], "good", progress, withFlags(baseEffects("good", level), trust || value ? good : {})),
         // level 1 forgives a weak answer (the client just reacts), higher levels send it to the pushback node
-        choice("c", b.opts[2], "weak", level === 1 ? progress : `${id}_r`, withFlags(baseEffects("weak", level), bad)),
-        choice("d", b.opts[3], "critical_error", critNext, withFlags(baseEffects("critical_error", level), badCrit)),
+        choice("c", b.opts[2], r.opts[2], "weak", level === 1 ? progress : `${id}_r`, withFlags(baseEffects("weak", level), bad)),
+        choice("d", b.opts[3], r.opts[3], "critical_error", critNext, withFlags(baseEffects("critical_error", level), badCrit)),
       ],
     };
     nodes[`${id}_r`] = {
@@ -159,15 +172,15 @@ export function buildScenario(spec: CaseSpec): Scenario {
       id: `${id}_r`,
       mood: "irritated",
       text: f(`${v.pre}${b.push[(seed >> 1) % b.push.length]}`),
-      hint: "Признайте ошибку и верните контроль клиенту. Дальше — без давления.",
+      hint: tpl.hint.rec,
       tag,
       choices: [
-        choice("a", b.rec[0], "good", progress, withFlags(baseEffects("good", level, true), good)),
-        choice("b", b.rec[1], "weak", level <= 2 ? progress : lostId, baseEffects("weak", level)),
-        choice("c", b.rec[2], "critical_error", lostId, baseEffects("critical_error", level)),
+        choice("a", b.rec[0], r.rec[0], "good", progress, withFlags(baseEffects("good", level, true), good)),
+        choice("b", b.rec[1], r.rec[1], "weak", level <= 2 ? progress : lostId, baseEffects("weak", level)),
+        choice("c", b.rec[2], r.rec[2], "critical_error", lostId, baseEffects("critical_error", level)),
       ],
     };
-    end(lostId, "lost", `${persona.name}: «${b.bye}»`, `GAME OVER: ${b.why}`, "reset");
+    end(lostId, "lost", tpl.lostBye.replace("{bye}", b.bye), tpl.gameOver.replace("{why}", b.why), "reset");
   };
 
   // ---- sequence -----------------------------------------------------------
@@ -176,61 +189,61 @@ export function buildScenario(spec: CaseSpec): Scenario {
   const after = (i: number) => (i + 1 < k ? ids[i + 1] : "close");
 
   // hidden branch sits after the first trust-family beat (or after beat 1)
-  const jTrust = spec.tags.findIndex((t) => beats[t].family === "trust");
+  const jTrust = spec.tags.findIndex((t) => ruBeats[t].family === "trust");
   const j = level >= 2 ? (jTrust >= 0 ? jTrust : 0) : -1;
 
+  const rt = ruPack.tpl; // Russian source: mistake codes are derived from it
+  const mv = (m: { t: string; mistake: string; note: string }, ru: { mistake: string }) => ({
+    text: f(m.t),
+    mistake: m.mistake,
+    mistakeCode: mistakeCode(ru.mistake),
+    coachNote: m.note,
+  });
+
   // opening
-  const open = voice(persona, spec.seed);
+  const open = voice(spec.seed);
   nodes.open = {
     type: "client",
     id: "open",
     mood: "neutral",
     text: f(`${open.pre}${vocab.open[spec.channel]}${open.post}`),
-    hint: "Первые секунды решают всё: уважайте время и интерес клиента.",
+    hint: tpl.hint.open,
     choices: [
       {
         id: "a",
-        text: f(
-          retain
-            ? "Добрый день, {name}! Хочу спокойно разобраться с вашим аккаунтом Travel Advantage и подпиской: что вам понятно, а что нет. Удобно сейчас? Если нет, вернусь в удобное время."
-            : "Добрый день, {name}! Хочу коротко рассказать про {productAcc}. Займёт две минуты — удобно сейчас? Если нет, вернусь в удобное время.",
-        ),
+        text: f(retain ? tpl.open.a.retain : tpl.open.a.sell),
         next: ids[0],
         effects: { trust: 8, interest: 5, irritation: -3, setFlags: { trusted: true } },
         quality: "excellent",
-        technique: "Разрешение + уважение ко времени",
-        coachNote: "Вы спросили разрешение и уважили границы клиента — доверие растёт с первых секунд.",
+        technique: tpl.open.a.tech,
+        coachNote: tpl.open.a.note,
       },
       {
         id: "b",
-        text: f(retain ? "Здравствуйте! Коротко: хочу помочь разобраться с подпиской и аккаунтом. С чем вам сейчас сложнее всего?" : "Здравствуйте! Коротко: мы предлагаем {productAcc}. А что вам знакомо в этой теме?"),
+        text: f(retain ? tpl.open.b.retain : tpl.open.b.sell),
         next: ids[0],
         effects: { trust: 3, interest: 4, irritation: 0, setFlags: { value: true } },
         quality: "good",
-        technique: "Короткое представление + вопрос",
-        coachNote: "Чёткое представление и вопрос — клиент вовлекается в разговор.",
+        technique: tpl.open.b.tech,
+        coachNote: tpl.open.b.note,
       },
       {
         id: "c",
-        text: "Здравствуйте! У меня для вас суперпредложение, которое нельзя пропустить!",
+        ...mv(tpl.open.c, rt.open.c),
         next: ids[0],
         effects: { trust: Math.round(-6 * NEG[level]), interest: -2, irritation: Math.round(8 * NEG[level]) },
         quality: "weak",
-        mistake: "Давление с первых секунд",
-        coachNote: "Громкие слова без содержания настораживают.",
       },
       {
         id: "d",
-        text: f("Здравствуйте, {name}! Вы выиграли специальный бонус — нужно только подтвердить участие."),
+        ...mv(tpl.open.d, rt.open.d),
         next: hard ? "lost_open" : ids[0],
         effects: { trust: Math.round(-18 * NEG[level]), interest: -6, irritation: Math.round(15 * NEG[level]) },
         quality: "critical_error",
-        mistake: "Манипуляция / ложный повод",
-        coachNote: "Ложный повод для разговора — потеря доверия ещё до начала.",
       },
     ],
   };
-  if (hard) end("lost_open", "lost", `${persona.name} кладёт трубку: «Не люблю, когда мне врут с первой секунды».`, "GAME OVER: ложный повод в начале разговора.", "reset");
+  if (hard) end("lost_open", "lost", tpl.open.lostText, tpl.open.lostReason, "reset");
 
   spec.tags.forEach((tag, i) => {
     const progress: string | ConditionalNext[] = i === j ? [{ when: { trusted: true }, to: "h" }, { to: "s" }] : after(i);
@@ -249,92 +262,83 @@ export function buildScenario(spec: CaseSpec): Scenario {
     type: "client",
     id: "close",
     mood: "warm",
-    text: f(hard ? "Ладно. Но условия такие: без давления и без сюрпризов. Что предлагаете дальше?" : "Хорошо, я готов(а) двигаться дальше. Что вы предлагаете?"),
-    hint: "Нужен ясный, мягкий следующий шаг: без давления и без выдуманного дефицита.",
+    text: f(hard ? tpl.close.hard : tpl.close.soft),
+    hint: tpl.hint.close,
     choices: [
       {
         id: "a",
-        text: f(retain
-          ? "Предлагаю так: {next}. Если после этого вам будет понятно, продолжать ли, — решим вместе. Договорились?"
-          : "Предлагаю так: {next}. Если после этого сомнений не останется — оформим {tier} вместе. Договорились?"),
+        text: f(retain ? tpl.close.a.retain : tpl.close.a.sell),
         next: level === 1 ? "sale_clean" : [{ when: { trusted: true }, to: "sale_clean" }, { to: "partial_next" }],
         effects: { trust: 8, interest: 6, irritation: -4 },
         quality: "excellent",
-        technique: "Закрытие на проверяемый шаг",
-        coachNote: "Клиент сам проверяет и решает — продажа без риска возврата.",
+        technique: tpl.close.a.tech,
+        coachNote: tpl.close.a.note,
       },
       {
         id: "b",
-        text: f(retain
-          ? "Могу прямо сейчас открыть с вами договор и условия подписки {sub} и решить вместе, продолжать или нет. Подходит?"
-          : "Могу сразу оформить {tier}: {tierPrice}, из них {fee} — регистрация, {tierPoints} — баллы на ваш аккаунт Travel Advantage; дальше {sub}. Все условия письменно. Подходит?"),
+        text: f(retain ? tpl.close.b.retain : tpl.close.b.sell),
         next: [{ when: { value: true }, to: "sale_soft" }, { to: "partial_next" }],
         effects: { trust: 5, interest: 5, irritation: -2 },
         quality: "good",
-        technique: "Закрытие-альтернатива",
-        coachNote: "Все платежи названы прямо, условия письменно — хороший второй путь.",
+        technique: tpl.close.b.tech,
+        coachNote: tpl.close.b.note,
       },
       {
         id: "c",
-        text: "Хорошо, подумайте, я напишу вам на неделе.",
+        ...mv(tpl.close.c, rt.close.c),
         next: "partial_vague",
         effects: { trust: 1, interest: -4, irritation: 0 },
         quality: "weak",
-        mistake: "Размытый следующий шаг",
-        coachNote: "«Напишу на неделе» без даты и цели — частая причина тихого слива.",
       },
       {
         id: "d",
-        text: "Тогда давайте закроем сегодня — осталась всего пара мест!",
+        ...mv(tpl.close.d, rt.close.d),
         next: "lost_close",
         effects: { trust: Math.round(-20 * NEG[level]), interest: -6, irritation: Math.round(20 * NEG[level]) },
         quality: "critical_error",
-        mistake: "Ложный дефицит",
-        coachNote: "Выдуманный дефицит разрушает заработанное доверие.",
       },
     ],
   };
-  if (retain) {
-    end("sale_clean", "sale", "{name}: «Договорились. {next} — давайте. Спасибо, что без давления».", "SALE CLOSED: клиент остаётся на связи, всё прояснено честно и без давления.", "warm");
-    end("sale_soft", "sale", "{name}: «Хорошо, давайте откроем договор и решим спокойно. Спасибо, что без уловок».", "SALE CLOSED: условия подписки разобраны вместе, клиент принял осознанное решение.", "warm");
-    end("partial_next", "partial", "{name}: «Хорошо, {next} — давайте. Решение приму после».", "PARTIAL: договорились о разборе, окончательное решение клиента впереди.", "interested");
-  } else {
-    end("sale_clean", "sale", "{name}: «Договорились. {next} — давайте. Если цифры сойдутся — оформляем {tier}».", "SALE CLOSED: клиент согласился на проверяемый шаг и оформление по результату.", "warm");
-    end("sale_soft", "sale", "{name}: «Хорошо, оформляем {tier}. Условия пришлите письменно».", "SALE CLOSED: оформлен {tier} при полном понимании платежей: {tierPrice} (из них {fee} — взнос компании, {tierPoints} — баллы) и {sub}.", "warm");
-    end("partial_next", "partial", "{name}: «Хорошо, {next} — давайте. Решение приму после».", "PARTIAL: договорились о следующем шаге, но полного доверия пока нет.", "interested");
-  }
-  end("partial_vague", "partial", "{name}: «Ну... напишите как-нибудь. До свидания».", "PARTIAL: следующий шаг размыт — шанс вернуть клиента невелик.", "neutral");
-  end("lost_close", "lost", "{name}: «Пара мест? Мне это уже говорили. Нет, спасибо».", "GAME OVER: выдуманный дефицит на финише разрушил доверие.", "reset");
+  const E = tpl.endings;
+  const mode = retain ? "retain" : "sell";
+  end("sale_clean", "sale", E.saleClean[mode].text, E.saleClean[mode].reason, "warm");
+  end("sale_soft", "sale", E.saleSoft[mode].text, E.saleSoft[mode].reason, "warm");
+  end("partial_next", "partial", E.partialNext[mode].text, E.partialNext[mode].reason, "interested");
+  end("partial_vague", "partial", E.partialVague.text, E.partialVague.reason, "neutral");
+  end("lost_close", "lost", E.lostClose.text, E.lostClose.reason, "reset");
 
-  return { ...scenarioMeta(spec), nodes: { ...nodes, ...endings } };
+  return { ...scenarioMeta(spec, pack), nodes: { ...nodes, ...endings } };
 }
 
 /** Everything except the node graph: cheap to compute, used by the menu and the lists. */
-export function scenarioMeta(spec: CaseSpec): Omit<Scenario, "nodes"> {
-  const { vocab, persona, level, tier } = spec;
-  const ctx: Ctx = { name: persona.name, vocab, female: FEMALE.has(persona.name), tier };
+export function scenarioMeta(spec: CaseSpec, pack: ContentPack = ruPack): Omit<Scenario, "nodes"> {
+  const { level, tier } = spec;
+  const { persona, vocab, female, nameVoc } = localised(spec, pack);
+  const { tpl } = pack;
+  const ctx: Ctx = { name: persona.name, nameVoc, vocab, female, tier, perMonth: tpl.perMonth };
   const f = (s: string) => fillText(s, ctx);
   const retain = vocab.mode === "retain";
   const hasHidden = level >= 2; // the hidden-objection branch exists from level 2
-  const hiddenLabel = hasHidden ? beats[spec.hidden ?? "spouse_third_party"].label : null;
+  const hiddenLabel = hasHidden ? pack.beats[spec.hidden ?? "spouse_third_party"].label : null;
   const tagsOut: string[] = [...spec.tags];
   if (hasHidden && spec.hidden) tagsOut.push(spec.hidden);
   if (hasHidden) tagsOut.push("hidden_objection");
 
   return {
     id: spec.id,
-    title: spec.title,
+    title: f(tpl.title.replace("{label}", pack.beats[spec.tags[0]].label)),
     level,
     niche: vocab.niche,
     channel: spec.channel,
     persona,
     objectionTags: [...new Set(tagsOut)] as Tag[],
     briefing: f(
-      `${persona.name}, ${persona.age}, ${persona.profession}. Канал: ${CHANNEL_RU[spec.channel]}. ${vocab.brief} ${retain ? "Первый шаг — «{next}»." : "Цель — договориться о шаге «{next}» или оформить {tier}."} Известно: ${persona.pain.toLowerCase()}.`,
+      `${persona.name}, ${persona.age}, ${persona.profession}. ${tpl.briefing.channelWord}: ${tpl.channel[spec.channel]}. ${vocab.brief} ${retain ? tpl.briefing.firstStep : tpl.briefing.goal} ${tpl.briefing.known}: ${lcFirst(persona.pain)}.`,
     ),
     hiddenContext: f(
-      `${persona.hiddenMotive}.${hiddenLabel ? ` Скрытое возражение: ${hiddenLabel}.` : ""} Красная кнопка клиента — ${persona.redButton.toLowerCase()}. Золотой ключ — ${persona.goldenKey.toLowerCase()}. Факты для проверки себя: {tier} — {tierPrice} ({fee} взнос компании, {tierPoints} баллами на аккаунт Travel Advantage), подписка {sub}; заработок возможен только от развития собственной сети, гарантий нет.${level === 5 ? " Клиент может преувеличивать предложения конкурентов — проверяйте факты." : ""}`,
+      `${persona.hiddenMotive}.${hiddenLabel ? ` ${tpl.hidden.objection}: ${hiddenLabel}.` : ""} ${tpl.hidden.red} — ${lcFirst(persona.redButton)}. ${tpl.hidden.gold} — ${lcFirst(persona.goldenKey)}. ${tpl.hidden.facts}${level === 5 ? ` ${tpl.hidden.level5}` : ""}`,
     ),
+    autoEnd: tpl.autoEnd,
     initialState: { ...START[level], flags: {} },
     startNodeId: "open",
     estimatedTurns: spec.tags.length + (hasHidden ? 1 : 0) + 2,
@@ -346,12 +350,12 @@ export function scenarioMeta(spec: CaseSpec): Omit<Scenario, "nodes"> {
  * is built the first time `nodes` is read. The menu only reads metadata, so opening the app
  * does not pay for 100 graphs.
  */
-export function buildScenarioLazy(spec: CaseSpec): Scenario {
-  const meta = scenarioMeta(spec);
+export function buildScenarioLazy(spec: CaseSpec, pack: ContentPack = ruPack): Scenario {
+  const meta = scenarioMeta(spec, pack);
   let cache: Scenario["nodes"] | undefined;
   return Object.defineProperty({ ...meta } as Scenario, "nodes", {
     enumerable: true,
     configurable: true,
-    get: () => (cache ??= buildScenario(spec).nodes),
+    get: () => (cache ??= buildScenario(spec, pack).nodes),
   });
 }

@@ -1,0 +1,167 @@
+import type { Beat, BeatTag } from "../../data/beats";
+
+/** English objection bank, part 2. */
+export const beats2: Partial<Record<BeatTag, Beat>> = {
+  trust: {
+    label: "“Can you be trusted?”", family: "trust",
+    soft: ["How do I know I can trust you and the company?", "I don't know you. Why should I believe you?"],
+    hard: ["There are plenty like you. Why should I believe you? Prove it.", "The company is foreign and you're just a person on the internet. Prove this isn't a scam."],
+    opts: [
+      { t: "Fair. Don't take my word for it: I'll show you {proof}, and you can check for yourself.", tech: "Trust through verifiability", note: "You are not asking for faith, you are giving them a way to check." },
+      { t: "I've been in this a long time, I can tell you how I use the account myself and show you the terms.", tech: "Personal experience", note: "It works, but without documents personal experience sounds weak." },
+      { t: "What, you don't believe me? I'm an honest person, why would I deceive you, I've been living with this for years.", mistake: "Excuses / taking offence", note: "Taking offence puts the client in the position of the guilty one." },
+      { t: "I can swear that everything will be exactly as I say and there will be no problems.", mistake: "False promise", note: "Oaths instead of facts only deepen the distrust." },
+    ],
+    push: ["Those are just words. Do you have anything concrete?", "Words. And the paperwork?"],
+    rec: [
+      { t: "Let's stick to facts: here is {proof}. Ask me anything, and I'll either answer or honestly say I don't know.", tech: "Facts + honesty about limits", note: "Admitting the limits of your knowledge raises trust." },
+      { t: "Everything's fine with us, just trust me.", mistake: "Ignoring the objection", note: "“Just trust me” signals that there is no proof." },
+      { t: "If you don't trust me, why are we even talking?", mistake: "Pressure", note: "An ultimatum ends the conversation." },
+    ],
+    bye: "I need proof, not words. Have a good day.", why: "Trust was not backed by documents and facts.",
+  },
+  mlm_stigma: {
+    label: "“Is this network marketing?”", family: "trust",
+    soft: ["Wait... is this network marketing?", "This reminds me of a network scheme. Am I right?"],
+    hard: ["It's a pyramid, isn't it? Be honest: I've seen this before.", "Network marketing is not my level. Tell me straight: is it?"],
+    opts: [
+      { t: "Yes, it's a network model, I won't hide it. What exactly about that worries you?", tech: "Acknowledge + clarify", note: "You admitted the obvious and asked about the cause of the doubt, so trust grows." },
+      { t: "Yes, the model is network-based. You can use it as a customer or you can build a network. I'll show you the documents and you can draw your own conclusions.", tech: "Facts and documents", note: "Right in substance, but without a question about their fears." },
+      { t: "It's not a pyramid, it's a modern business! You just haven't understood the subject, it's actually a legal and proven model.", mistake: "Arguing", note: "Arguing about terms does not remove the client's fear, and you can't prove your words about “legality”." },
+      { t: "No, no, of course not, it's something completely different: a private club for travellers!", mistake: "Lie", note: "Denying the network model is a lie that is easy to check." },
+    ],
+    push: ["I don't like what you're saying. Are you being honest with me?", "You're dodging the question."],
+    rec: [
+      { t: "You're right, my first answer was evasive. Yes, it is a network model. Let's go by facts: what can be verified and what can't.", tech: "Admitting a mistake", note: "An honest admission is the only way to win trust back." },
+      { t: "Well, that's just how the marketing works, don't pay attention.", mistake: "Ignoring the objection", note: "Brushing off the obvious confirms that you are hiding something." },
+      { t: "You've just read rumours on the internet.", mistake: "Arguing", note: "Dismissing the client's sources is a quick end to the conversation." },
+    ],
+    bye: "I don't like being lied to. Goodbye.", why: "A lie or evasion in the answer about the network model destroyed trust.",
+  },
+  need: {
+    label: "“I don't need this”", family: "value",
+    soft: ["Honestly, I don't need this: I only travel once a year.", "I already holiday just fine. Why would I need this as well?"],
+    hard: ["I get on perfectly well without your club. Why would I need Travel Advantage at all?", "I don't need “clubs”. I choose hotels myself."],
+    opts: [
+      { t: "Maybe you really don't. What do your trips over a year look like now?", tech: "SPIN: situation questions", note: "You are not pushing, you are finding out the real situation." },
+      { t: "I understand. Many people think so at first, and then they count their spending and reconsider. Shall we count, no obligation?", tech: "Acknowledge (Feel-Felt-Found)", note: "It normalises the doubt, but without a question the client stays on the sidelines." },
+      { t: "What do you mean you don't need it? Everyone needs it! Everybody gets there sooner or later, you just haven't realised your benefit yet.", mistake: "Arguing", note: "“Everyone needs it” is not an argument for one particular person." },
+      { t: "You just don't understand your own benefit, let me explain it to you.", mistake: "Pressure / condescension", note: "Condescension guarantees a refusal." },
+    ],
+    push: ["There you go, you're not hearing me. I don't need it.", "You keep pushing. I already told you."],
+    rec: [
+      { t: "Accepted. I'll leave you some short information, and if a question about trips comes up, you know where to find me.", tech: "A dignified exit", note: "Stepping back gracefully keeps the chance to return." },
+      { t: "Fine, but at least listen to the terms.", mistake: "Ignoring the objection", note: "You went back to your own agenda." },
+      { t: "Too bad, you're missing a chance that won't come again.", mistake: "False scarcity", note: "“Won't come again” pressure does not work on someone who said no." },
+    ],
+    bye: "Not needed. Have a good day.", why: "The client's need was never established and they ended the conversation.",
+  },
+  competitor: {
+    label: "“It's cheaper on Booking”", family: "value",
+    soft: ["I can find the same thing on Booking with no fees at all.", "I book through Booking and a travel agency, that's enough for me."],
+    hard: ["Booking is free, so are agencies. Why would I pay you {tierPrice} and {sub} on top?", "I compared: it comes out cheaper with them. What is better with you, specifically?"],
+    opts: [
+      { t: "Comparing is the right thing to do. Let's take your last trip and compare the numbers: with points and the subscription included.", tech: "Comparison by criteria", note: "You don't attack Booking, you offer an honest calculation on their trip." },
+      { t: "If you travel rarely, it may not pay off. If often, it's worth calculating. I can show how it's calculated.", tech: "Honesty about the product's limits", note: "Admitting the product isn't for everyone gives your words weight." },
+      { t: "Booking is unreliable, there are constant price tricks, reviews and hidden fees, and you overpay there anyway.", mistake: "Criticising a competitor", note: "Speaking badly of others and making unverified claims breeds distrust." },
+      { t: "We're definitely cheaper, I checked every trip myself and Booking never came out better, you don't even need to compare.", mistake: "False promise", note: "Claiming “definitely cheaper” without a calculation is a straight path to a complaint." },
+    ],
+    push: ["So what exactly are you better at? Specifically!", "Those are generalities. Show me the numbers."],
+    rec: [
+      { t: "Honestly: Booking is free, and if you travel rarely it may come out cheaper. Let's check on your trips, and then you decide.", tech: "Honesty about the weak side", note: "Admitting a weak side makes the strong ones more convincing." },
+      { t: "Well, we're just better in everything, that's all.", mistake: "Ignoring the objection", note: "An empty “better in everything” leaves the question unanswered." },
+      { t: "Look at the reviews about them and you'll understand everything yourself.", mistake: "Criticising a competitor", note: "Sending the client to other people's reviews loses control and trust." },
+    ],
+    bye: "Others are cheaper and more honest. I'll go to them.", why: "The comparison with Booking was not done honestly and on the client's numbers.",
+  },
+  spouse_third_party: {
+    label: "“I need to discuss it”", family: "other",
+    soft: ["I need to discuss this with {third}, I don't decide such things alone.", "I have to ask {thirdWho}, I won't dare to decide without that."],
+    hard: ["The decision isn't mine alone. I need to discuss it with {third} first, and they're unlikely to agree.", "They're against such “schemes”. There's no point even starting."],
+    opts: [
+      { t: "Of course. What usually concerns {thirdWho} in decisions like this?", tech: "Working with the third party", note: "You made the third party a participant in the decision, not an obstacle." },
+      { t: "Fine. Let's set up a short three-way call so I can answer questions directly.", tech: "Closing on a next step", note: "A concrete step, but without finding out what exactly the third party is afraid of." },
+      { t: "You're an adult, can't you decide on your own? Why do you even need to ask anyone?", mistake: "Pressure / belittling", note: "You touched something personal and put the client in front of a choice." },
+      { t: "You can sign up today and discuss it with {third} later.", mistake: "Pressure / concealing the decision", note: "Advising them to hide the decision is an ethical risk and a red button." },
+    ],
+    push: ["You know, there's no need to push. It's a family matter.", "That's my personal business. Stay out of it."],
+    rec: [
+      { t: "Sorry, you're right. Let's do it like this: I'll send a short description with numbers, you discuss it, and I'll answer questions if any come up.", tech: "Acknowledging and stepping back", note: "Stepping back returns control to the client." },
+      { t: "Well, fine, but in your place I'd decide on my own.", mistake: "Pressure", note: "Advice “in your place” that nobody asked for pushes again." },
+      { t: "So your word is worth nothing.", mistake: "Belittling", note: "An insult ends the conversation." },
+    ],
+    bye: "That's personal. Don't call me again.", why: "The hidden objection “I need to discuss it” turned into a conflict.",
+  },
+  think_about_it: {
+    label: "“I'll think about it”", family: "other",
+    soft: ["Okay, I'll think about it.", "Interesting. I'll definitely think about it."],
+    hard: ["I'll think about it. Don't call, I'll get in touch myself.", "I'll think. That's all."],
+    opts: [
+      { t: "Of course. Which question is still the most important for you?", tech: "Clarifying the reason", note: "You uncovered the real doubt instead of a polite “I'll think”." },
+      { t: "Fine. Let's agree: I'll write to you on Thursday to find out what you decided.", tech: "A concrete next contact", note: "A date and an action are good, but the cause of the doubt is unknown." },
+      { t: "What is there to think about? The offer is excellent, you won't find better terms, and tomorrow it may be too late to decide.", mistake: "Pressure", note: "You did not accept the client's right to think." },
+      { t: "Think it over, but the offer is only valid until this evening.", mistake: "False scarcity", note: "A fake deadline destroys trust." },
+    ],
+    push: ["I told you: I'll think. Why are you pushing?", "I need time, not persuasion."],
+    rec: [
+      { t: "Sorry. Think it over calmly. May I send the written terms with numbers so you can look at them at your own pace?", tech: "Respect for the decision", note: "You gave the client back a sense of freedom." },
+      { t: "Well, okay, but bear in mind it may cost more later.", mistake: "False scarcity", note: "A hidden threat pushes again." },
+      { t: "Nobody ever thinks, and then they do nothing.", mistake: "Belittling", note: "Accusing the client of passivity ends the dialogue." },
+    ],
+    bye: "That's it, I'll think. Goodbye.", why: "The polite “I'll think” did not turn into a concrete next step.",
+  },
+  bad_past_experience: {
+    label: "“I've been burned before”", family: "trust",
+    soft: ["I've been burned by something like this once. I don't want it again.", "I had a similar experience and it ended badly."],
+    hard: ["An acquaintance put money into the same thing and lost it. Are you suggesting I repeat that?", "I was already in a “club” that ended in a scandal. I won't do it again."],
+    opts: [
+      { t: "I'm sorry to hear that. What exactly went wrong back then?", tech: "Empathy + an open question", note: "You uncovered the cause of the pain instead of defending yourself right away." },
+      { t: "I understand. I don't promise anything I can't show. Here is what can be checked: {proof}.", tech: "Honest framing", note: "Good honesty, but the client's story went unheard." },
+      { t: "That doesn't happen with us, don't compare: everything is different here, the people and the terms too.", mistake: "Excuses", note: "“That doesn't happen with us” sounds like everybody else." },
+      { t: "Just try it, you've got nothing to lose!", mistake: "Pressure and a false promise", note: "“Nothing to lose” is a promise with no grounds." },
+    ],
+    push: ["That's exactly what they told me. Don't try to convince me.", "“Everything is different with us” again. Heard it."],
+    rec: [
+      { t: "I hear you. I won't try to convince you. Let's look at which payments and terms are here, and you decide for yourself, no rush.", tech: "Dropping the pressure", note: "Refusing to persuade is the strongest way to win trust back." },
+      { t: "Well, those were different people, everything's different with us.", mistake: "Excuses", note: "You repeated the same pattern that burned them." },
+      { t: "So it's your own fault for not looking into it.", mistake: "Belittling", note: "Blaming the client for a past mistake hits a sore spot." },
+    ],
+    bye: "It's the same thing again. Don't call me anymore.", why: "The client's negative past experience was not heard.",
+  },
+  no_money: {
+    label: "“No money”", family: "value",
+    soft: ["I don't have a spare {tierPrice} for this right now.", "There's no spare money. Especially not for monthly payments."],
+    hard: ["There's no money. None. And I'm not going to risk my last.", "You're suggesting I spend {sub} when everything is already planned?"],
+    opts: [
+      { t: "I understand. What monthly amount is comfortable for you? Then we'll see whether this suits you at all.", tech: "Finding the budget", note: "You don't argue with the lack of money, you find the limits of the budget." },
+      { t: "I understand. If it's inconvenient now, it's better to come back to this later, when your finances are clearer.", tech: "Respect for the financial situation", note: "A good move, though you could have asked about a comfortable budget." },
+      { t: "Everybody has money, you just haven't set priorities: people spend more on small things than the entry costs.", mistake: "Belittling", note: "Accusing them of “wrong priorities” hurts." },
+      { t: "Take a loan or borrow: it's an investment in yourself, you'll pay it all back later, don't be afraid, everyone does it.", mistake: "Pressure / financial risk", note: "Advising a loan to make a purchase is a serious ethical mistake." },
+    ],
+    push: ["Do you hear me at all? I have no money.", "I said I can't afford it. We're done."],
+    rec: [
+      { t: "I hear you. Then don't sign up for anything now. We'll come back to this when it's comfortable for you, and meanwhile I'll send some information.", tech: "Respect for the budget", note: "Giving up the sale preserves the relationship." },
+      { t: "Well, at least take a simpler option.", mistake: "Ignoring the objection", note: "You keep selling where there is “no money”." },
+      { t: "Then don't say you need it if you aren't ready to pay.", mistake: "Pressure", note: "Rudeness closes any chance of coming back." },
+    ],
+    bye: "I don't have money for this. Goodbye.", why: "The client's financial limit was ignored.",
+  },
+  no_network: {
+    label: "“I don't know anyone”", family: "other",
+    soft: ["I don't see who I'd offer this to: I don't really have acquaintances.", "What circle? I don't talk to many people."],
+    hard: ["I don't know anyone who would do this. It's not for me.", "All my acquaintances are against “network” things."],
+    opts: [
+      { t: "It often feels that way. Let's remember who you talk to during a week, with no obligation to offer anything.", tech: "A joint exercise", note: "You turned the objection into a small practice." },
+      { t: "You don't have to start with acquaintances, and the business is optional: you can use the account only for yourself. Shall I explain how it works?", tech: "Alternative path", note: "Right, but without finding out why the client doubts themselves." },
+      { t: "Everyone has acquaintances, you just don't want to work on yourself and you put off what could change your life.", mistake: "Belittling", note: "Accusing them of laziness ends the dialogue." },
+      { t: "Just write to every contact in your phone: somebody will respond.", mistake: "Pressure / spam approach", note: "Advising to write to everyone harms the client's reputation." },
+    ],
+    push: ["That's not for me. I don't know how to do it.", "“Just write to everyone” again. No."],
+    rec: [
+      { t: "I understand. Let's start with one person, not a “circle”. And I'll be beside you until it works, if you want.", tech: "A small step + support", note: "Support and a small step remove the fear of scale." },
+      { t: "Well, just try, it will all work out.", mistake: "False promise", note: "An empty “it will all work out” does not remove the fear." },
+      { t: "Then this business is not for you.", mistake: "Giving up on the client", note: "You let the client go without trying to understand." },
+    ],
+    bye: "I don't see how to do this. It doesn't suit me.", why: "The fear “I don't know anyone” was not turned into a manageable step.",
+  },
+};

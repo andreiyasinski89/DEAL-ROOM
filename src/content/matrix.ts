@@ -1,6 +1,8 @@
 import type { Level, Scenario } from "../engine/types";
 import { buildScenarioLazy, type CaseSpec } from "./builder";
-import { beats, type BeatTag } from "./data/beats";
+import { ruPack } from "./packs/ru";
+import type { ContentPack } from "./packs/types";
+import type { BeatTag } from "./data/beats";
 import { personas } from "./data/personas";
 import { vocabs, type Vocab } from "./data/vocab";
 
@@ -110,7 +112,6 @@ export function specFor(s: Slot, levelIdx: number, counters: Record<string, numb
   const tier = vocab.tiers[index % vocab.tiers.length];
   return {
     id: `${vocab.key}-l${level}-${persona.id}-${index + 1}`,
-    title: `${persona.name}: ${beats[tags[0]].label}`,
     level,
     vocab,
     tier,
@@ -123,7 +124,7 @@ export function specFor(s: Slot, levelIdx: number, counters: Record<string, numb
 }
 
 /** All generated cases except the slot taken by the hand-written mini-case. */
-export function generated(skipIndex?: number): Scenario[] {
+export function generated(skipIndex?: number, pack: ContentPack = ruPack): Scenario[] {
   const perLevel: Record<number, number> = {};
   const counters: Record<string, number> = {};
   return slots()
@@ -132,5 +133,5 @@ export function generated(skipIndex?: number): Scenario[] {
       return { s, spec: specFor(s, perLevel[s.level], counters) };
     })
     .filter(({ s }) => s.index !== skipIndex)
-    .map(({ spec }) => buildScenarioLazy(spec));
+    .map(({ spec }) => buildScenarioLazy(spec, pack));
 }

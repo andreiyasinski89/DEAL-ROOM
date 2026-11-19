@@ -1,34 +1,35 @@
 import type { LeaderRow, StatusRow } from "../../engine/teams";
+import { T } from "../../i18n";
 import { ensureSupabase } from "../account/supabase";
 
 export type MyTeam = { id: string; name: string; role: "leader" | "member"; invite_code: string | null; member_count: number };
 
 const ERRORS: Record<string, string> = {
-  unauthorized: "Войдите в аккаунт.",
-  bad_name: "Название команды: от 2 до 60 символов.",
-  too_many_teams: "Можно создать не больше 3 команд.",
-  invalid_code: "Код не найден. Проверьте, что вы скопировали его полностью.",
-  team_full: "В команде уже 50 участников.",
-  owner_cannot_leave: "Создатель не может выйти из команды: её можно только удалить.",
-  forbidden: "Недостаточно прав для этого действия.",
-  cannot_remove_owner: "Создателя команды удалить нельзя.",
-  bad_scenario: "Некорректный кейс.",
-  too_many: "В команде уже 50 заданий: удалите старые.",
+  unauthorized: T("Войдите в аккаунт."),
+  bad_name: T("Название команды: от 2 до 60 символов."),
+  too_many_teams: T("Можно создать не больше 3 команд."),
+  invalid_code: T("Код не найден. Проверьте, что вы скопировали его полностью."),
+  team_full: T("В команде уже 50 участников."),
+  owner_cannot_leave: T("Создатель не может выйти из команды: её можно только удалить."),
+  forbidden: T("Недостаточно прав для этого действия."),
+  cannot_remove_owner: T("Создателя команды удалить нельзя."),
+  bad_scenario: T("Некорректный кейс."),
+  too_many: T("В команде уже 50 заданий: удалите старые."),
 };
 
 export class TeamError extends Error {}
 
 const need = async () => {
   const client = await ensureSupabase();
-  if (!client) throw new TeamError("Облако не настроено.");
+  if (!client) throw new TeamError(T("Облако не настроено."));
   return client;
 };
 
 async function call<T = Record<string, unknown>>(fn: string, args: Record<string, unknown> = {}): Promise<T> {
   const { data, error } = await (await need()).rpc(fn, args);
-  if (error) throw new TeamError(error.message.includes("permission denied") ? "Нет доступа. Выполните миграцию 004_teams.sql (см. README)." : error.message);
+  if (error) throw new TeamError(error.message.includes("permission denied") ? T("Нет доступа. Выполните миграцию 004_teams.sql (см. README).") : error.message);
   const r = data as { ok?: boolean; error?: string } | null;
-  if (r && typeof r === "object" && !Array.isArray(r) && r.ok === false) throw new TeamError(ERRORS[r.error ?? ""] ?? "Не удалось выполнить действие.");
+  if (r && typeof r === "object" && !Array.isArray(r) && r.ok === false) throw new TeamError(ERRORS[r.error ?? ""] ?? T("Не удалось выполнить действие."));
   return data as T;
 }
 

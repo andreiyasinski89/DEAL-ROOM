@@ -1,28 +1,34 @@
 import type { ClientEval, DebriefOut, LiveRequest } from "../../supabase/functions/_shared/live.ts";
+import { T, type Tr } from "../i18n";
 import { ensureSupabase } from "../features/account/supabase";
 
 export class LiveError extends Error {
-  constructor(public code: string, message: string) {
+  /** `message` is a translation key (see MESSAGES); show it with tr(). `detail` is the provider's own short note. */
+  constructor(public code: string, message: string, public detail?: string) {
     super(message);
   }
 }
 
 const MESSAGES: Record<string, string> = {
-  unauthorized: "Войдите в аккаунт, чтобы играть в живом режиме.",
-  limit: "Дневной лимит живых игр исчерпан. Скриптовый режим доступен без ограничений.",
-  not_configured: "Живой режим ещё не включён на сервере (нет ключа Claude).",
-  provider_busy: "ИИ сейчас перегружен. Попробуйте через минуту.",
-  provider_auth: "Сервер не смог авторизоваться у ИИ-провайдера. Сообщите владельцу приложения.",
-  provider_error: "Ошибка ИИ-провайдера. Попробуйте ещё раз.",
-  timeout: "ИИ слишком долго отвечал. Попробуйте ещё раз.",
-  bad_model_output: "ИИ ответил некорректно. Отправьте реплику ещё раз.",
-  too_large: "Слишком длинный запрос.",
-  empty_message: "Напишите реплику.",
-  network: "Нет связи с сервером. Проверьте интернет.",
-  not_deployed: "Функция живого режима не развёрнута на сервере (см. README).",
+  unauthorized: T("Войдите в аккаунт, чтобы играть в живом режиме."),
+  limit: T("Дневной лимит живых игр исчерпан. Скриптовый режим доступен без ограничений."),
+  not_configured: T("Живой режим ещё не включён на сервере (нет ключа Claude)."),
+  provider_busy: T("ИИ сейчас перегружен. Попробуйте через минуту."),
+  provider_auth: T("Сервер не смог авторизоваться у ИИ-провайдера. Сообщите владельцу приложения."),
+  provider_error: T("Ошибка ИИ-провайдера. Попробуйте ещё раз."),
+  timeout: T("ИИ слишком долго отвечал. Попробуйте ещё раз."),
+  bad_model_output: T("ИИ ответил некорректно. Отправьте реплику ещё раз."),
+  too_large: T("Слишком длинный запрос."),
+  empty_message: T("Напишите реплику."),
+  network: T("Нет связи с сервером. Проверьте интернет."),
+  not_deployed: T("Функция живого режима не развёрнута на сервере (см. README)."),
 };
 
-export const liveMessage = (code: string) => MESSAGES[code] ?? "Не удалось выполнить запрос к ИИ.";
+export const liveMessage = (code: string) => MESSAGES[code] ?? T("Не удалось выполнить запрос к ИИ.");
+
+/** The text to show for any error thrown by this module, in the player's language. */
+export const liveErrorText = (e: unknown, tr: Tr) =>
+  e instanceof LiveError ? tr(e.message) + (e.detail ? ` (${e.detail})` : "") : tr(liveMessage("network"));
 
 type Ok = { ok: true; eval?: ClientEval; debrief?: DebriefOut; sessionsLeft?: number };
 
@@ -38,7 +44,7 @@ async function call(req: LiveRequest): Promise<Ok> {
       const body = (await ctx.json().catch(() => ({}))) as { error?: string; detail?: string };
       const code = body.error ?? (status === 404 ? "not_deployed" : "provider_error");
       // the server adds the provider's own short explanation (never a secret): show it to help diagnose
-      throw new LiveError(code, body.detail ? `${liveMessage(code)} (${body.detail})` : liveMessage(code));
+      throw new LiveError(code, liveMessage(code), body.detail);
     }
     throw new LiveError("network", liveMessage("network"));
   }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
+import { T } from "../../i18n";
 import { cloudConfigured, ensureSupabase } from "./supabase";
 
 export type AuthState = {
@@ -15,9 +16,9 @@ export type AuthState = {
 };
 
 const RU: Record<string, string> = {
-  "Invalid login credentials": "Неверная почта или пароль.",
-  "User already registered": "Такой пользователь уже зарегистрирован — войдите.",
-  "Email not confirmed": "Подтвердите почту по письму и войдите снова.",
+  "Invalid login credentials": T("Неверная почта или пароль."),
+  "User already registered": T("Такой пользователь уже зарегистрирован — войдите."),
+  "Email not confirmed": T("Подтвердите почту по письму и войдите снова."),
 };
 const human = (m: string) => RU[m] ?? m;
 
@@ -47,13 +48,13 @@ export function useAuth(): AuthState {
 
   const guard = useCallback(async (fn: (c: NonNullable<Awaited<ReturnType<typeof ensureSupabase>>>) => Promise<string | undefined>) => {
     const client = await ensureSupabase();
-    if (!client) return setMessage("Облако не настроено: добавьте ключи Supabase (см. README).");
+    if (!client) return setMessage(T("Облако не настроено: добавьте ключи Supabase (см. README)."));
     setMessage("");
     try {
       const err = await fn(client);
       if (err) setMessage(human(err));
     } catch (e) {
-      setMessage(e instanceof Error ? human(e.message) : "Не удалось выполнить запрос.");
+      setMessage(e instanceof Error ? human(e.message) : T("Не удалось выполнить запрос."));
     }
   }, []);
 
@@ -67,7 +68,7 @@ export function useAuth(): AuthState {
       guard(async (c) => {
         const { data, error } = await c.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin } });
         if (error) return error.message;
-        if (!data.session) setMessage("Мы отправили письмо: подтвердите почту, затем войдите.");
+        if (!data.session) setMessage(T("Мы отправили письмо: подтвердите почту, затем войдите."));
         return undefined;
       }),
     signInGoogle: () => guard(async (c) => (await c.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } })).error?.message),

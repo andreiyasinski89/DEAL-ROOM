@@ -1,6 +1,7 @@
-import { LIMITS, type ClientEval, type LiveRequest, type LiveScenario, type Message, type Outcome, type Quality } from "../../supabase/functions/_shared/live.ts";
+import { LIMITS, type ClientEval, type Lang, type LiveRequest, type LiveScenario, type Message, type Outcome, type Quality } from "../../supabase/functions/_shared/live.ts";
 import { LEVEL_RULES, OUTCOME_POINTS, QUALITY_POINTS, clamp, dealProbability } from "../engine/engine";
 import type { SessionRecord } from "../engine/profile";
+import { T, translate, type Tr } from "../i18n";
 import type { Mood, Scenario } from "../engine/types";
 
 export type LiveEval = {
@@ -39,24 +40,25 @@ export function toLiveScenario(s: Scenario): LiveScenario {
 }
 
 /** First client line: the opening of the scripted case, so both modes start the same way. */
-export function openingLine(s: Scenario): string {
+export function openingLine(s: Scenario, tr: Tr = (t, v) => translate("ru", t, v)): string {
   const n = s.nodes[s.startNodeId];
-  return n && n.type === "client" ? n.text : `${s.persona.name}: слушаю вас.`;
+  return n && n.type === "client" ? n.text : `${s.persona.name}: ${tr("слушаю вас.")}`;
 }
 
-export function createLive(s: Scenario): LiveState {
+export function createLive(s: Scenario, tr?: Tr): LiveState {
   return {
     trust: s.initialState.trust,
     interest: s.initialState.interest,
     irritation: s.initialState.irritation,
     turn: 0,
-    transcript: [{ role: "client", text: openingLine(s) }],
+    transcript: [{ role: "client", text: openingLine(s, tr) }],
     evals: [],
   };
 }
 
-export function turnRequest(s: Scenario, st: LiveState, player: string): LiveRequest {
+export function turnRequest(s: Scenario, st: LiveState, player: string, lang: Lang = "ru"): LiveRequest {
   return {
+    lang,
     action: "turn",
     scenario: toLiveScenario(s),
     state: { trust: st.trust, interest: st.interest, irritation: st.irritation },
@@ -66,8 +68,9 @@ export function turnRequest(s: Scenario, st: LiveState, player: string): LiveReq
   };
 }
 
-export function debriefRequest(s: Scenario, st: LiveState): LiveRequest {
+export function debriefRequest(s: Scenario, st: LiveState, lang: Lang = "ru"): LiveRequest {
   return {
+    lang,
     action: "debrief",
     scenario: toLiveScenario(s),
     state: { trust: st.trust, interest: st.interest, irritation: st.irritation },
@@ -94,18 +97,18 @@ export function applyLiveEval(st: LiveState, s: Scenario, player: string, ev: Cl
   };
 
   const rules = LEVEL_RULES[s.level];
-  if (irritation >= rules.irritationMax) next.ended = { outcome: "lost", reason: "Раздражение достигло максимума — клиент прервал разговор." };
-  else if (trust <= rules.trustMin) next.ended = { outcome: "lost", reason: "Доверие упало до нуля — клиент перестал вам верить." };
+  if (irritation >= rules.irritationMax) next.ended = { outcome: "lost", reason: T("Раздражение достигло максимума — клиент прервал разговор.") };
+  else if (trust <= rules.trustMin) next.ended = { outcome: "lost", reason: T("Доверие упало до нуля — клиент перестал вам верить.") };
   else if (ev.isEnding && ev.outcome) {
     next.ended = {
       outcome: ev.outcome,
-      reason: ev.outcome === "sale" ? "Клиент согласился." : ev.outcome === "partial" ? "Договорились о следующем шаге." : "Клиент отказался.",
+      reason: ev.outcome === "sale" ? T("Клиент согласился.") : ev.outcome === "partial" ? T("Договорились о следующем шаге.") : T("Клиент отказался."),
     };
   } else if (turn >= LIMITS.maxTurns) {
     const ok = dealProbability(next) >= 55 && ev.quality !== "critical_error";
     next.ended = ok
-      ? { outcome: "partial", reason: "Разговор затянулся, но клиент не против продолжить позже." }
-      : { outcome: "lost", reason: "Разговор затянулся и не привёл к договорённости." };
+      ? { outcome: "partial", reason: T("Разговор затянулся, но клиент не против продолжить позже.") }
+      : { outcome: "lost", reason: T("Разговор затянулся и не привёл к договорённости.") };
   }
   return next;
 }

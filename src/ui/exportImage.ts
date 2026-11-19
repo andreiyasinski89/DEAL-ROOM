@@ -1,4 +1,5 @@
 import { fmtTime, type Debrief } from "../engine/debrief";
+import { translate, type Tr } from "../i18n";
 
 const COLORS = { bg: "#05070D", cyan: "#3FE0FF", gold: "#FFB547", red: "#FF4D5E", green: "#3DFFA2", text: "#E6F1FF", dim: "#7F93B0" };
 const STATUS = { sale: "SALE CLOSED", partial: "PARTIAL", lost: "MISSION FAILED" } as const;
@@ -19,7 +20,7 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, maxW: number): string
 }
 
 /** Renders the summary card as a 1080×1920 (9:16) PNG story image. */
-export function renderStoryPng(d: Debrief, title: string, clientName: string): Promise<Blob> {
+export function renderStoryPng(d: Debrief, title: string, clientName: string, tr: Tr = (t, v) => translate("ru", t, v)): Promise<Blob> {
   const W = 1080;
   const H = 1920;
   const c = document.createElement("canvas");
@@ -44,7 +45,7 @@ export function renderStoryPng(d: Debrief, title: string, clientName: string): P
   ctx.textBaseline = "alphabetic";
   ctx.fillStyle = COLORS.cyan;
   ctx.font = "500 30px 'JetBrains Mono', monospace";
-  ctx.fillText("DEAL ROOM · РАЗБОР ПОЛЁТОВ", pad, y);
+  ctx.fillText(`DEAL ROOM · ${tr("РАЗБОР ПОЛЁТОВ")}`, pad, y);
 
   y += 120;
   ctx.fillStyle = STATUS_COLOR[d.outcome];
@@ -65,7 +66,7 @@ export function renderStoryPng(d: Debrief, title: string, clientName: string): P
   y += 30;
   ctx.fillStyle = COLORS.gold;
   ctx.font = "700 44px Rajdhani, sans-serif";
-  ctx.fillText(`Очки ${d.score.total}/${d.score.max}   ·   Ходов ${d.turns}   ·   ${fmtTime(d.durationSec)}`, pad, y);
+  ctx.fillText(`${tr("Очки")} ${d.score.total}/${d.score.max}   ·   ${tr("Ходов")} ${d.turns}   ·   ${fmtTime(d.durationSec)}`, pad, y);
   y += 30;
 
   const section = (head: string, color: string, items: string[]) => {
@@ -86,14 +87,14 @@ export function renderStoryPng(d: Debrief, title: string, clientName: string): P
       y += 8;
     }
   };
-  section("✔ ЧТО БЫЛО ХОРОШО", COLORS.green, d.good);
-  section("✘ ЧТО БЫЛО ПЛОХО", COLORS.red, d.bad);
-  section("↗ ТОЧКИ РОСТА", COLORS.gold, d.growth);
-  if (d.score.riskyWin) section("⚠ ВНИМАНИЕ", COLORS.red, ["Продажа с риском возврата или жалобы"]);
+  section(`✔ ${tr("ЧТО БЫЛО ХОРОШО")}`, COLORS.green, d.good);
+  section(`✘ ${tr("ЧТО БЫЛО ПЛОХО")}`, COLORS.red, d.bad);
+  section(`↗ ${tr("ТОЧКИ РОСТА")}`, COLORS.gold, d.growth);
+  if (d.score.riskyWin) section(`⚠ ${tr("ВНИМАНИЕ")}`, COLORS.red, [tr("Продажа с риском возврата или жалобы")]);
 
   ctx.fillStyle = COLORS.dim;
   ctx.font = "400 26px 'JetBrains Mono', monospace";
-  ctx.fillText("deal-room · тренажёр продаж", pad, H - 90);
+  ctx.fillText(`deal-room · ${tr("тренажёр продаж")}`, pad, H - 90);
 
   return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error("toBlob failed"))), "image/png"));
 }

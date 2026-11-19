@@ -1,16 +1,8 @@
-import type { Scenario } from "../engine/types";
-import { miniCase } from "./miniCase";
-import { generated, slots } from "./matrix";
+import { buildLibrary } from "./library";
+import { ruPack } from "./packs/ru";
 
-/**
- * 100 cases: the hand-written mini-case takes the first level-3 slot whose niche is
- * "member_elite"; the other 99 are assembled by the builder from personas, niche vocabularies
- * and the objection bank.
- */
-const miniSlot = slots().find((s) => s.level === 3 && s.vocab.key === "member_elite")?.index;
+/** The Russian library: the source of truth and what the tests use. Other languages: see bundle.ts. */
+const ru = buildLibrary(ruPack);
 
-export const allScenarios: Scenario[] = [...generated(miniSlot)];
-if (miniSlot !== undefined) allScenarios.splice(Math.min(miniSlot, allScenarios.length), 0, miniCase);
-else allScenarios.push(miniCase);
-
-export const scenarioById = (id: string): Scenario | undefined => allScenarios.find((s) => s.id === id);
+export const allScenarios = ru.allScenarios;
+export const scenarioById = ru.scenarioById;

@@ -3,6 +3,8 @@ import { buildScenario } from "./builder";
 import { personaById } from "./data/personas";
 import { vocabByKey } from "./data/vocab";
 import { TUTORIAL_ID } from "./ids";
+import { ruPack } from "./packs/ru";
+import type { ContentPack } from "./packs/types";
 
 export { TUTORIAL_ID };
 
@@ -11,16 +13,21 @@ export { TUTORIAL_ID };
  * case (so it is validated the same way) but is NOT part of the 100-case library, is not
  * counted in progress and does not give points.
  */
-export const tutorialCase: Scenario = {
-  ...buildScenario({
-    id: TUTORIAL_ID,
-    title: "Кейс 0: Как играть",
-    level: 1,
-    vocab: vocabByKey("member_elite"),
-    tier: "Elite",
-    channel: "call",
-    persona: personaById("svetlana"),
-    tags: ["time", "subscription", "think_about_it"],
-    seed: 0,
-  }),
-};
+export function buildTutorial(pack: ContentPack = ruPack): Scenario {
+  const s = buildScenario(
+    {
+      id: TUTORIAL_ID,
+      level: 1,
+      vocab: vocabByKey("member_elite"),
+      tier: "Elite",
+      channel: "call",
+      persona: personaById("svetlana"),
+      tags: ["time", "subscription", "think_about_it"],
+      seed: 0,
+    },
+    pack,
+  );
+  return { ...s, title: pack.tpl.tutorialTitle };
+}
+
+export const tutorialCase: Scenario = buildTutorial(ruPack);

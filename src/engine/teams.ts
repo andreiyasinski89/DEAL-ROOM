@@ -1,3 +1,4 @@
+import { translate, type Tr } from "../i18n";
 /** Pure helpers for the team screens (the data itself comes from the SECURITY DEFINER functions in 004_teams.sql). */
 
 export type LeaderRow = {
@@ -71,14 +72,14 @@ const DAY = 86_400_000;
 const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 
 /** "сегодня", "через 3 дн.", "просрочено на 2 дн." for a YYYY-MM-DD due date. */
-export function dueLabel(due: string | null, now = new Date()): { text: string; overdue: boolean } {
-  if (!due) return { text: "без срока", overdue: false };
+export function dueLabel(due: string | null, now = new Date(), tr: Tr = (t, v) => translate("ru", t, v)): { text: string; overdue: boolean } {
+  if (!due) return { text: tr("без срока"), overdue: false };
   const [y, m, d] = due.split("-").map(Number);
   const days = Math.round((new Date(y, m - 1, d).getTime() - startOfDay(now)) / DAY);
-  if (days === 0) return { text: "сегодня", overdue: false };
-  if (days === 1) return { text: "завтра", overdue: false };
-  if (days > 1) return { text: `через ${days} дн.`, overdue: false };
-  return { text: `просрочено на ${-days} дн.`, overdue: true };
+  if (days === 0) return { text: tr("сегодня"), overdue: false };
+  if (days === 1) return { text: tr("завтра"), overdue: false };
+  if (days > 1) return { text: tr("через {n} дн.", { n: days }), overdue: false };
+  return { text: tr("просрочено на {n} дн.", { n: -days }), overdue: true };
 }
 
 /** Share of members that completed an assignment, 0..1. */

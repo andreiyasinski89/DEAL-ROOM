@@ -10,6 +10,13 @@ import type {
   Scenario,
   ScenarioNode,
 } from "./types";
+import type { AutoEnd } from "./types";
+
+/** Russian texts of the automatic endings (scenarios of other languages carry their own `autoEnd`). */
+export const RU_AUTO_END: AutoEnd = {
+  irritation: { text: "Клиент резко прерывает разговор: «Мне это не интересно. Больше не звоните». Гудки.", reason: "Раздражение достигло максимума — клиент бросил трубку." },
+  trust: { text: "«Знаете, я вам больше не верю. Всего доброго». Клиент заканчивает разговор.", reason: "Доверие упало до нуля — клиент перестал вам верить." },
+};
 
 export const clamp = (v: number, min = 0, max = 100) => Math.min(max, Math.max(min, v));
 
@@ -102,6 +109,7 @@ export function applyChoice(s: Scenario, st: GameState, choiceId: string): GameS
         quality: choice.quality,
         technique: choice.technique,
         mistake: choice.mistake,
+        mistakeCode: choice.mistakeCode,
         coachNote: choice.coachNote,
         delta: { trust: trust - st.trust, interest: interest - st.interest, irritation: irritation - st.irritation },
         after: { trust, interest, irritation },
@@ -112,17 +120,9 @@ export function applyChoice(s: Scenario, st: GameState, choiceId: string): GameS
   // Automatic endings by scale (thresholds per level come in Phase 2).
   const rules = LEVEL_RULES[s.level];
   if (irritation >= rules.irritationMax) {
-    next.autoEnding = {
-      outcome: "lost",
-      text: "Клиент резко прерывает разговор: «Мне это не интересно. Больше не звоните». Гудки.",
-      reason: "Раздражение достигло максимума — клиент бросил трубку.",
-    };
+    next.autoEnding = { outcome: "lost", ...(s.autoEnd ?? RU_AUTO_END).irritation };
   } else if (trust <= rules.trustMin) {
-    next.autoEnding = {
-      outcome: "lost",
-      text: "«Знаете, я вам больше не верю. Всего доброго». Клиент заканчивает разговор.",
-      reason: "Доверие упало до нуля — клиент перестал вам верить.",
-    };
+    next.autoEnding = { outcome: "lost", ...(s.autoEnd ?? RU_AUTO_END).trust };
   }
   return next;
 }

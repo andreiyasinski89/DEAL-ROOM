@@ -84,17 +84,70 @@ test("the guided tour shows on the first game, can be skipped, and does not come
   await expect(page.getByRole("dialog", { name: "Обучение" })).toBeVisible();
 });
 
-test("the interface can be switched to English and Polish and the choice is remembered", async ({ page }) => {
+test("the interface AND all scenario texts switch between RU / EN / PL / UA and the choice is remembered", async ({ page }) => {
   await seed(page);
   await page.goto("/");
   await expect(page.getByText("КАРТА МИССИЙ")).toBeVisible();
+  await expect(page.locator(".case-row", { hasText: "Ирина: «Ещё подписка $120?»" })).toBeVisible();
+
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.getByText("MISSION MAP")).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page).toHaveTitle(/sales trainer/);
+  await expect(page.locator(".case-row", { hasText: "Irina: “Another $120 subscription?”" })).toBeVisible();
+
   await page.getByRole("button", { name: "PL", exact: true }).click();
   await expect(page.getByText("MAPA MISJI")).toBeVisible();
+  await expect(page.locator(".case-row", { hasText: "Irena: „Jeszcze abonament $120?”" })).toBeVisible();
+
+  await page.getByRole("button", { name: "UA", exact: true }).click();
+  await expect(page.getByText("КАРТА МІСІЙ")).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "uk");
+  await expect(page.locator(".case-row", { hasText: "Ірина: «Ще й підписка $120?»" })).toBeVisible();
+
   await page.reload();
-  await expect(page.getByText("MAPA MISJI")).toBeVisible();
+  await expect(page.getByText("КАРТА МІСІЙ")).toBeVisible();
+  await expect(page.locator(".case-row", { hasText: "Ірина: «Ще й підписка $120?»" })).toBeVisible();
+});
+
+test("a whole game can be played and debriefed in Ukrainian (translated graph, answers and advice)", async ({ page }) => {
+  await seed(page, { dr_lang: "uk" });
+  await page.goto("/");
+  await page.getByLabel("вільна гра").check();
+  await page.getByRole("tab", { name: /Практик/ }).click();
+  await page.locator(".case-row", { hasText: "Скептична бухгалтерка" }).click();
+  await expect(page.getByText("БРИФІНГ МІСІЇ")).toBeVisible();
+  await page.getByRole("button", { name: /Почати діалог/ }).click();
+
+  await pick(page, "Так, модель мережева, приховувати не буду");
+  await pick(page, "Співчуваю вашій подрузі");
+  await pick(page, "Дякую, що розповіли");
+  await pick(page, "Elite — $340");
+  await pick(page, "Пропоную так");
+
+  await page.getByRole("button", { name: /Розбір польотів/ }).click();
+  await expect(page.getByText(/SALE CLOSED: клієнтка погодилася/).first()).toBeVisible();
+});
+
+test("a lost game in Polish shows growth advice in Polish", async ({ page }) => {
+  await seed(page, { dr_lang: "pl" });
+  await page.goto("/");
+  await page.getByLabel("gra swobodna").check();
+  await page.getByRole("tab", { name: /Praktyk/ }).click();
+  await page.locator(".case-row", { hasText: "Sceptyczna księgowa" }).click();
+  await page.getByRole("button", { name: /Rozpocznij rozmowę/ }).click();
+
+  // two bad answers drop trust to zero: the automatic ending is translated too
+  await pick(page, "Nie, nie, skąd, to coś zupełnie innego");
+  await pick(page, "No to taki marketing, nie zwracaj uwagi");
+  await page.getByRole("button", { name: /Podsumowanie/ }).click();
+  await expect(page.getByText("Zaufanie spadło do zera")).toBeVisible();
+  // the growth advice comes from language-independent mistake codes
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByRole("listitem").filter({ hasText: "Nigdy nie obiecywać dochodu ani gwarancji" })).toBeVisible();
+  await expect(page.getByRole("listitem").filter({ hasText: "Najpierw odpowiedzieć na bezpośrednie pytanie klienta" })).toBeVisible();
 });
 
 test("the scripted mode works offline after the first visit (service worker)", async ({ page, context }) => {

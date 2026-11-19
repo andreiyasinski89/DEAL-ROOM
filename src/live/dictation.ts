@@ -7,11 +7,15 @@
  * Everything here is plain TypeScript: the controller takes a recognition factory, so tests can fake the browser.
  */
 
-export type DictationLang = "ru-RU" | "en-US" | "pl-PL";
+import { T } from "../i18n";
+
+export type DictationLang = "ru-RU" | "en-US" | "pl-PL" | "uk-UA";
+export const DICTATION_OF: Record<string, DictationLang> = { ru: "ru-RU", en: "en-US", pl: "pl-PL", uk: "uk-UA" };
 export const DICTATION_LANGS: { code: DictationLang; label: string }[] = [
   { code: "ru-RU", label: "RU" },
   { code: "en-US", label: "EN" },
   { code: "pl-PL", label: "PL" },
+  { code: "uk-UA", label: "UA" },
 ];
 
 /** The minimal slice of SpeechRecognition we use (lib.dom does not ship these types). */
@@ -39,12 +43,13 @@ export function browserRecognition(): RecognitionFactory | null {
   return C ? () => new C() : null;
 }
 
+/** Translation keys (show with tr()). */
 export const ERROR_TEXT: Record<string, string> = {
-  "not-allowed": "Доступ к микрофону запрещён. Разрешите его для этого сайта в настройках браузера (значок замка у адреса).",
-  "service-not-allowed": "Браузер не разрешил распознавание речи на этом сайте.",
-  "audio-capture": "Микрофон не найден или занят другой программой.",
-  network: "Нет связи с сервисом распознавания речи. Проверьте интернет.",
-  "language-not-supported": "Этот язык диктовки не поддерживается браузером.",
+  "not-allowed": T("Доступ к микрофону запрещён. Разрешите его для этого сайта в настройках браузера (значок замка у адреса)."),
+  "service-not-allowed": T("Браузер не разрешил распознавание речи на этом сайте."),
+  "audio-capture": T("Микрофон не найден или занят другой программой."),
+  network: T("Нет связи с сервисом распознавания речи. Проверьте интернет."),
+  "language-not-supported": T("Этот язык диктовки не поддерживается браузером."),
 };
 
 /** Errors after which restarting would just fail again. */
@@ -171,20 +176,20 @@ export class Dictation {
     this.wanted = false;
     this.rec = null;
     this.events.onInterim("");
-    this.events.onState({ listening: false, error: ERROR_TEXT[code] ?? "Не удалось включить диктовку." });
+    this.events.onState({ listening: false, error: ERROR_TEXT[code] ?? T("Не удалось включить диктовку.") });
   }
 }
 
 const KEY = "dr_dictation_lang";
 
-export function loadDictationLang(): DictationLang {
+export function loadDictationLang(fallback: DictationLang = "ru-RU"): DictationLang {
   try {
     const v = localStorage.getItem(KEY);
-    if (v === "ru-RU" || v === "en-US" || v === "pl-PL") return v;
+    if (v === "ru-RU" || v === "en-US" || v === "pl-PL" || v === "uk-UA") return v;
   } catch {
     /* ignore */
   }
-  return "ru-RU"; // the scenarios are in Russian
+  return fallback; // the scenarios are in the interface language
 }
 
 export function saveDictationLang(l: DictationLang) {

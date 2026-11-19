@@ -29,10 +29,10 @@ export const ALLOWED_USD = new Set([
   MWR.tiers.Turbo.price - MWR.tiers.Elite.price,
 ]);
 
-export const tierFacts = (t: Tier) => ({
+export const tierFacts = (t: Tier, perMonth = "в месяц") => ({
   tier: t,
   tierPrice: usd(MWR.tiers[t].price),
   tierPoints: usd(MWR.tiers[t].points),
   fee: usd(MWR.fee),
-  sub: `${usd(MWR.subscription)} в месяц`,
+  sub: `${usd(MWR.subscription)} ${perMonth}`,
 });

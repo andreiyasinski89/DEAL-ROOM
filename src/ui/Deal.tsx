@@ -505,7 +505,7 @@ export function Deal({
             <motion.div
               className="sheet"
               role="dialog"
-              aria-label="Досье и пульс сделки"
+              aria-label={tr("Досье и пульс сделки")}
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}

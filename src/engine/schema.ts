@@ -25,6 +25,7 @@ const choice = z.object({
   quality,
   technique: z.string().optional(),
   mistake: z.string().optional(),
+  mistakeCode: z.string().optional(),
   coachNote: z.string().min(1, "coachNote is required"),
 });
 
@@ -69,6 +70,9 @@ export const scenarioSchema = z.object({
   objectionTags: z.array(z.string()),
   briefing: z.string().min(1),
   hiddenContext: z.string().min(1),
+  autoEnd: z
+    .object({ irritation: z.object({ text: z.string(), reason: z.string() }), trust: z.object({ text: z.string(), reason: z.string() }) })
+    .optional(),
   initialState: z.object({
     trust: scale,
     interest: scale,

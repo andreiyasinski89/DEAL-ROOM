@@ -1,5 +1,5 @@
 import {
-  CLIENT_SYSTEM, CLIENT_TOOL, DEBRIEF_SYSTEM, DEBRIEF_TOOL, LIMITS, clientUser, debriefUser,
+  CLIENT_SYSTEM, CLIENT_TOOL, DEBRIEF_TOOL, debriefSystem, LIMITS, clientUser, debriefUser,
   mentionsRubles, parseRequest, validateDebrief, validateEval, type LiveRequest,
 } from "./live.ts";
 
@@ -61,7 +61,7 @@ async function callClaude(req: LiveRequest, deps: Deps, nudge = false): Promise<
       body: JSON.stringify({
         model: deps.model,
         max_tokens: isTurn ? 1200 : 1500,
-        system: isTurn ? CLIENT_SYSTEM(req.scenario) : DEBRIEF_SYSTEM,
+        system: isTurn ? CLIENT_SYSTEM(req.scenario, req.lang) : debriefSystem(req.lang),
         messages: [{ role: "user", content: (isTurn ? clientUser(req) : debriefUser(req)) + (nudge ? NUDGE : "") }],
         tools: [tool],
         // some models reject a forced tool call; "auto" + the prompt rule "answer ONLY by calling the tool" works everywhere

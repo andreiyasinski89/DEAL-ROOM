@@ -6,19 +6,20 @@ import {
   ACHIEVEMENTS, fmtOutcome, levelStats, rankFor, recommend, streakDays, tagStats, totalPoints, unlockedAchievements,
   type SessionRecord,
 } from "../engine/profile";
-import { TAG_LABEL } from "../content/data/beats";
+import { LOCALE, T, useI18n } from "../i18n";
 import { Panel } from "./parts";
 import { AuthPanel } from "../features/account/AuthPanel";
 import type { AuthState } from "../features/account/useAuth";
 
-const LEVELS = ["Стажёр", "Новичок", "Практик", "Профи", "Акула"];
+const LEVELS = [T("Стажёр"), T("Новичок"), T("Практик"), T("Профи"), T("Акула")];
 const OUT_COLOR = { sale: "var(--hud-green)", partial: "var(--hud-gold)", lost: "var(--hud-red)" } as const;
 
 /** Radar of success rate per objection tag (outer ring = 100% good answers). */
-function WeakRadar({ stats }: { stats: ReturnType<typeof tagStats> }) {
+function WeakRadar({ stats, tagLabels }: { stats: ReturnType<typeof tagStats>; tagLabels: Record<string, string> }) {
+  const { tr } = useI18n();
   const items = [...stats].sort((a, b) => b.attempts - a.attempts).slice(0, 8);
   if (items.length < 3)
-    return <p className="dim" style={{ fontSize: 13 }}>Сыграйте ещё пару кейсов: карта слабых мест строится по вашим ответам на возражения (нужно минимум три разных возражения).</p>;
+    return <p className="dim" style={{ fontSize: 13 }}>{tr("Сыграйте ещё пару кейсов: карта слабых мест строится по вашим ответам на возражения (нужно минимум три разных возражения).")}</p>;
   const R = 90;
   const c = 130;
   const pts = items.map((t, i) => {
@@ -29,7 +30,7 @@ function WeakRadar({ stats }: { stats: ReturnType<typeof tagStats> }) {
   });
   return (
     <>
-      <svg viewBox="-90 0 440 260" style={{ width: "100%", maxWidth: 480, display: "block", margin: "0 auto" }} role="img" aria-label={`Карта слабых мест: ${items.map((t) => `${TAG_LABEL[t.tag] ?? t.tag} ${Math.round((1 - t.failRate) * 100)}%`).join(", ")}`}>
+      <svg viewBox="-90 0 440 260" style={{ width: "100%", maxWidth: 480, display: "block", margin: "0 auto" }} role="img" aria-label={`${tr("Карта слабых мест")}: ${items.map((t) => `${tagLabels[t.tag] ?? t.tag} ${Math.round((1 - t.failRate) * 100)}%`).join(", ")}`}>
         {[0.25, 0.5, 0.75, 1].map((k) => (
           <circle key={k} cx={c} cy={c} r={R * k} fill="none" stroke="rgba(63,224,255,0.18)" strokeDasharray={k === 1 ? undefined : "2 4"} />
         ))}
@@ -49,13 +50,13 @@ function WeakRadar({ stats }: { stats: ReturnType<typeof tagStats> }) {
           <g key={p.t.tag}>
             <circle cx={p.x} cy={p.y} r={3.5} fill={p.t.failRate > 0.5 ? "#ff4d5e" : "#3dffa2"} />
             <text x={p.lx} y={p.ly} textAnchor={p.side} fontSize={8} fill="#a9bbd6" fontFamily="JetBrains Mono">
-              {(TAG_LABEL[p.t.tag] ?? p.t.tag).replace(/[«»]/g, "").slice(0, 26)}
+              {(tagLabels[p.t.tag] ?? p.t.tag).replace(/[«»]/g, "").slice(0, 26)}
             </text>
           </g>
         ))}
       </svg>
       <div className="legend" style={{ justifyContent: "center" }}>
-        <span>центр = часто ошибаетесь, край = отвечаете хорошо</span>
+        <span>{tr("центр = часто ошибаетесь, край = отвечаете хорошо")}</span>
       </div>
     </>
   );
@@ -64,6 +65,7 @@ function WeakRadar({ stats }: { stats: ReturnType<typeof tagStats> }) {
 export function Profile({
   records,
   scenarios,
+  tagLabels,
   auth,
   syncNote,
   onBack,
@@ -71,11 +73,13 @@ export function Profile({
 }: {
   records: SessionRecord[];
   scenarios: Scenario[];
+  tagLabels: Record<string, string>;
   auth: AuthState;
   syncNote: string;
   onBack: () => void;
   onOpenCase: (id: string) => void;
 }) {
+  const { tr, lang } = useI18n();
   const points = totalPoints(records);
   const rank = rankFor(points);
   const levels = useMemo(() => levelStats(records), [records]);
@@ -89,30 +93,30 @@ export function Profile({
   return (
     <div className="screen" style={{ maxWidth: 980 }}>
       <button className="icon-btn" onClick={onBack}>
-        <ArrowLeft size={14} /> меню
+        <ArrowLeft size={14} /> {tr("меню")}
       </button>
 
       <div className="menu-grid" style={{ marginTop: 12 }}>
         <div className="col">
-          <Panel title="ЗВАНИЕ">
+          <Panel title={tr("ЗВАНИЕ")}>
             <div className="t-display" style={{ fontSize: 30, color: "var(--hud-gold)", textShadow: "0 0 18px rgba(255,181,71,0.5)" }}>{rank.name}</div>
             <div className="t-mono" style={{ fontSize: 13, margin: "6px 0" }}>
-              Очки: <b>{points}</b> · Игр: {records.length} · <Flame size={12} style={{ display: "inline" }} /> серия {streak} дн.
+              {tr("Очки")}: <b>{points}</b> · {tr("Игр")}: {records.length} · <Flame size={12} style={{ display: "inline" }} /> {tr("серия {n} дн.", { n: streak })}
             </div>
-            <div role="progressbar" aria-valuenow={Math.round(rank.progress * 100)} aria-valuemin={0} aria-valuemax={100} aria-label="Прогресс до следующего звания" style={{ height: 6, background: "rgba(127,147,176,0.25)" }}>
+            <div role="progressbar" aria-valuenow={Math.round(rank.progress * 100)} aria-valuemin={0} aria-valuemax={100} aria-label={tr("Прогресс до следующего звания")} style={{ height: 6, background: "rgba(127,147,176,0.25)" }}>
               <motion.div style={{ height: "100%", background: "var(--hud-gold)", boxShadow: "0 0 8px var(--hud-gold)" }} initial={false} animate={{ width: `${rank.progress * 100}%` }} />
             </div>
-            <div className="dim" style={{ fontSize: 12, marginTop: 4 }}>{rank.next ? `До ${rank.next}: ${rank.toNext} очков` : "Максимальное звание"}</div>
+            <div className="dim" style={{ fontSize: 12, marginTop: 4 }}>{rank.next ? tr("До {rank}: {n} очков", { rank: rank.next, n: rank.toNext }) : tr("Максимальное звание")}</div>
           </Panel>
 
-          <Panel title="АККАУНТ">
+          <Panel title={tr("АККАУНТ")}>
             <AuthPanel auth={auth} syncNote={syncNote} />
           </Panel>
 
-          <Panel title="ПОБЕДЫ ПО УРОВНЯМ">
+          <Panel title={tr("ПОБЕДЫ ПО УРОВНЯМ")}>
             {levels.map((l) => (
               <div key={l.level} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
-                <span className="t-ui" style={{ width: 128, whiteSpace: "nowrap" }}>{l.level} · {LEVELS[l.level - 1]}</span>
+                <span className="t-ui" style={{ width: 128, whiteSpace: "nowrap" }}>{l.level} · {tr(LEVELS[l.level - 1])}</span>
                 <div style={{ flex: 1, height: 6, background: "rgba(127,147,176,0.25)" }}>
                   <div style={{ width: `${l.winRate * 100}%`, height: "100%", background: "var(--hud-green)" }} />
                 </div>
@@ -123,19 +127,19 @@ export function Profile({
         </div>
 
         <div className="col">
-          <Panel title="КАРТА СЛАБЫХ МЕСТ">
-            <WeakRadar stats={tags} />
+          <Panel title={tr("КАРТА СЛАБЫХ МЕСТ")}>
+            <WeakRadar stats={tags} tagLabels={tagLabels} />
           </Panel>
 
-          <Panel title="РЕКОМЕНДАЦИИ">
+          <Panel title={tr("РЕКОМЕНДАЦИИ")}>
             {recs.length === 0 ? (
-              <p className="dim" style={{ fontSize: 13 }}>Пока нечего советовать: сыграйте несколько кейсов, и здесь появятся возражения, которые стоит потренировать.</p>
+              <p className="dim" style={{ fontSize: 13 }}>{tr("Пока нечего советовать: сыграйте несколько кейсов, и здесь появятся возражения, которые стоит потренировать.")}</p>
             ) : (
               recs.map((r) => (
                 <div key={r.tag} style={{ marginBottom: 10 }}>
                   <div className="t-ui" style={{ color: "var(--hud-gold)" }}>
                     <Target size={12} style={{ display: "inline", marginRight: 6 }} />
-                    Потренируйте {TAG_LABEL[r.tag] ?? r.tag} — ошибок {Math.round(r.failRate * 100)}%
+                    {tr("Потренируйте {tag} — ошибок {n}%", { tag: tagLabels[r.tag] ?? r.tag, n: Math.round(r.failRate * 100) })}
                   </div>
                   <div className="case-list" style={{ maxHeight: "none", marginTop: 6 }}>
                     {r.cases.map((s) => (
@@ -143,7 +147,7 @@ export function Profile({
                         <span className="dot" style={{ background: "#3fe0ff" }} aria-hidden />
                         <span style={{ flex: 1 }}>
                           <span className="t-ui" style={{ display: "block" }}>{s.title}</span>
-                          <span className="dim" style={{ fontSize: 12 }}>уровень {s.level} · {s.persona.name}</span>
+                          <span className="dim" style={{ fontSize: 12 }}>{tr("уровень {n}", { n: s.level })} · {s.persona.name}</span>
                         </span>
                       </button>
                     ))}
@@ -155,7 +159,7 @@ export function Profile({
         </div>
       </div>
 
-      <Panel title="ДОСТИЖЕНИЯ" className="">
+      <Panel title={tr("ДОСТИЖЕНИЯ")} className="">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
           {ACHIEVEMENTS.map((a) => {
             const on = unlocked.has(a.key);
@@ -163,9 +167,9 @@ export function Profile({
               <div key={a.key} style={{ padding: 8, border: `1px solid ${on ? "var(--hud-gold)" : "var(--panel-border)"}`, opacity: on ? 1 : 0.55 }}>
                 <div className="t-ui" style={{ color: on ? "var(--hud-gold)" : undefined }}>
                   {on ? <Award size={12} style={{ display: "inline", marginRight: 6 }} /> : <Lock size={12} style={{ display: "inline", marginRight: 6 }} />}
-                  {a.title}
+                  {tr(a.title)}
                 </div>
-                <div className="dim" style={{ fontSize: 12 }}>{a.description}</div>
+                <div className="dim" style={{ fontSize: 12 }}>{tr(a.description)}</div>
               </div>
             );
           })}
@@ -173,18 +177,18 @@ export function Profile({
       </Panel>
 
       <div style={{ height: 12 }} />
-      <Panel title="ИСТОРИЯ ИГР">
+      <Panel title={tr("ИСТОРИЯ ИГР")}>
         {history.length === 0 ? (
-          <p className="dim" style={{ fontSize: 13 }}>Здесь появятся ваши игры.</p>
+          <p className="dim" style={{ fontSize: 13 }}>{tr("Здесь появятся ваши игры.")}</p>
         ) : (
           history.map((r) => {
             const isLive = r.scenarioId.startsWith("live:");
             const s = byId.get(isLive ? r.scenarioId.slice(5) : r.scenarioId);
             return (
               <div className="turn" key={r.id} style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-                <span className="q-badge" style={{ color: OUT_COLOR[r.outcome] }}>{fmtOutcome(r.outcome)}</span>
-                <span style={{ flex: 1, minWidth: 160 }}>{s ? s.title : r.scenarioId} <span className="dim" style={{ fontSize: 12 }}>· ур. {r.level}{isLive ? " · живой клиент (ИИ)" : ""}</span></span>
-                <span className="t-mono dim" style={{ fontSize: 11 }}>{r.score} очк · {r.turns} ходов · {new Date(r.at).toLocaleDateString("ru-RU")}</span>
+                <span className="q-badge" style={{ color: OUT_COLOR[r.outcome] }}>{tr(fmtOutcome(r.outcome))}</span>
+                <span style={{ flex: 1, minWidth: 160 }}>{s ? s.title : r.scenarioId} <span className="dim" style={{ fontSize: 12 }}>· {tr("ур. {n}", { n: r.level })}{isLive ? ` · ${tr("живой клиент (ИИ)")}` : ""}</span></span>
+                <span className="t-mono dim" style={{ fontSize: 11 }}>{tr("{score} очк · {turns} ходов", { score: r.score, turns: r.turns })} · {new Date(r.at).toLocaleDateString(LOCALE[lang])}</span>
               </div>
             );
           })

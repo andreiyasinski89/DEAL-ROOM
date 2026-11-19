@@ -1,5 +1,6 @@
 import type { GameState, Outcome, Quality, Scenario } from "./types";
 import { computeScore } from "./engine";
+import { T } from "../i18n";
 
 /** One played game, as stored locally and in the cloud (`sessions` table). */
 export type SessionRecord = {
@@ -151,10 +152,10 @@ const wins = (r: SessionRecord[]) => r.filter((x) => x.outcome === "sale");
 const clean = (x: SessionRecord) => x.moves.every((m) => m.quality !== "weak" && m.quality !== "critical_error");
 
 export const ACHIEVEMENTS: Achievement[] = [
-  { key: "first_sale", title: "Первая продажа", description: "Закройте любой кейс продажей.", test: (r) => wins(r).length >= 1 },
-  { key: "five_sales", title: "Пятёрка", description: "Пять успешных продаж.", test: (r) => wins(r).length >= 5 },
-  { key: "clean_sale", title: "Чистая работа", description: "Продажа без единого слабого хода и ошибки.", test: (r) => wins(r).some(clean) },
-  { key: "no_hints", title: "Сам с усами", description: "Три продажи подряд без подсказок.", test: (r) => {
+  { key: "first_sale", title: T("Первая продажа"), description: T("Закройте любой кейс продажей."), test: (r) => wins(r).length >= 1 },
+  { key: "five_sales", title: T("Пятёрка"), description: T("Пять успешных продаж."), test: (r) => wins(r).length >= 5 },
+  { key: "clean_sale", title: T("Чистая работа"), description: T("Продажа без единого слабого хода и ошибки."), test: (r) => wins(r).some(clean) },
+  { key: "no_hints", title: T("Сам с усами"), description: T("Три продажи подряд без подсказок."), test: (r) => {
     let run = 0;
     for (const x of [...r].sort((a, b) => a.at.localeCompare(b.at))) {
       run = x.outcome === "sale" && x.hintsUsed === 0 ? run + 1 : 0;
@@ -162,7 +163,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     }
     return false;
   } },
-  { key: "combo_5", title: "Комбо x5", description: "Пять хороших ходов подряд в одной игре.", test: (r) => r.some((x) => {
+  { key: "combo_5", title: T("Комбо x5"), description: T("Пять хороших ходов подряд в одной игре."), test: (r) => r.some((x) => {
     let run = 0;
     for (const m of x.moves) {
       run = m.quality === "excellent" || m.quality === "good" ? run + 1 : 0;
@@ -170,10 +171,10 @@ export const ACHIEVEMENTS: Achievement[] = [
     }
     return false;
   }) },
-  { key: "practitioner", title: "Практик", description: "Выиграйте кейс уровня 3 или выше.", test: (r) => wins(r).some((x) => x.level >= 3) },
-  { key: "shark_bite", title: "Укус акулы", description: "Выиграйте кейс уровня 5.", test: (r) => wins(r).some((x) => x.level === 5) },
-  { key: "all_levels", title: "Все уровни", description: "Хотя бы по одной продаже на каждом из 5 уровней.", test: (r) => [1, 2, 3, 4, 5].every((l) => wins(r).some((x) => x.level === l)) },
-  { key: "comeback", title: "Камбэк", description: "Выиграйте кейс, который раньше проиграли.", test: (r) => {
+  { key: "practitioner", title: T("Практик"), description: T("Выиграйте кейс уровня 3 или выше."), test: (r) => wins(r).some((x) => x.level >= 3) },
+  { key: "shark_bite", title: T("Укус акулы"), description: T("Выиграйте кейс уровня 5."), test: (r) => wins(r).some((x) => x.level === 5) },
+  { key: "all_levels", title: T("Все уровни"), description: T("Хотя бы по одной продаже на каждом из 5 уровней."), test: (r) => [1, 2, 3, 4, 5].every((l) => wins(r).some((x) => x.level === l)) },
+  { key: "comeback", title: T("Камбэк"), description: T("Выиграйте кейс, который раньше проиграли."), test: (r) => {
     const sorted = [...r].sort((a, b) => a.at.localeCompare(b.at));
     const lost = new Set<string>();
     for (const x of sorted) {
@@ -182,7 +183,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     }
     return false;
   } },
-  { key: "streak_3", title: "Три дня подряд", description: "Играйте три дня подряд.", test: (r) => streakDays(r) >= 3 || longestStreak(r) >= 3 },
+  { key: "streak_3", title: T("Три дня подряд"), description: T("Играйте три дня подряд."), test: (r) => streakDays(r) >= 3 || longestStreak(r) >= 3 },
 ];
 
 export function longestStreak(records: SessionRecord[]): number {
@@ -208,6 +209,7 @@ export function mergeRecords(a: SessionRecord[], b: SessionRecord[]): SessionRec
   return [...m.values()].sort((x, y) => x.at.localeCompare(y.at));
 }
 
-export const fmtOutcome = (o: Outcome) => (o === "sale" ? "ПРОДАЖА" : o === "partial" ? "ЧАСТИЧНО" : "ПРОВАЛ");
+/** Translation key of the outcome badge (translate with tr() when rendering). */
+export const fmtOutcome = (o: Outcome) => (o === "sale" ? T("ПРОДАЖА") : o === "partial" ? T("ЧАСТИЧНО") : T("ПРОВАЛ"));
 
 export const totalPoints = (records: SessionRecord[]) => records.reduce((a, r) => a + r.score, 0);
