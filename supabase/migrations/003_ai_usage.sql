@@ -15,8 +15,8 @@ alter table public.ai_usage enable row level security;
 
 create or replace function public.ai_consume(
   p_new_session boolean,
-  p_max_sessions int default 5,
-  p_max_turns int default 120
+  p_max_sessions int default 10,
+  p_max_turns int default 200
 ) returns json
 language plpgsql
 security definer

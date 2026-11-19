@@ -247,3 +247,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .tour-dim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.7); }
 .tour-spot { position: absolute; border: 2px solid var(--hud-cyan); box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), 0 0 18px var(--hud-cyan); pointer-events: none; transition: all 0.25s var(--ease); }
 .tour-tip { position: absolute; width: min(320px, calc(100vw - 24px)); background: #0a1220; }
+
+/* dictation: the mic button pulses while listening */
+.btn.rec { border-color: var(--hud-red); color: var(--hud-red); background: rgba(255, 77, 94, 0.12); animation: recpulse 1.2s ease-in-out infinite; }
+@keyframes recpulse { 50% { box-shadow: 0 0 16px rgba(255, 77, 94, 0.6); } }

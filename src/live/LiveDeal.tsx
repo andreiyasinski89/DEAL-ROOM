@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Bot, LogOut, Send } from "lucide-react";
+import { Bot, LogOut, Mic, Send, Square } from "lucide-react";
 import type { DebriefOut } from "../../supabase/functions/_shared/live.ts";
 import { LIMITS } from "../../supabase/functions/_shared/live.ts";
 import { dealProbability } from "../engine/engine";
@@ -8,6 +8,7 @@ import type { Scenario } from "../engine/types";
 import { newId } from "../features/account/sessions";
 import { Avatar, Gauge, Panel, PulseChart, moodLabel, type PulsePoint } from "../ui/parts";
 import { LiveError, liveDebrief, liveMessage, liveTurn } from "./api";
+import { DICTATION_LANGS, Dictation, appendText, browserRecognition, loadDictationLang, saveDictationLang, type DictationLang } from "./dictation";
 import { applyLiveEval, createLive, debriefRequest, liveMood, liveScore, makeLiveRecord, turnRequest, type LiveState } from "./engine";
 
 const QLABEL = { excellent: "сильный ход", good: "хорошо", neutral: "нейтрально", weak: "слабо", critical_error: "критическая ошибка" } as const;
@@ -61,8 +62,68 @@ export function LiveDeal({
     if (el) el.scrollTop = el.scrollHeight;
   }, [st.transcript.length, sending]);
 
+  // ---- voice dictation (browser speech recognition) ----
+  const recognition = useMemo(() => browserRecognition(), []);
+  const [dLang, setDLang] = useState<DictationLang>(loadDictationLang);
+  const [listening, setListening] = useState(false);
+  const [interim, setInterim] = useState("");
+  const [dictError, setDictError] = useState<string | null>(null);
+  const dictRef = useRef<Dictation | null>(null);
+
+  useEffect(() => {
+    if (!recognition) return;
+    const d = new Dictation(
+      recognition,
+      {
+        onFinal: (t) => setInput((v) => appendText(v, t, LIMITS.playerChars)),
+        onInterim: setInterim,
+        onState: (s) => {
+          setListening(s.listening);
+          setDictError(s.error);
+        },
+      },
+      loadDictationLang(),
+    );
+    dictRef.current = d;
+    return () => {
+      d.stop();
+      dictRef.current = null;
+    };
+  }, [recognition]);
+
+  const toggleMic = useCallback(() => {
+    const d = dictRef.current;
+    if (!d) return;
+    if (d.listening) d.stop();
+    else {
+      d.start();
+      taRef.current?.focus();
+    }
+  }, []);
+
+  const changeDictLang = (l: DictationLang) => {
+    setDLang(l);
+    saveDictationLang(l);
+    dictRef.current?.setLang(l);
+  };
+
+  // Alt+M toggles the microphone, also while the text field has focus
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if (e.altKey && e.code === "KeyM") {
+        e.preventDefault();
+        toggleMic();
+      }
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [toggleMic]);
+
   const send = useCallback(async () => {
-    const text = input.trim();
+    // words heard but not yet final are included, then dictation stops (it starts again with the mic button / Alt+M)
+    const wasListening = dictRef.current?.listening ?? false;
+    const text = (wasListening && interim ? appendText(input, interim, LIMITS.playerChars) : input).trim();
+    dictRef.current?.stop();
     if (!text || sending || st.ended) return;
     setSending(true);
     setError("");
@@ -79,7 +140,7 @@ export function LiveDeal({
       setSending(false);
       taRef.current?.focus();
     }
-  }, [input, sending, st, scenario]);
+  }, [input, interim, sending, st, scenario]);
 
   // game over: save the record once and ask for the written debrief
   const ended = st.ended;
@@ -190,10 +251,42 @@ export function LiveDeal({
                   }}
                   autoFocus
                 />
-                <button className="btn gold" onClick={() => void send()} disabled={sending || !input.trim()} aria-label="Отправить">
+                {recognition && (
+                  <button
+                    className={`btn ${listening ? "rec" : ""}`}
+                    onClick={toggleMic}
+                    disabled={sending}
+                    aria-pressed={listening}
+                    aria-label={listening ? "Остановить диктовку (Alt+M)" : "Диктовать голосом (Alt+M)"}
+                    title={listening ? "Остановить диктовку (Alt+M)" : "Диктовать голосом (Alt+M). Речь распознаёт браузер."}
+                  >
+                    {listening ? <Square size={16} /> : <Mic size={16} />}
+                  </button>
+                )}
+                <button className="btn gold" onClick={() => void send()} disabled={sending || (!input.trim() && !interim)} aria-label="Отправить">
                   <Send size={16} />
                 </button>
               </div>
+              {recognition && (
+                <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginTop: 6, fontSize: 12 }}>
+                  <label className="t-mono dim" style={{ display: "inline-flex", gap: 4, alignItems: "center" }}>
+                    Язык диктовки
+                    <select className="notes" style={{ minHeight: 0, height: 26, width: 64, padding: "0 4px" }} value={dLang} onChange={(e) => changeDictLang(e.target.value as DictationLang)} aria-label="Язык диктовки">
+                      {DICTATION_LANGS.map((l) => (
+                        <option key={l.code} value={l.code}>{l.label}</option>
+                      ))}
+                    </select>
+                  </label>
+                  {listening && (
+                    <span role="status" style={{ color: "var(--hud-red)" }}>
+                      ● Слушаю… говорите <span className="dim">(речь распознаёт браузер)</span>
+                      {interim && <em style={{ color: "var(--text)", marginLeft: 6 }}>{interim}</em>}
+                    </span>
+                  )}
+                  {!listening && dictError && <span role="alert" style={{ color: "var(--hud-gold)" }}>{dictError}</span>}
+                </div>
+              )}
+              {!recognition && <div className="dim" style={{ fontSize: 11, marginTop: 4 }}>Голосовой ввод доступен в Chrome, Edge и Safari.</div>}
               <div className="t-mono dim" style={{ fontSize: 11, marginTop: 4 }}>{input.length}/{LIMITS.playerChars} · суммы называйте в $ или € · не обещайте доход и гарантии — ИИ-клиент это заметит</div>
             </div>
           )}

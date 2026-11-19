@@ -145,17 +145,17 @@ describe("sessions and achievements", () => {
 });
 
 describe("AI daily quota (ai_consume)", () => {
-  it("allows 5 new sessions per day, then blocks; table is not readable by players", async () => {
+  it("allows 10 new sessions per day, then blocks; table is not readable by players", async () => {
     await as(C, async () => {
-      for (let i = 0; i < 5; i++) expect((await rpc("ai_consume", true)).allowed).toBe(true);
-      const sixth = await rpc("ai_consume", true);
-      expect(sixth).toMatchObject({ allowed: false, reason: "daily_sessions" });
+      for (let i = 0; i < 10; i++) expect((await rpc("ai_consume", true)).allowed).toBe(true);
+      const eleventh = await rpc("ai_consume", true);
+      expect(eleventh).toMatchObject({ allowed: false, reason: "daily_sessions" });
       expect((await rpc("ai_consume", false)).allowed).toBe(true); // turns of an existing game still pass
       expect(await denied(() => q(`select * from public.ai_usage`))).toMatch(/permission denied/);
     });
   });
   it("caps total turns per day", async () => {
-    await q(`update public.ai_usage set turns = 120 where user_id = $1`, [C]);
+    await q(`update public.ai_usage set turns = 200 where user_id = $1`, [C]);
     await as(C, async () => {
       expect(await rpc("ai_consume", false)).toMatchObject({ allowed: false, reason: "daily_turns" });
     });

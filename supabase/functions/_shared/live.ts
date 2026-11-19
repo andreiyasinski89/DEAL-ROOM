@@ -19,8 +19,9 @@ export const LIMITS = {
   replyChars: 700,
   noteChars: 400,
   /** Daily quota per user (enforced in the database, see 003_ai_usage.sql). */
-  sessionsPerDay: 5,
-  turnsPerDay: 120,
+  sessionsPerDay: 10,
+  /** 10 games x 14 turns + a debrief each, with some room for retries. */
+  turnsPerDay: 200,
 } as const;
 
 export type PersonaIn = {
