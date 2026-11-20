@@ -129,7 +129,7 @@ export const beatsAlt: Extras["beatsAlt"] = {
     hard: "Bez {thirdWho} niczego nie podpiszę i raczej się nie zgodzą.",
     push: "To sprawa rodzinna i nie ma co nas poganiać.",
     alt: [
-      g("Oczywiście. Co będzie najważniejsze dla {thirdWho}? Prześlę wyliczenie i odpowiem na pytania, jeśli się pojawią.", "Pytanie o osobę trzecią", "Osoba trzecia stała się uczestnikiem decyzji, a nie przeszkodą."),
+      g("Oczywiście. Co zwykle niepokoi {thirdWho} w takich decyzjach? Prześlę wyliczenie i odpowiem na pytania.", "Pytanie o osobę trzecią", "Osoba trzecia stała się uczestnikiem decyzji, a nie przeszkodą."),
       g("Dobrze. Mogę porozmawiać i z nią lub z nim, żeby odpowiedzieć na pytania bezpośrednio. Kiedy wygodnie?", "Spotkanie we troje", "Konkretny krok, ale warto było dowiedzieć się, czego dokładnie się obawiają."),
       x("Jesteś przecież dorosł{y|a}, zdecyduj sam{|a}. Po co wszystko uzgadniać, to twoja osobista decyzja, prawda?", "Presja i umniejszanie", "Postawiono klienta między sobą a bliskimi."),
       x("Zapiszmy się dziś, a potem wszystko wyjaśnisz. Tak prościej: lepiej zrobić, a potem się dogadać.", "Presja i ukrywanie decyzji", "Rada ukrycia decyzji to ryzyko etyczne i czerwony przycisk."),

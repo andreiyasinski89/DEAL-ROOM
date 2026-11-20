@@ -64,7 +64,7 @@ export const scenarioSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
   level: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]),
-  niche: z.enum(["member_elite", "member_turbo", "recruiting", "cold", "repeat", "family", "business", "social"]),
+  niche: z.enum(["member_elite", "member_turbo", "recruiting", "cold", "repeat", "family", "business", "social", "ghost"]),
   channel: z.enum(["call", "meeting", "chat", "zoom"]),
   persona,
   objectionTags: z.array(z.string()),

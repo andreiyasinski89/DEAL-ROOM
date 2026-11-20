@@ -1,7 +1,8 @@
 import type { Channel } from "../../engine/types";
 import type { Lang } from "../../i18n";
 import type { Beat, BeatTag, Opt } from "../data/beats";
-import type { CloserId, EventId, OpenerId } from "../data/moves";
+import type { GhostTag } from "../data/ghost";
+import type { CloserId, EventId, GhostCloserId, GhostOpenerId, OpenerId } from "../data/moves";
 import type { Vocab } from "../data/vocab";
 
 /**
@@ -112,6 +113,27 @@ export type Extras = {
   beatsAlt: Record<BeatTag, { soft: string; hard: string; push: string; alt: [Opt, Opt, Opt, Opt] }>;
 };
 
+/**
+ * "Divers" (Водолазы): clients who vanished after the presentation. The first beat of every case is the real reason
+ * of the silence (`beats`), the rest of the wording describes the situation and how the client reacts to being contacted.
+ */
+export type GhostPack = {
+  beats: Record<GhostTag, Beat>;
+  /** What the client says when the seller reaches out (+ the answers, + the ending if the answer is a false pretext). */
+  openers: Record<GhostOpenerId, { line: string; opts: Mv4; bye: string; why: string }>;
+  closers: Record<GhostCloserId, { line: string; opts: Mv4 }>;
+  /** Template with {days} {promise} {tries}; the usual placeholders work too. */
+  briefing: string;
+  hint: string;
+  days: [string, string, string];
+  promises: [string, string, string, string, string, string];
+  tries: [string, string, string];
+  /** What really happened (shown after the game), one sentence per reason. */
+  hidden: Record<GhostTag, string>;
+  /** Title of the block and its description (menu). */
+  intro: { title: string; text: string };
+};
+
 export type ContentPack = {
   lang: Lang;
   beats: Record<BeatTag, Beat>;
@@ -121,4 +143,5 @@ export type ContentPack = {
   /** null for Russian: the mini-case source IS Russian. */
   mini: MiniText | null;
   extras: Extras;
+  ghost: GhostPack;
 };

@@ -1,0 +1,307 @@
+import { m } from "../helpers";
+import type { GhostPack } from "../types";
+
+/** Polskie teksty bloku „Nurkowie”: klienci, którzy zniknęli po prezentacji. {a|b}: forma męska|żeńska klienta. */
+export const ghost: GhostPack = {
+  beats: {
+    g_embarrassed: {
+      label: "„Niezręcznie odmówić”", family: "trust",
+      soft: ["Szczerze, było mi niezręcznie powiedzieć „nie”, więc zniknąłem. Przepraszam.", "Wstyd mi, że tak wyszło. Tak się starałeś, a ja postanowił{em|am} nie odpowiadać."],
+      hard: ["Darujmy sobie długie rozmowy: nie chcę tego, a powiedzieć to przy tobie było niewygodnie.", "Myślał{em|am}, że sam zrozumiesz z milczenia. Przykro mi, że muszę tłumaczyć."],
+      opts: [
+        { t: "Dziękuję za szczerość. „Nie” to całkiem normalna odpowiedź, bez urazy. Co dokładnie ci nie pasowało?", tech: "Pozwolenie na odmowę + pytanie", note: "Zdjęto niezręczność i pozwolono powiedzieć „nie”: wtedy ludzie mówią prawdę." },
+        { t: "Wszystko w porządku, nikt się nie obraził. Jeśli zechcesz wrócić do tematu, daj znać.", tech: "Zdjęcie niezręczności", note: "Ciepło i bez presji, ale przyczyny odmowy nie poznano." },
+        { t: "Trzeba było po prostu powiedzieć, nie traciłoby się czasu na wiadomości i telefony.", mistake: "Obwinianie klienta", note: "Wyrzut potwierdza, że powiedzenie „nie” rzeczywiście było ryzykowne." },
+        { t: "Naprawmy to dziś: zapisujemy cię i już nic nie będziesz musiał{|a} tłumaczyć.", mistake: "Presja", note: "Proponowanie „naprawy” zapisem to niesłyszenie odmowy." },
+      ],
+      push: ["Nie przekonuj mnie, wszystko już powiedział{em|am}.", "Przecież wyjaśnił{em|am}: niewygodnie. Nie każ mi powtarzać."],
+      rec: [
+        { t: "Przepraszam, masz rację. Nie naciskam. Zostawię krótki opis, a jeśli zechcesz wrócić, napiszesz sam{|a}, bez zobowiązań.", tech: "Rezygnacja z presji", note: "Wycofanie się i zostawienie otwartych drzwi to jedyny sposób na zachowanie szansy." },
+        { t: "Mimo wszystko spróbujmy jeszcze raz, przecież cię to interesowało.", mistake: "Ignorowanie zastrzeżenia", note: "Wrócono do sprzedaży zaraz po prośbie, by nie przekonywać." },
+        { t: "Przez ciebie poszło mnóstwo czasu na telefony.", mistake: "Obwinianie klienta", note: "Wyrzut po przyznaniu się to kropka w rozmowie." },
+      ],
+      bye: "Nieprzyjemnie, że się na mnie naciska. Nie pisz więcej.", why: "Niezręczności klienta nie zdjęto, tylko wzmocniono ją presją.",
+    },
+    g_spouse_no: {
+      label: "„W domu powiedzieli nie”", family: "other",
+      soft: ["Omówił{em|am} to w domu i nie dostał{em|am} wsparcia. Nie chciało mi się tego tłumaczyć, więc milczałem.", "W domu powiedzieli: nie rób tego. Nie wiedział{em|am}, jak ci o tym powiedzieć."],
+      hard: ["Rodzina jest przeciw i nie ma o czym rozmawiać. Nie dzwoń więcej.", "Musiał{em|am} się długo tłumaczyć w domu przez waszą prezentację."],
+      opts: [
+        { t: "Rozumiem, to ważna decyzja dla rodziny. Co dokładnie im się nie spodobało? Może nie wszystko wyjaśniono.", tech: "Pytanie o zastrzeżenie bliskich", note: "Przyjęto stanowisko rodziny i poznano przyczynę: jest już nad czym pracować." },
+        { t: "Dobrze, szanuję decyzję. Mogę przesłać dokumenty, żebyście spokojnie obejrzeli je razem.", tech: "Dokumenty dla rodziny", note: "Z szacunkiem, ale bez pytania o wątpliwości rodziny." },
+        { t: "Decydować powinieneś sam, a nie rodzina: to twoje życie i twoje pieniądze.", mistake: "Presja na sprawy osobiste", note: "Postawiono klienta między sobą a bliskimi." },
+        { t: "Powiedz w domu, że pomogę ci zarobić, i się zgodzą: wielu się udało.", mistake: "Fałszywa obietnica dochodu", note: "Obietnica dochodu to naruszenie etyki i prawa reklamy." },
+      ],
+      push: ["To decyzja rodzinna, nie wtrącaj się.", "Nie chcę się o to kłócić."],
+      rec: [
+        { t: "Przepraszam. Decyzja należy do ciebie i rodziny. Jeśli zechcesz, odpowiem na ich pytania razem z tobą, bez presji.", tech: "Przyznanie racji i wycofanie się", note: "Wycofanie się oddaje kontrolę klientowi." },
+        { t: "To zapisz się po cichu, przecież się nie dowiedzą.", mistake: "Presja i ukrywanie decyzji", note: "Rada ukrycia decyzji przed rodziną to ryzyko etyczne." },
+        { t: "Po prostu boisz się im sprzeciwić.", mistake: "Umniejszanie", note: "Oskarżenie o słabość zamyka rozmowę." },
+      ],
+      bye: "To moja rodzina, nie tobie decydować. Do widzenia.", why: "Stanowisko rodziny klienta zostało zignorowane.",
+    },
+    g_googled: {
+      label: "„Przeczytał{em|am} w internecie”", family: "trust",
+      soft: ["Po prezentacji poczytał{em|am} opinie w internecie i zrobiło mi się nieswojo. Dlatego zniknąłem.", "Wygooglował{em|am} różne rzeczy o takich firmach i się przestraszył{em|am}."],
+      hard: ["Znalazł{em|am} opinie, że to oszustwo. Nie powiedziałeś mi o tym.", "Piszą tam o schematach sieciowych i utraconych pieniądzach. Po co mi to wciskałeś?"],
+      opts: [
+        { t: "Dziękuję, że sprawdziłeś: to słuszne. Co dokładnie przeczytałeś? Rozbierzemy to razem, na dokumentach.", tech: "Podziękowanie + rozbiór", note: "Poparto sprawdzanie i obiecano omówić obawy na faktach." },
+        { t: "Rozumiem. Opinie bywają różne. Zobaczmy umowę i warunki, a ty sam zdecydujesz.", tech: "Oparcie na dokumentach", note: "Słusznie, ale bez pytania o to, co dokładnie przestraszyło." },
+        { t: "To piszą konkurenci i zawistni, nie czytaj takich rzeczy.", mistake: "Umniejszanie źródła", note: "Zakaz czytania to czerwony przycisk nieufnego klienta." },
+        { t: "To wszystko nieprawda, nie mamy ani jednej skargi, osobiście to gwarantuję.", mistake: "Fałszywa obietnica", note: "Nie możesz gwarantować braku skarg." },
+      ],
+      push: ["Nie odpowiedziałeś na to, co tam jest napisane.", "Zbyć jest najłatwiej."],
+      rec: [
+        { t: "Słusznie. Weźmy to, co cię zaniepokoiło, i sprawdźmy, co potwierdzają dokumenty, a co nie. Pytaj.", tech: "Rozbiór na faktach", note: "Uczciwe omówienie obaw przywraca zaufanie." },
+        { t: "Po prostu nie umiesz odróżnić prawdy od plotek.", mistake: "Spór", note: "Spór ze źródłem klienta niczego nie rozwiązuje." },
+        { t: "Nic takiego nie ma, wszystko zmyślili.", mistake: "Kłamstwo", note: "Zaprzeczanie temu, co napisano, bez sprawdzenia to kłamstwo." },
+      ],
+      bye: "Nikt mi nie odpowiada merytorycznie. Nie pisz.", why: "Obaw klienta z internetu nie omówiono.",
+    },
+    g_friend_warned: {
+      label: "„Znajomy mnie odwiódł”", family: "trust",
+      soft: ["Znajomy, który zna się na tym, mnie odwiódł. Nie chciało mi się z tobą kłócić, więc zniknąłem.", "Powiedział{em|am} znajomemu, a on na to: nie wchodź w to. Teraz mam wątpliwości."],
+      hard: ["Mądrzy ludzie powiedzieli mi, żeby się trzymać z daleka. Wierzę im bardziej niż prezentacji.", "Znajomy powiedział, że to piramida. Nie mam z tobą już o czym rozmawiać."],
+      opts: [
+        { t: "Dziękuję, że mi powiedział{eś|aś}. Co dokładnie mówi twój znajomy? Ważne, żebyś sam{|a} to rozgryzł{|a}.", tech: "Pytanie o czyjąś opinię", note: "Nie kłócisz się ze znajomym, tylko poznajesz jego argumenty." },
+        { t: "Dobrze, słuchanie bliskich jest normalne. Sprawdźmy na dokumentach to, co wzbudziło jego wątpliwości.", tech: "Sprawdzenie faktów", note: "Słusznie, ale bez pytania, co dokładnie mówił znajomy." },
+        { t: "Twój znajomy po prostu się nie zna, a ty decydujesz za siebie.", mistake: "Umniejszanie znajomego", note: "Umniejszenie bliskiej osoby to umniejszenie klienta." },
+        { t: "Zazdrości ci, dlatego cię odwodzi, tacy ludzie zawsze przeszkadzają.", mistake: "Oskarżenie", note: "Oskarżenie osoby trzeciej bez faktów kończy zaufanie." },
+      ],
+      push: ["Ufam mu bardziej niż tobie.", "Nie mów źle o moim znajomym."],
+      rec: [
+        { t: "Przepraszam, to moje niedopatrzenie. Nie jestem przeciw jego opinii. Mogę odpowiedzieć na jego pytania, jeśli to dla ciebie ważne.", tech: "Przyznanie i otwartość", note: "Gotowość odpowiedzi na pytania znajomego znosi konfrontację." },
+        { t: "To niech sam przyjdzie i ze mną się posprzecza.", mistake: "Spór", note: "Zapraszanie do sporu kogoś, kto się boi, nie jest mądre." },
+        { t: "Decyduj sam{|a}, a nie na cudze słowo, bo stracisz szansę.", mistake: "Presja", note: "Presja na samodzielność to pułapka." },
+      ],
+      bye: "Nastawiasz mnie przeciw bliskim. Wszystkiego dobrego.", why: "Opinia znajomego klienta została zlekceważona.",
+    },
+    g_money_shame: {
+      label: "„Nie mam pieniędzy, wstyd mi się przyznać”", family: "value",
+      soft: ["Szczerze, nie mam teraz wolnych pieniędzy. Wstydził{em|am} się to przyznać.", "Nie chciał{em|am} mówić, że nie dam rady, więc milczał{em|am}."],
+      hard: ["Pieniędzy nie ma. Nie chcę o tym rozmawiać.", "Nie muszę się tłumaczyć ze swoich finansów."],
+      opts: [
+        { t: "Dziękuję, że powiedział{eś|aś}. Nie ma w tym nic wstydliwego. Nic nie trzeba dziś ustalać: kiedy będzie ci wygodnie wrócić?", tech: "Zdjęcie wstydu + pauza", note: "Zdjęto wstyd i odwołano pośpiech: klient dostał prawo do pauzy." },
+        { t: "Rozumiem. Wróćmy do tego później, gdy sytuacja finansowa będzie jaśniejsza.", tech: "Szacunek dla budżetu", note: "Dobrze, ale można było zapytać o komfortową kwotę." },
+        { t: "Pieniądze mają wszyscy, trzeba tylko dobrze ustalić priorytety.", mistake: "Umniejszanie", note: "Zarzut „złych priorytetów” rani." },
+        { t: "Pożycz albo weź kredyt: to inwestycja, wszystko wróci, nie wstydź się.", mistake: "Presja / ryzyko finansowe", note: "Doradzanie kredytu na zakup to poważny błąd etyczny." },
+      ],
+      push: ["Przestań, to dla mnie nieprzyjemne.", "Nie słyszysz: nie ma pieniędzy."],
+      rec: [
+        { t: "Przepraszam. Nic nie trzeba zapisywać. Wrócimy, gdy będzie ci komfortowo, a na razie nigdzie się nie spieszę.", tech: "Szacunek dla budżetu", note: "Rezygnacja ze sprzedaży zachowuje relację." },
+        { t: "Ale chociaż na próbę weź prosty wariant.", mistake: "Ignorowanie zastrzeżenia", note: "Dalej sprzedajesz tam, gdzie „nie ma pieniędzy”." },
+        { t: "To po co w ogóle słuchał{eś|aś} prezentacji?", mistake: "Presja", note: "Chamstwo zamyka każdą możliwość powrotu." },
+      ],
+      bye: "Wstyd mi, a jeszcze naciskają na bolące miejsce. Żegnam.", why: "Sytuacja finansowa klienta nie została uszanowana.",
+    },
+    g_busy_life: {
+      label: "„Wszystko się nawarstwiło”", family: "other",
+      soft: ["Przepraszam, wszystko mi się nawarstwiło: praca, dzieci, jeszcze choruję. Po prostu nie wynurzył{em|am} się.", "Szczerze, nie unikał{em|am} ciebie, głowę miał{em|am} po prostu gdzie indziej."],
+      hard: ["Teraz zupełnie nie mam głowy do tego. Czego potrzebujesz?", "Przecież prosił{em|am} o czas. Nie minęło aż tak dużo."],
+      opts: [
+        { t: "Dziękuję, że wyjaśnił{eś|aś}. Nie będę zabierać czasu: powiedz, kiedy będziesz mieć chociaż pół godziny, a się dostosuję.", tech: "Dostosowanie do grafiku", note: "Przyjęto sytuację i wybór czasu zostawiono klientowi." },
+        { t: "Rozumiem, życie jest trudne. Jeśli chcesz, wyślę wszystko krótko, a wrócimy, gdy będzie lżej.", tech: "Krótkie streszczenie", note: "Dobrze, ale termin powrotu warto uzgodnić." },
+        { t: "Czas mają wszyscy, po prostu inaczej ustalasz priorytety.", mistake: "Umniejszanie", note: "Wyrzut wobec człowieka w trudnym okresie prowadzi do blokady." },
+        { t: "Właśnie dlatego potrzebujesz dodatkowego dochodu, a zwłoka tylko pogorszy sprawę.", mistake: "Presja na problem", note: "Wykorzystywanie cudzych trudności jako argumentu to presja." },
+      ],
+      push: ["Naprawdę teraz nie mogę.", "Nie dziś, proszę."],
+      rec: [
+        { t: "Słyszę cię. Nic nie trzeba. Napiszę za dwa tygodnie jedną krótką wiadomością, a ty odpowiesz, gdy będziesz mógł{|a}.", tech: "Łagodny powrót", note: "Jeden krótki kontakt bez presji zachowuje więź." },
+        { t: "To zajmie tylko pięć minut, zróbmy to od razu.", mistake: "Ignorowanie zastrzeżenia", note: "„Pięć minut” po „nie mogę” to ignorowanie." },
+        { t: "Każdy dzień zwłoki tylko wszystko podraża.", mistake: "Presja", note: "Zmyślone drożenie podkopuje zaufanie." },
+      ],
+      bye: "Jest mi teraz ciężko, a ty naciskasz. Do widzenia.", why: "Sytuacja życiowa klienta została zignorowana.",
+    },
+    g_pressured: {
+      label: "„Naciskano na prezentacji”", family: "trust",
+      soft: ["Szczerze, na prezentacji poczuł{em|am} presję i potem nie chciało mi się nawiązywać kontaktu.", "Zrobiło mi się nieswojo od tego pośpiechu, dlatego zniknąłem."],
+      hard: ["Poganiałeś mnie i to odebrało mi chęć. Po co znowu piszesz?", "Nie lubię, gdy się na mnie naciska. Po prezentacji chciał{em|am} o wszystkim zapomnieć."],
+      opts: [
+        { t: "Dziękuję, że powiedział{eś|aś}. Jeśli było za szybko, przepraszam. Teraz żadnej presji, to twoja decyzja.", tech: "Przeprosiny bez usprawiedliwień", note: "Przyznano błąd i oddano kontrolę klientowi." },
+        { t: "Rozumiem. Wróćmy do twoich pytań, w twoim tempie.", tech: "Oddanie kontroli klientowi", note: "Dobrze, ale przeprosin nie było." },
+        { t: "Nikt cię nie poganiał, tylko ci się wydawało, to po prostu entuzjazm.", mistake: "Usprawiedliwianie", note: "Usprawiedliwianie powtarza to, co odrzuciło." },
+        { t: "Gdybyś nie wątpił{|a}, nie trzeba by poganiać. Zdecyduj teraz.", mistake: "Presja", note: "Presja w odpowiedzi na skargę na presję to porażka." },
+      ],
+      push: ["No właśnie, znowu. To się nazywa presja.", "Powtarzasz to, co mnie odrzuciło."],
+      rec: [
+        { t: "Masz rację, przepraszam. Nie poganiam już. Zostawię informacje, a ty zdecydujesz sam{|a} i kiedy zechcesz.", tech: "Przyznanie błędu", note: "Szczere przyznanie to jedyny sposób na odzyskanie zaufania." },
+        { t: "Chodziło tylko o pomoc, nie bierz tego do siebie.", mistake: "Usprawiedliwianie", note: "Usprawiedliwianie stawia klienta w roli winnego." },
+        { t: "Jesteś zbyt wrażliwy{|a}, to była zwykła rozmowa.", mistake: "Spór / umniejszanie", note: "Umniejszanie uczuć to koniec dialogu." },
+      ],
+      bye: "Znowu naciskasz. Nie pisz.", why: "Skarga na presję została odpowiedziana kolejną presją.",
+    },
+    g_cooled: {
+      label: "„Zainteresowanie ostygło”", family: "value",
+      soft: ["Szczerze, po prezentacji zainteresowanie jakoś zgasło. Nie wiedział{em|am}, jak ci o tym powiedzieć.", "Niby było ciekawie, a potem pomyślał{em|am}: po co mi to? I zniknąłem."],
+      hard: ["Nie widzę, w czym by mi to pomogło. Wrócimy, gdy będzie potrzebne.", "Emocje po prezentacji minęły i nie rozumiem, po co mi to."],
+      opts: [
+        { t: "Dziękuję za szczerość. Co cię zainteresowało na prezentacji? Może nie pokazano najważniejszego.", tech: "Powrót do pierwotnego zainteresowania", note: "Wrócono do tego, co zaczepiło klienta, a nie do swojej oferty." },
+        { t: "Rozumiem. Sprawdźmy na twoich liczbach, czy w ogóle potrzebujesz takich podróży.", tech: "Sprawdzenie potrzeby", note: "Dobrze, ale pytanie o to, co zaczepiło, byłoby mocniejsze." },
+        { t: "To zwykła reakcja, po prostu nie zrozumiał{eś|aś} korzyści. Wyjaśnię od nowa, ale szybko.", mistake: "Monolog", note: "Tłumaczenie tego samego od nowa to powtórzenie błędu." },
+        { t: "Jeśli teraz nie wrócisz, potem ceny będą wyższe i pożałujesz.", mistake: "Fałszywa rzadkość", note: "Zmyślona rzadkość niszczy zaufanie." },
+      ],
+      push: ["Już mnie to nie interesuje.", "Nie próbuj tego rozpalić na nowo."],
+      rec: [
+        { t: "Nic nie szkodzi. Jedno pytanie: co w twoich podróżach drażni cię teraz najbardziej? Jeśli nic, na tym poprzestaniemy.", tech: "Jedno pytanie o ból", note: "Jedno pytanie i gotowość zatrzymania się przywracają zainteresowanie." },
+        { t: "Przecież sam{|a} mówił{eś|aś}, że tego potrzebujesz.", mistake: "Spór", note: "Łapanie klienta na dawnych słowach to konflikt." },
+        { t: "Okno się zamyka, tracisz szansę.", mistake: "Fałszywa rzadkość", note: "Zmyślona rzadkość znikąd nie działa." },
+      ],
+      bye: "Już mnie to nie interesuje. Nie dzwoń.", why: "Ostygłego zainteresowania klienta nie udało się przywrócić pytaniami.",
+    },
+    g_competitor: {
+      label: "„Wybrał{em|am} coś innego”", family: "value",
+      soft: ["Szczerze, {poszedłem|poszłam} gdzie indziej: tam mi wytłumaczyli prościej. Nie chciał{em|am} ci o tym mówić.", "Zaproponowano mi coś podobnego u innego konsultanta i prawie się zdecydował{em|am}."],
+      hard: ["Wybrał{em|am} już inny wariant. Czego chcesz?", "Dostał{em|am} tam wszystko, czego trzeba. Nie warto tracić czasu."],
+      opts: [
+        { t: "Dziękuję, że powiedział{eś|aś}. Co cię tam przekonało? Jeśli u nich lepiej, tak powiem: ważne, żeby ci pasowało.", tech: "Szacunek dla wyboru + pytanie", note: "Nie kłócisz się z wyborem i poznajesz, co przekonało klienta." },
+        { t: "Rozumiem. Jeśli zechcesz porównać warunki, prześlij je, porównamy punkt po punkcie.", tech: "Porównanie punkt po punkcie", note: "Słusznie, ale nie zapytano o przyczyny wyboru." },
+        { t: "Tam cię oszukają, takie oferty zawsze mają haczyk.", mistake: "Krytyka konkurenta", note: "Złe słowa o konkurencie bez faktów budzą nieufność." },
+        { t: "Popełniasz błąd, jesteśmy lepsi i za miesiąc to zrozumiesz.", mistake: "Oskarżenie", note: "Przepowiadanie klientowi błędu to presja." },
+      ],
+      push: ["Już zdecydował{em|am}. Nie odwodź mnie.", "Skończmy."],
+      rec: [
+        { t: "Przyjmuję. Jeśli kiedyś zechcesz porównać warunki, prześlij, a uczciwie powiem, gdzie jesteśmy silniejsi, a gdzie słabsi.", tech: "Godne wyjście", note: "Godne wyjście zachowuje szansę powrotu." },
+        { t: "Tam jest źle, jeszcze do nas przyjdziesz.", mistake: "Krytyka konkurenta", note: "Złośliwa satysfakcja niszczy zaufanie." },
+        { t: "Po prostu się nie zorientował{eś|aś}.", mistake: "Umniejszanie", note: "Umniejszanie wyboru to koniec rozmowy." },
+      ],
+      bye: "Źle się wyrażasz o innych. Nie pisz.", why: "Wybór klienta został zlekceważony.",
+    },
+    g_overwhelmed: {
+      label: "„Za dużo informacji”", family: "other",
+      soft: ["Szczerze, na prezentacji było tyle wszystkiego, że się pogubił{em|am} i bał{em|am} się pomyłki. Dlatego milczał{em|am}.", "Wydało mi się, że nic nie zrozumiał{em|am}, i było niezręcznie dopytywać."],
+      hard: ["Wywaliłeś na mnie górę informacji. Do tej pory nie rozumiem, co dokładnie mi proponują.", "Dużo słów, mało jasności. Postanowił{em|am} się nie wiązać."],
+      opts: [
+        { t: "Dziękuję, że powiedział{eś|aś}. To mój błąd: za dużo słów. Zróbmy to w trzech zdaniach: co dostajesz i ile płacisz.", tech: "Uproszczenie", note: "Wzięto winę na siebie i zaproponowano zwartą wersję." },
+        { t: "Rozumiem. Idźmy po jednym punkcie: który jest dla ciebie najmniej zrozumiały?", tech: "Jedno pytanie naraz", note: "Dobry krok, ale przeprosin za przeciążenie nie było." },
+        { t: "Wszystko było jasne, po prostu trzeba uważniej słuchać.", mistake: "Obwinianie klienta", note: "Nie wolno obwiniać o nieuwagę kogoś, kogo się zagmatwało." },
+        { t: "Nie martw się, nieważne, co niejasne: zapiszemy, a sam{|a} się połapiesz w trakcie.", mistake: "Presja", note: "Zapisywanie czegoś niejasnego to prosta droga do skargi." },
+      ],
+      push: ["Znowu nic nie zrozumiał{em|am}.", "Proszę prościej."],
+      rec: [
+        { t: "Przepraszam. Zacznijmy od jednego: płatności. Wejście, abonament, wszystko na piśmie. Resztę potem.", tech: "Jasność krok po kroku", note: "Jeden punkt naraz przywraca poczucie kontroli." },
+        { t: "Pozwól, że jeszcze raz szybko przejdę przez wszystko.", mistake: "Monolog", note: "Powtórzenie tego samego da ten sam wynik." },
+        { t: "Połapiesz się w trakcie, nie martw się.", mistake: "Presja", note: "Prośba o „cierpliwość” nie usuwa niezrozumienia." },
+      ],
+      bye: "Nikt mi niczego nie tłumaczy. Do widzenia.", why: "Klienta zagmatwano jeszcze bardziej.",
+    },
+  },
+  openers: {
+    curt: {
+      line: "Tak. Słucham. Tylko szybko.",
+      opts: [
+        m("Dziękuję, że odpowiedział{eś|aś}. Jedna minuta: odzywam się, żeby usłyszeć, jak ci po prezentacji, bez zobowiązań. Wygodnie teraz?", "Uznanie + pozwolenie", "Krótko nazwano powód, niczego nie żądasz i zapytano o pozwolenie."),
+        m("Dzień dobry. Odzywam się, żeby dowiedzieć się, czy po prezentacji zostały jakieś pytania.", "Prosty powód", "Jasno i krótko, ale bez kroku w stronę klienta."),
+        m("Zniknięcie zaraz po prezentacji to nie jest dobry sposób. Na odpowiedź czekało się kilka dni.", "Obwinianie klienta", "Wyrzut potwierdza, że odpowiadanie ci jest nieprzyjemne."),
+        m("Właśnie zwolniło się miejsce w twoim pakiecie: jeśli nie zdecydujesz dziś, cena się zmieni.", "Fałszywy pretekst", "Zmyślony pretekst niszczy zaufanie w pierwszych sekundach."),
+      ],
+      bye: "Nie jest mi to potrzebne. Nie dzwoń.",
+      why: "Klienta od razu obwiniono lub złapano na fałszywym preteksie.",
+    },
+    sarcastic: {
+      line: "O, znaleźliście się. A już myślał{em|am}, że o mnie zapomnieliście. Czy tak dzwonicie do wszystkich „zastanawiających się”?",
+      opts: [
+        m("Słusznie. Czas na zastanowienie był. Teraz chcę po prostu wiedzieć, jak z tym u ciebie.", "Zgoda z żartem + otwartość", "Przyjęto docinek spokojnie i szczerze nazwano cel."),
+        m("Tak, czas minął. Jak się masz? Zostały jakieś pytania?", "Prosty powrót", "W porządku, ale bez odpowiedzi na docinek."),
+        m("To ty zniknął{eś|aś}, nie ja. Były wiadomości i telefony, a ty milcz{ałeś|ałaś}.", "Spór", "Zrzucanie winy na klienta to droga do blokady."),
+        m("Masz szczęście, że w ogóle dzwonię: inni uczestnicy już się zapisali i miejsc prawie nie ma.", "Presja na wątpliwość", "Presja cudzymi decyzjami tylko złości."),
+      ],
+      bye: "Nie trzeba do mnie tak dzwonić. Do widzenia.",
+      why: "Na docinek klienta odpowiedziano sporem i presją.",
+    },
+    evasive: {
+      line: "A, cześć. Właśnie miał{em|am} do ciebie pisać. Po prostu mam dużo spraw.",
+      opts: [
+        m("Dziękuję, że się odezwał{eś|aś}. Bez pośpiechu: co przeszkadza wrócić do tematu, w czym mogę pomóc?", "Przyjęcie wymówki + pomoc", "Nie złapano na słowie i zaproponowano pomoc."),
+        m("Dobrze, czekam. Powiedz, kiedy ci wygodnie, a się dostosuję.", "Konkretny termin", "Rozsądnie, ale przyczyny pauzy nie poznano."),
+        m("Mówisz tak już trzeci raz. Zdecydujmy wszystko teraz.", "Presja", "Łapanie klienta na słowach to konflikt."),
+        m("Muszę dziś zdać z ciebie raport, więc powiedz „tak” albo „nie” od razu.", "Fałszywy pretekst", "Zmyślony raport to presja i kłamstwo."),
+      ],
+      bye: "Poganiają mnie i łapią na słowie. Do widzenia.",
+      why: "Grzeczną wymówkę klienta wykorzystano do presji.",
+    },
+    embarrassed: {
+      line: "Dzień dobry... Słuchaj, jest mi niezręcznie, że tak wyszło.",
+      opts: [
+        m("Wszystko w porządku, bez urazy. Dziękuję, że się odezwał{eś|aś}. Opowiesz, jak ci się to ułożyło?", "Zdjęcie niezręczności", "Zdjęto poczucie winy i zaproszono do rozmowy."),
+        m("Nic nie szkodzi. Chcę po prostu wiedzieć, jak się masz.", "Ciepłe przyjęcie", "Ciepło, ale bez pytania o to, co się stało."),
+        m("Mnie też było przykro, że nie odpowiadasz, a czas poszedł na marne.", "Obwinianie", "Wyrzut po przeprosinach zamyka rozmowę."),
+        m("Niezręcznie trzeba było przed odejściem. Teraz decyduj szybko, póki trzymam dla ciebie miejsce.", "Fałszywa rzadkość", "Zmyślone „miejsce” niszczy resztki zaufania."),
+      ],
+      bye: "Przeprosił{em|am}, a mnie ganią. Nie pisz więcej.",
+      why: "Przeprosiny klienta spotkały się z wyrzutem i zmyśloną rzadkością.",
+    },
+    blank: {
+      line: "Tak? Kto mówi? A, z prezentacji. Pamiętam. I co?",
+      opts: [
+        m("Dzień dobry. Tak, po prezentacji. Nie dzwonię, żeby sprzedawać: chcę zrozumieć, czy zostały jakieś pytania.", "Szczery cel", "Od razu zdjęto podejrzenie, że coś się narzuca."),
+        m("Dzień dobry. Krótko przypomnę, o czym rozmawialiśmy, i zapytam, jak się masz.", "Przypomnienie + pytanie", "Dobrze, ale „przypomnę” łatwo brzmi jak powtórka prezentacji."),
+        m("Jak to „i co”? Umówiliśmy się, że się zastanowisz i odpowiesz.", "Presja", "Przywoływanie umowy to presja."),
+        m("Zostawiłem dla ciebie najlepszą cenę, mogę ją potwierdzić tylko dziś.", "Fałszywa rzadkość", "Zmyślona „najlepsza cena” niszczy zaufanie."),
+      ],
+      bye: "Denerwujesz mnie. Nie dzwoń.",
+      why: "Chłodny klient dostał presję zamiast szczerego celu.",
+    },
+    cool: {
+      line: "Na razie nic nie postanowił{em|am}. Nie róbmy tego teraz.",
+      opts: [
+        m("Rozumiem. Tylko jedno pytanie: co mam doprecyzować, żeby ci było łatwiej zdecydować? Bez zobowiązań.", "Przyjęcie pauzy", "Przyjęto „nie teraz” i zaproponowano pomoc."),
+        m("Dobrze, nie będę poganiać. Jeśli pojawią się pytania, pisz.", "Szacunek dla pauzy", "Słusznie, ale kontakt zostawiono przypadkowi."),
+        m("„Nie teraz” to kiedy? Wyznaczmy jutro, żeby nie zgubić.", "Presja", "Żądanie daty od kogoś, kto prosi o pauzę, to presja."),
+        m("Nie zdecydować teraz to stracić: tak zawsze bywa przy takich ofertach.", "Fałszywa rzadkość", "Straszenie stratą to manipulacja."),
+      ],
+      bye: "Mówią mi „stracisz”, a prosił{em|am} o pauzę. Nie pisz.",
+      why: "Prośbę o pauzę spotkano presją i straszeniem.",
+    },
+  },
+  closers: {
+    pause: {
+      line: "Zróbmy tak: sam{|a} napiszę, gdy będę gotow{y|a}. Za miesiąc, dwa.",
+      opts: [
+        m("Umowa stoi. Ustalmy: napiszę za miesiąc, jeden raz, krótko. Pasuje?", "Ustalenie łagodnego terminu", "Przyjęto pauzę i zakotwiczono ją terminem, bez presji."),
+        m("Dobrze, czekam. Jeśli wcześniej pojawią się pytania, pisz.", "Otwarte drzwi", "Poprawnie, ale nie ma terminu i więź może się urwać."),
+        m("Miesiąc to długo, zróbmy chociaż tydzień, póki wszystko pamiętasz.", "Presja na termin", "Klient podał termin, a ty go skracasz."),
+        m("Za miesiąc ceny wzrosną, więc lepiej zdecydować teraz.", "Zmyślona rzadkość", "Zmyślony wzrost cen niszczy zdobyte zaufanie."),
+      ],
+    },
+    proof: {
+      line: "Prześlij mi to, co pokazywałeś na prezentacji, obejrzę jeszcze raz.",
+      opts: [
+        m("Prześlę dziś płatności i warunki na piśmie. I umówmy się: w czwartek napiszę, żeby odpowiedzieć na pytania.", "Konkretny następny krok", "List z datą następnego kontaktu się nie gubi."),
+        m("Wyślę zaraz po rozmowie.", "Szybkie spełnienie", "Dobrze, ale następnego kroku nie wyznaczono."),
+        m("Tam jest to samo, co na prezentacji, nie ma sensu opowiadać, już wszystko wiesz.", "Ignorowanie prośby", "Klient prosi o dokument, a ty odmawiasz."),
+        m("Wyślę, ale oferta obowiązuje tylko do jutra, więc obejrzyj szybciej.", "Fałszywa rzadkość", "Fałszywy termin razem z listem brzmi absurdalnie."),
+      ],
+    },
+    again: {
+      line: "Dobrze. Zróbmy to jeszcze raz, tylko krótko i do rzeczy. Co dostanę?",
+      opts: [
+        m("Krótko: płatności to {tierPrice} na start i {sub}, wszystko na piśmie. A dalej {next}.", "Krótkie streszczenie", "Zmieszczono się w dwóch zdaniach i nazwano płatności."),
+        m("Krótko: wejście {tierPrice}, dalej {sub}. Resztę na piśmie.", "Płatności wprost", "Uczciwie, ale bez następnego kroku."),
+        m("To samo co na prezentacji, tylko krócej: najpierw firma, potem punkty, pakiety, abonament, sieć i biznes.", "Monolog", "„Krótko” zamieniło się w tę samą długą opowieść."),
+        m("Zapisujemy teraz, póki okno jest otwarte, potem będzie trudniej i drożej.", "Fałszywa rzadkość", "Zmyślone okno niszczy zaufanie na finiszu."),
+      ],
+    },
+  },
+  briefing:
+    "{days} przeprowadzono prezentację. Klient słuchał uważnie, a na koniec powiedział: „{promise}”. Od tego czasu {tries}. Kanał: {channel}. Cel: nie naciskać, tylko wznowić rozmowę i uzgodnić następny krok. Klient jest sceptyczny i lekko zirytowany.",
+  hint: "Klient odpowiedział, ale jest czujny. Nie pytaj „dlaczego zniknąłeś”: dowiedz się, co naprawdę się stało.",
+  days: ["Dwa dni temu", "Tydzień temu", "Trzy tygodnie temu"],
+  promises: ["muszę się zastanowić dzień", "naradzę się i dam znać", "napiszę wieczorem", "odpowiem jutro", "zadzwonię w tym tygodniu", "muszę to wszystko przetrawić"],
+  tries: ["napisano raz i brak odpowiedzi", "napisano dwa razy i zadzwoniono, nikt nie odbiera", "próbowano się skontaktować trzy razy, bez odpowiedzi"],
+  hidden: {
+    g_embarrassed: "Klientowi było niezręcznie powiedzieć „nie” prosto w oczy i postanowił po prostu zniknąć.",
+    g_spouse_no: "W domu klienta nie poparto i nie wiedział, jak ci o tym powiedzieć.",
+    g_googled: "Po prezentacji klient znalazł w internecie złe opinie i się przestraszył.",
+    g_friend_warned: "Znajomy, któremu klient ufa, odwiódł go od wstąpienia.",
+    g_money_shame: "Klient nie ma teraz wolnych pieniędzy i wstydzi się to przyznać.",
+    g_busy_life: "Na klienta nawarstwiły się praca, rodzina i zdrowie: nie unikał cię, po prostu się nie wynurzył.",
+    g_pressured: "Na prezentacji klient poczuł presję i to odebrało mu chęć kontaktu.",
+    g_cooled: "Emocje po prezentacji minęły i zainteresowanie ostygło: klient nie widzi, po co mu to.",
+    g_competitor: "Klient wybrał już podobną ofertę u innego konsultanta i wstydzi się o tym powiedzieć.",
+    g_overwhelmed: "Na prezentacji było za dużo informacji, klient się pogubił i bał się pomyłki.",
+  },
+  intro: {
+    title: "NURKOWIE",
+    text: "Klienci, którzy wysłuchali prezentacji, powiedzieli „muszę się zastanowić” i zniknęli. Twoje zadanie to przywrócić ich do rozmowy bez naciskania: znaleźć prawdziwą przyczynę milczenia i uzgodnić mały następny krok. Wszyscy są lekko zirytowani i sceptyczni.",
+  },
+};

@@ -380,5 +380,9 @@ const pl: Record<string, string> = {
   "ВНИМАНИЕ": "UWAGA",
   "Продажа с риском возврата или жалобы": "Sprzedaż z ryzykiem zwrotu lub skargi",
   "тренажёр продаж": "trener sprzedaży",
+  "Разделы": "Sekcje",
+  "Клиенты слегка раздражены и скептичны с первой реплики": "Klienci są lekko zirytowani i sceptyczni od pierwszej kwestii",
+  "Водолаз": "Nurek",
+  "Почему клиенты пропадают": "Dlaczego klienci znikają",
 };
 export default pl;

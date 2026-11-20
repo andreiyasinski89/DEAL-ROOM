@@ -57,3 +57,18 @@ export const CLOSER_CODES: Record<CloserId, MoveSkeleton["codes"]> = {
 
 /** The "client opens up" step after a strong first answer. */
 export const STORY_CODES: MoveSkeleton["codes"] = [undefined, undefined, "devalue", "pressure"];
+
+/** "Divers" (Водолазы): how the client reacts when the seller reaches out after the silence. */
+export const GHOST_OPENER_IDS = ["curt", "sarcastic", "evasive", "embarrassed", "blank", "cool"] as const;
+export type GhostOpenerId = (typeof GHOST_OPENER_IDS)[number];
+/** Weak = a reproach, critical = a false pretext (so the shared "hangs up" ending with its own bye/why fits). */
+export const GHOST_OPENER_CODES: MoveSkeleton["codes"] = [undefined, undefined, "devalue", "lie"];
+
+/** Other ways to close a "diver" case (the usual closers of the main library work too). */
+export const GHOST_CLOSER_IDS = ["pause", "proof", "again"] as const;
+export type GhostCloserId = (typeof GHOST_CLOSER_IDS)[number];
+export const GHOST_CLOSER_CODES: Record<GhostCloserId, MoveSkeleton["codes"]> = {
+  pause: [undefined, undefined, "pressure", "scarcity"],
+  proof: [undefined, undefined, "ignore", "scarcity"],
+  again: [undefined, undefined, "monologue", "scarcity"],
+};

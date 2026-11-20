@@ -150,6 +150,26 @@ test("a lost game in Polish shows growth advice in Polish", async ({ page }) => 
   await expect(page.getByRole("listitem").filter({ hasText: "Najpierw odpowiedzieć na bezpośrednie pytanie klienta" })).toBeVisible();
 });
 
+test('the "Divers" block: 50 cases of clients who vanished, in every language', async ({ page }) => {
+  await seed(page);
+  await page.goto("/");
+  await page.getByRole("tab", { name: /ВОДОЛАЗЫ/ }).click();
+  await expect(page.getByText(/пропали|пропал/).first()).toBeVisible();
+  await page.getByRole("tab", { name: /Новичок/ }).click();
+  await page.locator(".case-row").first().click();
+  await expect(page.getByText("БРИФИНГ МИССИИ")).toBeVisible();
+  await expect(page.getByText(/назад вы провели презентацию/)).toBeVisible();
+  await page.getByRole("button", { name: /Начать диалог/ }).click();
+  await expect(page.locator(".choice")).toHaveCount(4);
+
+  await seed(page, { dr_lang: "uk" });
+  await page.goto("/");
+  await page.getByRole("tab", { name: /ВОДОЛАЗИ/ }).click();
+  await page.getByRole("tab", { name: /Новачок/ }).click();
+  await page.locator(".case-row").first().click();
+  await expect(page.getByText(/тому ви провели презентацію/)).toBeVisible();
+});
+
 test("the scripted mode works offline after the first visit (service worker)", async ({ page, context }) => {
   await seed(page);
   await page.goto("/");

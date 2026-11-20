@@ -80,7 +80,9 @@ export default function App() {
 }
 
 function Game({ lib }: { lib: Lib }) {
-  const { allScenarios, scenarioById, tutorialCase } = lib;
+  const { allScenarios, ghostScenarios, ghostIntro, scenarioById, tutorialCase } = lib;
+  /** Everything a record can point to (history, weak-spot map, recommendations). */
+  const everyCase = useMemo(() => [...allScenarios, ...ghostScenarios], [allScenarios, ghostScenarios]);
   const auth = useAuth();
   const { tr } = useI18n();
   const trRef = useRef(tr);
@@ -224,6 +226,8 @@ function Game({ lib }: { lib: Lib }) {
       {screen === "menu" && (
         <Menu
           scenarios={allScenarios}
+          ghosts={ghostScenarios}
+          ghostIntro={ghostIntro}
           progress={progress}
           free={free}
           fx={fx}
@@ -243,7 +247,7 @@ function Game({ lib }: { lib: Lib }) {
         />
       )}
       {screen === "profile" && (
-        <Profile records={records} scenarios={allScenarios} tagLabels={lib.tagLabels} auth={auth} syncNote={syncNote} onBack={toMenu} onOpenCase={select} />
+        <Profile records={records} scenarios={everyCase} tagLabels={lib.tagLabels} auth={auth} syncNote={syncNote} onBack={toMenu} onOpenCase={select} />
       )}
       {screen === "team" && <TeamScreen scenarios={allScenarios} auth={auth} onBack={toMenu} onPlay={select} />}
       {screen === "briefing" && <Briefing scenario={scenario} onBack={toMenu} onStart={start} live={liveAccess} onLive={startLive} />}

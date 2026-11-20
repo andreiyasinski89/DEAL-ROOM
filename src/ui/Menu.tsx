@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Bot, Flame, GraduationCap, Lock, User, Users } from "lucide-react";
+import { Bot, Flame, GraduationCap, Lock, User, Users, Waves } from "lucide-react";
 import type { Scenario } from "../engine/types";
 import { LANGS, LOCALE, T, useI18n } from "../i18n";
 import { Panel } from "./parts";
@@ -12,11 +12,13 @@ const OUTCOME_COLOR = { sale: "#3dffa2", partial: "#ffb547", lost: "#ff4d5e" } a
 const OUTCOME_RU = { sale: T("ПРОДАЖА"), partial: T("ЧАСТИЧНО"), lost: T("ПРОВАЛ") } as const;
 const NICHE_RU: Record<string, string> = {
   member_elite: T("Elite"), member_turbo: T("Turbo"), recruiting: T("Бизнес и сеть"), cold: T("Холодный контакт"),
-  repeat: T("Действующий клиент"), family: T("Семья"), business: T("Предприниматель"), social: T("Соцсети"),
+  repeat: T("Действующий клиент"), family: T("Семья"), business: T("Предприниматель"), social: T("Соцсети"), ghost: T("Водолаз"),
 };
 
 export function Menu({
   scenarios,
+  ghosts,
+  ghostIntro,
   progress,
   free,
   fx,
@@ -35,6 +37,9 @@ export function Menu({
   quota,
 }: {
   scenarios: Scenario[];
+  /** The "Divers" block: clients who vanished after the presentation (always unlocked, own progress counter). */
+  ghosts: Scenario[];
+  ghostIntro: { title: string; text: string; reasons: string[] };
   progress: Progress;
   free: boolean;
   fx: boolean;
@@ -54,6 +59,8 @@ export function Menu({
   quota: Quota | null;
 }) {
   const { tr, lang, setLang } = useI18n();
+  const [track, setTrack] = useState<"missions" | "ghosts">("missions");
+  const [gLevel, setGLevel] = useState<number>(2);
   // start on the highest unlocked level that still has unplayed cases
   const [level, setLevel] = useState<number>(() => {
     for (let l = 5; l >= 1; l--)
@@ -132,6 +139,63 @@ export function Menu({
         </div>
       </header>
 
+      <div role="tablist" aria-label={tr("Разделы")} style={{ display: "flex", gap: 6, margin: "10px 0 6px" }}>
+        <button role="tab" aria-selected={track === "missions"} className={`icon-btn ${track === "missions" ? "active" : ""}`} onClick={() => setTrack("missions")}>
+          <Flame size={12} /> {tr("МИССИИ")}
+        </button>
+        <button role="tab" aria-selected={track === "ghosts"} className={`icon-btn ${track === "ghosts" ? "active" : ""}`} onClick={() => setTrack("ghosts")}>
+          <Waves size={12} /> {ghostIntro.title} · {ghosts.filter((s) => progress[s.id]).length}/{ghosts.length}
+        </button>
+      </div>
+
+      {track === "ghosts" ? (
+        <div className="menu-grid">
+          <Panel title={ghostIntro.title}>
+            <p style={{ fontSize: 14, lineHeight: 1.5, margin: "0 0 10px" }}>{ghostIntro.text}</p>
+            <div className="legend" style={{ justifyContent: "flex-start", marginTop: 6 }}>
+              <span><i style={{ background: "#3fe0ff" }} />{tr("новый")}</span>
+              <span><i style={{ background: "#3dffa2" }} />{tr("продажа")}</span>
+              <span><i style={{ background: "#ffb547" }} />{tr("частично")}</span>
+              <span><i style={{ background: "#ff4d5e" }} />{tr("провал")}</span>
+            </div>
+            <div className="dim t-mono" style={{ fontSize: 12, marginTop: 10 }}>
+              {tr("Клиенты слегка раздражены и скептичны с первой реплики")}
+            </div>
+            <div className="t-mono" style={{ fontSize: 11, color: "var(--hud-cyan)", margin: "14px 0 6px" }}>{tr("Почему клиенты пропадают")}</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {ghostIntro.reasons.map((r) => (
+                <span key={r} className="tag">{r}</span>
+              ))}
+            </div>
+          </Panel>
+          <Panel title={tr("МИССИИ")}>
+            <div role="tablist" aria-label={tr("Уровни")} style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 10 }}>
+              {[2, 3, 4, 5].map((l) => (
+                <button key={l} role="tab" aria-selected={l === gLevel} className={`icon-btn ${l === gLevel ? "active" : ""}`} onClick={() => setGLevel(l)}>
+                  {l} {tr(LEVELS[l - 1])} · {ghosts.filter((s) => s.level === l).length}
+                </button>
+              ))}
+            </div>
+            <div className="case-list">
+              {ghosts.filter((s) => s.level === gLevel).map((s) => {
+                const res = progress[s.id];
+                return (
+                  <button key={s.id} className="case-row" onClick={() => onSelect(s.id)}>
+                    <span className="dot" style={{ background: res ? OUTCOME_COLOR[res] : "#3fe0ff" }} aria-hidden />
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span className="t-ui" style={{ display: "block" }}>{s.title}</span>
+                      <span className="dim" style={{ fontSize: 12 }}>
+                        {s.persona.name}, {s.persona.profession} · {tr(CHANNEL_LABEL[s.channel])}
+                      </span>
+                    </span>
+                    <span className="t-mono dim" style={{ fontSize: 11 }}>{res ? tr(OUTCOME_RU[res]) : ""}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </Panel>
+        </div>
+      ) : (
       <div className="menu-grid">
         <Panel title={tr("КАРТА МИССИЙ")}>
           <svg viewBox="0 0 400 400" className="radar" role="group" aria-label={tr("Радар миссий: уровни как кольца, кейсы как точки")}>
@@ -240,6 +304,7 @@ export function Menu({
           </div>
         </Panel>
       </div>
+      )}
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import type { Level } from "../engine/types";
 import type { CaseSpec } from "./builder";
 import { beats as ruBeats } from "./data/beats";
-import { CLOSER_IDS, EVENT_IDS, EVENTS, OPENER_IDS, type CloserId, type EventId, type OpenerId } from "./data/moves";
+import { isGhostTag } from "./data/ghost";
+import { CLOSER_IDS, EVENT_IDS, EVENTS, OPENER_IDS, type CloserId, type EventId, type GhostCloserId, type GhostOpenerId, type OpenerId } from "./data/moves";
 
 /** Stable pseudo-random number in [0, 1) from a text: the same case always gets the same shape, in every language. */
 export function hash01(text: string): number {
@@ -15,9 +16,9 @@ export function hash01(text: string): number {
 
 export type Variants = {
   /** How the conversation starts: the usual greeting, the client jumping straight into an objection, or another opener. */
-  opening: "default" | "straight" | OpenerId;
+  opening: "default" | "straight" | OpenerId | GhostOpenerId;
   /** How the finish looks: the usual ready client or another closing situation. */
-  closing: "default" | CloserId;
+  closing: "default" | CloserId | GhostCloserId;
   /** Events inserted after beat i (key = index of the beat they follow). */
   events: Record<number, EventId>;
   /** After a strong first answer the client opens up (a personal remark) before the next objection. */
@@ -31,17 +32,19 @@ export function variantsFor(spec: CaseSpec): Variants {
   const { level, id } = spec;
   const R = (k: string) => hash01(`${id}|${k}`);
   const k = spec.tags.length;
-  const jTrust = spec.tags.findIndex((t) => ruBeats[t].family === "trust");
-  const hiddenAfter = level >= 2 ? (jTrust >= 0 ? jTrust : 0) : -1;
+  const jTrust = spec.tags.findIndex((t) => !isGhostTag(t) && ruBeats[t].family === "trust");
+  // a "diver" case has no hidden branch: its first beat IS the hidden reason
+  const hiddenAfter = spec.ghost ? -1 : level >= 2 ? (jTrust >= 0 ? jTrust : 0) : -1;
 
   // ---- opening
   const o = R("opening");
-  const opening: Variants["opening"] =
-    o < 0.38 ? "default" : o < 0.55 ? (level >= 2 ? "straight" : "default") : OPENER_IDS[Math.floor(((o - 0.55) / 0.45) * OPENER_IDS.length) % OPENER_IDS.length];
+  const opening: Variants["opening"] = spec.ghost
+    ? spec.ghost.opener
+    : o < 0.38 ? "default" : o < 0.55 ? (level >= 2 ? "straight" : "default") : OPENER_IDS[Math.floor(((o - 0.55) / 0.45) * OPENER_IDS.length) % OPENER_IDS.length];
 
   // ---- closing
   const c = R("closing");
-  const closing: Variants["closing"] = c < 0.4 ? "default" : CLOSER_IDS[Math.floor(((c - 0.4) / 0.6) * CLOSER_IDS.length) % CLOSER_IDS.length];
+  const closing: Variants["closing"] = spec.ghost ? spec.ghost.closer : c < 0.4 ? "default" : CLOSER_IDS[Math.floor(((c - 0.4) / 0.6) * CLOSER_IDS.length) % CLOSER_IDS.length];
 
   // ---- events (0-1 on levels 1-3, 1-2 on 4-5); never twice the same, never two in a row
   const count = (l: Level): number => {
@@ -72,7 +75,7 @@ export function variantsFor(spec: CaseSpec): Variants {
   }
 
   // ---- the client opens up after a strong first answer (not when the hidden branch starts right there)
-  const story = level >= 2 && hiddenAfter !== 0 && R("story") < 0.5;
+  const story = level >= 2 && hiddenAfter !== 0 && R("story") < (spec.ghost ? 0.6 : 0.5);
 
   return { opening, closing, events, story, hiddenAfter };
 }

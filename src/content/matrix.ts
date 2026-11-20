@@ -135,3 +135,63 @@ export function generated(skipIndex?: number, pack: ContentPack = ruPack): Scena
     .filter(({ s }) => s.index !== skipIndex)
     .map(({ spec }) => buildScenarioLazy(spec, pack));
 }
+
+/* ------------------------------------------------------------------ "Divers": 50 cases of clients who vanished after the presentation */
+
+import { GHOST_TAGS } from "./data/ghost";
+import { CLOSER_IDS, GHOST_CLOSER_IDS, GHOST_OPENER_IDS } from "./data/moves";
+import { vocabByKey } from "./data/vocab";
+
+/** Cases per level of the "Divers" block (all levels 2-5: these clients are never easy). */
+export const GHOST_LEVELS: Level[] = [...Array(10).fill(2), ...Array(16).fill(3), ...Array(14).fill(4), ...Array(10).fill(5)] as Level[];
+/** Segments that had a presentation (no cold contacts, no existing clients). */
+const GHOST_SEGMENTS = ["member_elite", "member_turbo", "recruiting", "family", "business", "social"];
+/** What else can come up once the real reason is on the table. */
+const GHOST_EXTRA: BeatTag[] = ["price", "subscription", "points_value", "mlm_stigma", "trust", "think_about_it", "spouse_third_party", "bad_past_experience", "no_money", "competitor", "refund_cancel", "proof_request", "income_question", "need", "smokescreen", "network_realism"];
+const GHOST_CLOSERS: ("default" | (typeof CLOSER_IDS)[number] | (typeof GHOST_CLOSER_IDS)[number])[] = ["default", "discount", "send", "how", "pause", "proof", "again"];
+/** Objections that would repeat the reason itself. */
+const GHOST_CONFLICT: Partial<Record<(typeof GHOST_TAGS)[number], BeatTag[]>> = {
+  g_money_shame: ["no_money", "price", "smokescreen"],
+  g_spouse_no: ["spouse_third_party"],
+  g_googled: ["mlm_stigma", "proof_request"],
+  g_friend_warned: ["mlm_stigma"],
+  g_competitor: ["competitor"],
+  g_cooled: ["need", "think_about_it"],
+  g_pressured: ["think_about_it"],
+};
+/** How many other objections follow the reason, per level. */
+const GHOST_EXTRA_COUNT: Record<number, number> = { 2: 2, 3: 2, 4: 3, 5: 3 };
+
+export function ghostSpecs(): CaseSpec[] {
+  return GHOST_LEVELS.map((level, i) => {
+    const vocab = vocabByKey(GHOST_SEGMENTS[(i * 5 + Math.floor(i / 6)) % GHOST_SEGMENTS.length]);
+    const persona = personas[i < 30 ? (i * 7) % 30 : ((i - 30) * 7 + 15) % 30];
+    const reason = GHOST_TAGS[(i * 3 + Math.floor(i / 10)) % GHOST_TAGS.length];
+    const n = GHOST_EXTRA_COUNT[level] + (level === 3 && i % 3 === 0 ? 1 : 0) + (level === 5 && i % 2 === 0 ? 1 : 0);
+    const pool = GHOST_EXTRA.filter((t) => allowed(vocab, t) && !(GHOST_CONFLICT[reason] ?? []).includes(t));
+    const taken = new Set<BeatTag>();
+    const tags = [reason, ...pick(pool, n, i * 3, taken)];
+    return {
+      id: `ghost-l${level}-${persona.id}-${i + 1}`,
+      level,
+      vocab,
+      tier: vocab.tiers[i % vocab.tiers.length],
+      channel: i % 5 === 4 ? "zoom" : i % 2 === 0 ? "call" : "chat",
+      persona,
+      tags,
+      seed: 500 + i,
+      ghost: {
+        opener: GHOST_OPENER_IDS[(i * 5 + Math.floor(i / 6)) % GHOST_OPENER_IDS.length],
+        closer: GHOST_CLOSERS[(i * 3 + 1 + Math.floor(i / 7)) % GHOST_CLOSERS.length],
+        days: ((i * 2 + Math.floor(i / 3)) % 3) as 0 | 1 | 2,
+        promise: (i * 5 + Math.floor(i / 4)) % 6,
+        tries: ((i + Math.floor(i / 5)) % 3) as 0 | 1 | 2,
+      },
+    };
+  });
+}
+
+/** The 50 "Divers" cases in the language of the pack (node graphs are built lazily, like in the main library). */
+export function ghostCases(pack: ContentPack = ruPack): Scenario[] {
+  return ghostSpecs().map((spec) => buildScenarioLazy(spec, pack));
+}

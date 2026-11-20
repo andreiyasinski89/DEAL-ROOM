@@ -1,5 +1,5 @@
 import type { Scenario } from "../engine/types";
-import { generated, slots } from "./matrix";
+import { generated, ghostCases, slots } from "./matrix";
 import { localizeMini, withMistakeCodes } from "./mini";
 import { miniCase } from "./miniCase";
 import type { ContentPack } from "./packs/types";
@@ -15,13 +15,17 @@ export function buildLibrary(pack: ContentPack) {
   const allScenarios: Scenario[] = [...generated(miniSlot, pack)];
   if (miniSlot !== undefined) allScenarios.splice(Math.min(miniSlot, allScenarios.length), 0, mini);
   else allScenarios.push(mini);
-  const byId = new Map(allScenarios.map((s) => [s.id, s]));
+  const ghostScenarios: Scenario[] = ghostCases(pack);
+  const byId = new Map([...allScenarios, ...ghostScenarios].map((s) => [s.id, s]));
   return {
     lang: pack.lang,
     allScenarios,
+    /** The "Divers" block: 50 cases of clients who vanished after the presentation. */
+    ghostScenarios,
+    ghostIntro: { ...pack.ghost.intro, reasons: Object.values(pack.ghost.beats).map((b) => b.label) },
     scenarioById: (id: string) => byId.get(id),
     tutorialCase: buildTutorial(pack),
     /** Localised objection names (for the weak-spot map and recommendations). */
-    tagLabels: Object.fromEntries(Object.entries(pack.beats).map(([k, b]) => [k, b.label])) as Record<string, string>,
+    tagLabels: Object.fromEntries([...Object.entries(pack.beats), ...Object.entries(pack.ghost.beats)].map(([k, b]) => [k, b.label])) as Record<string, string>,
   };
 }

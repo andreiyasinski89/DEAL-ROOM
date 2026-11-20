@@ -1,0 +1,307 @@
+import { m } from "../helpers";
+import type { GhostPack } from "../types";
+
+/** English texts of the "Divers" block: clients who vanished after the presentation. */
+export const ghost: GhostPack = {
+  beats: {
+    g_embarrassed: {
+      label: "“Too awkward to say no”", family: "trust",
+      soft: ["Honestly, I felt awkward saying “no”, so I disappeared. I'm sorry.", "I'm ashamed of how this turned out. You tried so hard, and I decided not to answer."],
+      hard: ["Let's skip the long talk: I don't want it, and it was uncomfortable to tell you that in person.", "I thought you'd understand from the silence. It's unpleasant that I have to explain."],
+      opts: [
+        { t: "Thank you for being honest. “No” is a perfectly good answer, no hard feelings. What exactly didn't suit you?", tech: "Permission to refuse + a question", note: "You removed the awkwardness and allowed a “no”: after that people tell the truth." },
+        { t: "It's all fine, nobody is offended. If you want to come back to this, let me know.", tech: "Removing the awkwardness", note: "Warm and without pressure, but you didn't find out the reason for the refusal." },
+        { t: "You should have just said so, I wouldn't have wasted time on messages and calls.", mistake: "Blaming the client", note: "A reproach confirms that saying “no” really was risky." },
+        { t: "Let's fix it today: we register you, and you won't have to explain anything anymore.", mistake: "Pressure", note: "Offering to “fix” it with a registration means not hearing the refusal." },
+      ],
+      push: ["Don't try to talk me round, I've already said everything.", "I explained: it's awkward. Don't make me repeat it."],
+      rec: [
+        { t: "Sorry, you're right. I'm not pushing. I'll leave a short description, and if you want to come back, you write yourself, no obligation.", tech: "Dropping the pressure", note: "Stepping back and leaving the door open is the only way to keep a chance." },
+        { t: "Still, let's try once more, you were interested.", mistake: "Ignoring the objection", note: "You went back to selling right after being asked not to persuade." },
+        { t: "Because of you I wasted a lot of time on calls.", mistake: "Blaming the client", note: "A reproach after an admission is the full stop of a conversation." },
+      ],
+      bye: "It's unpleasant that I'm being pushed. Don't write anymore.", why: "The client's awkwardness was not removed but increased by pressure.",
+    },
+    g_spouse_no: {
+      label: "“They said no at home”", family: "other",
+      soft: ["I discussed it at home and wasn't supported. I didn't want to explain that, so I stayed quiet.", "At home they said: don't. I didn't know how to tell you."],
+      hard: ["My family is against it, and there is nothing to discuss. Don't call anymore.", "I had to justify myself at home for a long time because of your presentation."],
+      opts: [
+        { t: "I understand, it's an important decision for a family. What exactly didn't they like? Perhaps I didn't explain everything.", tech: "A question about the loved ones' objection", note: "You accepted the family's position and learned the reason: now there is something to work with." },
+        { t: "Okay, I respect the decision. I can send documents so you can look at them calmly together.", tech: "Documents for the family", note: "Respectful, but without a question about the family's doubts." },
+        { t: "You should decide yourself, not your family: it's your life and your money.", mistake: "Pressure on the personal", note: "You put the client between yourself and their loved ones." },
+        { t: "Tell them at home that I'll help you earn, and they'll agree: it has worked for many.", mistake: "False promise of income", note: "Promising income breaks ethics and advertising law." },
+      ],
+      push: ["It's a family decision, stay out of it.", "I don't want to quarrel over this."],
+      rec: [
+        { t: "Sorry. The decision is yours and your family's. If you wish, I'll answer their questions together with you, with no pressure.", tech: "Acknowledging and stepping back", note: "Stepping back gives control to the client." },
+        { t: "Then sign up quietly, they won't find out.", mistake: "Pressure and concealing the decision", note: "Advice to hide the decision from the family is an ethical risk." },
+        { t: "You're just afraid to contradict them.", mistake: "Belittling", note: "Accusing of weakness ends the conversation." },
+      ],
+      bye: "That's my family, it's not for you to decide. Goodbye.", why: "The position of the client's family was ignored.",
+    },
+    g_googled: {
+      label: "“I read it on the internet”", family: "trust",
+      soft: ["After the presentation I read reviews online, and I felt uneasy. That's why I disappeared.", "I googled all sorts of things about such companies and got scared."],
+      hard: ["I found reviews saying it's a scam. You didn't tell me about that.", "They write about network schemes and lost money. Why did you feed me all that?"],
+      opts: [
+        { t: "Thank you for checking: that's the right thing to do. What exactly did you read? We'll go through it together, with documents.", tech: "Gratitude + a walkthrough", note: "You supported the checking and promised to go through the fears by facts." },
+        { t: "I understand. Reviews are mixed. Let's look at the contract and the terms, and you decide.", tech: "Relying on documents", note: "Right, but without a question about what exactly scared them." },
+        { t: "That's written by competitors and the envious, don't read such things.", mistake: "Belittling the source", note: "Forbidding to read is the red button of a distrustful client." },
+        { t: "All that is untrue, we don't have a single complaint, I personally guarantee it.", mistake: "False promise", note: "You can't guarantee there are no complaints." },
+      ],
+      push: ["You didn't answer what is written there.", "Brushing it off is the easiest thing."],
+      rec: [
+        { t: "Fair. Let's take what worried you and find what the documents confirm and what they don't. Ask.", tech: "A walkthrough by facts", note: "An honest analysis of fears brings trust back." },
+        { t: "You just can't tell truth from rumours.", mistake: "Arguing", note: "Arguing with the client's source solves nothing." },
+        { t: "There's nothing like that, they made it all up.", mistake: "Lie", note: "Denying what is written without checking is a lie." },
+      ],
+      bye: "Nobody answers me on the substance. Don't write.", why: "The client's fears from the internet were not worked through.",
+    },
+    g_friend_warned: {
+      label: "“An acquaintance talked me out of it”", family: "trust",
+      soft: ["An acquaintance who knows this field talked me out of it. I didn't want to argue with you, so I disappeared.", "I told an acquaintance and they said: don't get involved. Now I doubt."],
+      hard: ["Smart people told me to stay away. I believe them more than a presentation.", "An acquaintance said it's a pyramid. I have nothing more to discuss with you."],
+      opts: [
+        { t: "Thank you for telling me. What exactly does your acquaintance say? It matters to me that you work it out yourself.", tech: "A question about someone else's opinion", note: "You don't argue with the acquaintance, you learn their arguments." },
+        { t: "Okay, listening to those close to you is normal. Let's check against the documents what raised their doubts.", tech: "Checking the facts", note: "Right, but without asking what exactly the acquaintance said." },
+        { t: "Your acquaintance just doesn't understand, and you decide for yourself.", mistake: "Belittling the acquaintance", note: "Belittling someone close means belittling the client." },
+        { t: "They envy you, that's why they talk you out of it, such people always get in the way.", mistake: "Accusation", note: "Accusing a third person without facts ends trust." },
+      ],
+      push: ["I trust them more than you.", "Don't speak badly of my acquaintance."],
+      rec: [
+        { t: "Sorry, that's my oversight. I'm not against their opinion. I can answer their questions if that matters to you.", tech: "Admitting and openness", note: "Readiness to answer the acquaintance's questions removes the confrontation." },
+        { t: "Then let them come and argue with me themselves.", mistake: "Arguing", note: "Inviting a frightened person to a dispute is not wise." },
+        { t: "Decide yourself, not on someone else's word, or you'll miss the chance.", mistake: "Pressure", note: "Pressure on independence is a trap." },
+      ],
+      bye: "You're turning me against those close to me. Have a good day.", why: "The opinion of the client's acquaintance was belittled.",
+    },
+    g_money_shame: {
+      label: "“No money, ashamed to admit it”", family: "value",
+      soft: ["Honestly, I don't have any spare money right now. I was ashamed to admit it.", "I didn't want to say I can't afford it, so I kept quiet."],
+      hard: ["No money. I don't want to discuss it.", "I don't have to justify my finances."],
+      opts: [
+        { t: "Thank you for telling me. There's nothing shameful in it. Nothing needs to be decided today: when would it be comfortable to come back?", tech: "Removing shame + a pause", note: "You removed the shame and cancelled the urgency: the client got the right to a pause." },
+        { t: "I understand. Let's come back to this later, when finances are clearer.", tech: "Respect for the budget", note: "Good, but you could have asked about a comfortable amount." },
+        { t: "Everyone has money, you just need to set priorities properly.", mistake: "Belittling", note: "A reproach about “wrong priorities” hurts." },
+        { t: "Borrow or take a loan: it's an investment, it will all come back, don't be shy.", mistake: "Pressure / financial risk", note: "Advising a loan to make a purchase is a serious ethical mistake." },
+      ],
+      push: ["Stop, this is unpleasant for me.", "You're not hearing me: there's no money."],
+      rec: [
+        { t: "Sorry. Nothing needs to be registered. We'll come back when it's comfortable for you, and meanwhile I'm not rushing anywhere.", tech: "Respect for the budget", note: "Giving up the sale preserves the relationship." },
+        { t: "But at least try a simple option.", mistake: "Ignoring the objection", note: "You keep selling where there is “no money”." },
+        { t: "Then why did you even listen to the presentation?", mistake: "Pressure", note: "Rudeness closes any chance of coming back." },
+      ],
+      bye: "I'm ashamed, and I'm being pressed on a sore spot as well. Goodbye.", why: "The client's financial situation was not respected.",
+    },
+    g_busy_life: {
+      label: "“Everything piled up”", family: "other",
+      soft: ["Sorry, everything piled up: work, children, and I'm ill too. I just didn't come up for air.", "Honestly, I wasn't avoiding you, my head was just elsewhere."],
+      hard: ["I really have no time for this now. What do you need?", "I asked for time. It hasn't been that long."],
+      opts: [
+        { t: "Thank you for explaining. I won't take your time: tell me when you'll have at least half an hour, and I'll adapt.", tech: "Adapting to the schedule", note: "You accepted the situation and left the choice of time to the client." },
+        { t: "I understand, life is hard. If you like, I'll send it all in short, and we come back when it gets easier.", tech: "A short digest", note: "Good, but the time to come back should be agreed." },
+        { t: "Everyone has time, you just set your priorities differently.", mistake: "Belittling", note: "A reproach to a person in a hard period is a road to being blocked." },
+        { t: "That's exactly why you need extra income, and delay will make everything worse.", mistake: "Pressure on the problem", note: "Using someone's difficulties as an argument is pressure." },
+      ],
+      push: ["I really can't right now.", "Not today, please."],
+      rec: [
+        { t: "I hear you. Nothing is needed. I'll write in two weeks with one short message, and you answer when you can.", tech: "A soft return", note: "One short contact with no pressure keeps the link." },
+        { t: "It will only take five minutes, let's do it right now.", mistake: "Ignoring the objection", note: "“Five minutes” after “I can't” is ignoring." },
+        { t: "Every day of delay only makes everything more expensive.", mistake: "Pressure", note: "Invented rising cost undermines trust." },
+      ],
+      bye: "It's hard for me right now, and you press. Goodbye.", why: "The client's life situation was ignored.",
+    },
+    g_pressured: {
+      label: "“I felt pressured at the presentation”", family: "trust",
+      soft: ["Honestly, I felt pressured at the presentation, and afterwards I didn't want to get in touch.", "I felt uneasy at how everything was rushed, so I disappeared."],
+      hard: ["You rushed me, and that killed the wish. Why are you writing again?", "I don't like being pressured. After the presentation I wanted to forget it all."],
+      opts: [
+        { t: "Thank you for telling me. If I rushed you, I apologise. There's no pressure now, it's up to you.", tech: "An apology without excuses", note: "You admitted the mistake and gave control back to the client." },
+        { t: "I understand. Let's go back to your questions, at your pace.", tech: "Returning control to the client", note: "Good, but you did not apologise." },
+        { t: "I didn't rush anyone, you just imagined it, it was simply enthusiasm.", mistake: "Excuses", note: "An excuse repeats what pushed them away." },
+        { t: "If you hadn't doubted, there'd have been no need to rush. Decide now.", mistake: "Pressure", note: "Pressure in reply to a complaint about pressure is a failure." },
+      ],
+      push: ["There you go again. That's what pressure is.", "You're repeating what put me off."],
+      rec: [
+        { t: "You're right, sorry. I'm not rushing anymore. I'll leave the information, and you decide by yourself and when you want.", tech: "Admitting the mistake", note: "An honest admission is the only way to win trust back." },
+        { t: "I just wanted to help, don't take it to heart.", mistake: "Excuses", note: "An excuse puts the client in the wrong." },
+        { t: "You're too sensitive, it was an ordinary conversation.", mistake: "Arguing / belittling", note: "Belittling feelings is the end of the dialogue." },
+      ],
+      bye: "You're pressing again. Don't write.", why: "A complaint about pressure was answered with more pressure.",
+    },
+    g_cooled: {
+      label: "“The interest cooled”", family: "value",
+      soft: ["Honestly, after the presentation the interest somehow faded. I didn't know how to tell you.", "It seemed interesting, and then I thought: why do I need this? And I disappeared."],
+      hard: ["I don't see how this is useful to me. We'll get back to it when I need it.", "The emotions after the presentation have passed, and I don't understand why I need this."],
+      opts: [
+        { t: "Thank you for your honesty. What caught your attention at the presentation? Maybe I didn't show the main thing.", tech: "Back to the original interest", note: "You went back to what hooked the client, not to your offer." },
+        { t: "I understand. Let's check on your numbers whether you need such trips at all.", tech: "A check against the need", note: "Good, but a question about what hooked them would be stronger." },
+        { t: "That's a usual reaction, you just didn't grasp the benefit. Let me explain again, but quickly.", mistake: "Monologue", note: "Explaining the same thing again repeats the mistake." },
+        { t: "If you don't come back now, prices will be higher later and you'll regret it.", mistake: "False scarcity", note: "Invented scarcity destroys trust." },
+      ],
+      push: ["I'm not interested anymore.", "Don't try to light it up again."],
+      rec: [
+        { t: "No problem. One question: what annoys you most about your trips now? If nothing, we stop there.", tech: "One question about the pain", note: "One question and readiness to stop bring interest back." },
+        { t: "You said yourself that you need it.", mistake: "Arguing", note: "Catching a client on old words is a conflict." },
+        { t: "The window is closing, you're missing the chance.", mistake: "False scarcity", note: "Invented scarcity out of nowhere does not work." },
+      ],
+      bye: "I'm not interested anymore. Don't call.", why: "The client's cooled interest could not be brought back by questions.",
+    },
+    g_competitor: {
+      label: "“Chose something else”", family: "value",
+      soft: ["Honestly, I went somewhere else: they explained it more simply. I didn't want to tell you.", "I was offered something similar by another consultant, and I've almost decided."],
+      hard: ["I've already chosen another option. What do you want?", "They gave me everything I need there. You shouldn't waste your time."],
+      opts: [
+        { t: "Thank you for telling me. What convinced you there? If they're better, I'll say so: the main thing is that it suits you.", tech: "Respect for the choice + a question", note: "You don't argue with the choice and learn what convinced the client." },
+        { t: "I understand. If you want to compare terms, send them and we'll compare point by point.", tech: "Comparison by points", note: "Right, but there was no question about the reasons for the choice." },
+        { t: "They'll cheat you there, such offers always have a catch.", mistake: "Criticising a competitor", note: "Bad words about a competitor without facts breed distrust." },
+        { t: "You're making a mistake, we're better, and you'll realise that in a month.", mistake: "Accusation", note: "Predicting a mistake to the client is pressure." },
+      ],
+      push: ["I've already decided. Don't talk me out of it.", "Let's finish."],
+      rec: [
+        { t: "I accept that. If you ever want to compare terms, send them, and I'll honestly say where we are stronger and where weaker.", tech: "A dignified exit", note: "A dignified exit keeps the chance of coming back." },
+        { t: "It's bad there, you'll come to us anyway.", mistake: "Criticising a competitor", note: "Gloating destroys trust." },
+        { t: "You just didn't look into it.", mistake: "Belittling", note: "Belittling the choice is the end of the conversation." },
+      ],
+      bye: "You speak badly of others. Don't write.", why: "The client's choice was belittled.",
+    },
+    g_overwhelmed: {
+      label: "“Too much information”", family: "other",
+      soft: ["Honestly, there was so much at the presentation that I got confused and was afraid of making a mistake. That's why I kept quiet.", "I felt I understood nothing, and it was awkward to ask again."],
+      hard: ["You dumped a pile of information on me. I still don't understand what exactly I'm being offered.", "Many words, little clarity. I decided not to get involved."],
+      opts: [
+        { t: "Thank you for telling me. That's my mistake: too many words. Let's do it in three sentences: what you get and what you pay.", tech: "Simplifying", note: "You took the blame and offered a compact version." },
+        { t: "I understand. Let's go one point at a time: which one is the most unclear for you?", tech: "One question at a time", note: "A good step, but there was no apology for the overload." },
+        { t: "It was all clear, you just have to listen more carefully.", mistake: "Blaming the client", note: "You can't blame for inattention someone who was confused." },
+        { t: "Don't worry, it doesn't matter what's unclear: we register, and you'll figure it out as you go.", mistake: "Pressure", note: "Registering something unclear is a straight road to a complaint." },
+      ],
+      push: ["I again understood nothing.", "Simpler, please."],
+      rec: [
+        { t: "Sorry. Let's start with one thing: payments. Entry, subscription, all in writing. The rest later.", tech: "Clarity step by step", note: "One point at a time brings back a sense of control." },
+        { t: "Let me quickly go through everything once more.", mistake: "Monologue", note: "Repeating the same again gives the same result." },
+        { t: "You'll figure it out as you go, don't worry.", mistake: "Pressure", note: "A request to “be patient” does not remove the lack of understanding." },
+      ],
+      bye: "Nobody explains anything to me. Goodbye.", why: "The client was left even more confused.",
+    },
+  },
+  openers: {
+    curt: {
+      line: "Yes. I'm listening. Only quickly.",
+      opts: [
+        m("Thank you for answering. One minute: I wanted to hear how you are after the presentation, no obligation. Is now convenient?", "Acknowledgement + permission", "You named the reason briefly, demand nothing and asked permission."),
+        m("Hello. I wanted to find out whether you have any questions after the presentation.", "A simple reason", "Clear and short, but without a step towards the client."),
+        m("You vanished right after the presentation, that's not how it's done. I waited several days for an answer.", "Blaming the client", "A reproach confirms that answering you is unpleasant."),
+        m("A place has just opened up on your tier: if you don't decide today, the price will change.", "A false pretext", "An invented pretext destroys trust in the first seconds."),
+      ],
+      bye: "I don't need this. Don't call.",
+      why: "The client was immediately blamed or caught on a false pretext.",
+    },
+    sarcastic: {
+      line: "Oh, there you are. And I thought you'd forgotten about me. Or do you call everyone who “wanted to think” like this?",
+      opts: [
+        m("Fair. I gave you time to think. Now I just want to know how it stands with you.", "Agreeing with the joke + directness", "You took the jab calmly and honestly named the goal."),
+        m("Yes, time has passed. How are you? Any questions left?", "A simple return", "Fine, but with no response to the jab."),
+        m("You're the one who vanished, not me. I wrote and called and you stayed silent.", "Arguing", "Putting the blame on the client is the road to being blocked."),
+        m("You're lucky I'm even calling: other participants have already registered, and there are hardly any places left.", "Pressure on doubt", "Pressure with other people's decisions only angers."),
+      ],
+      bye: "No need to call me like this. Goodbye.",
+      why: "The client's jab was answered with an argument and pressure.",
+    },
+    evasive: {
+      line: "Oh, hi. I was just about to write to you. I've just had a lot on.",
+      opts: [
+        m("Thank you for answering. No rush: what is stopping you from coming back to this, how can I help?", "Accepting the excuse + help", "You didn't catch them on their word and offered help."),
+        m("Okay, I'll wait. Tell me when it's convenient and I'll adapt.", "A concrete time", "Sensible, but you didn't find out the reason for the pause."),
+        m("You've said that for the third time. Let's decide everything now.", "Pressure", "Catching a client on their words is a conflict."),
+        m("I have to report on you today, so say “yes” or “no” right now.", "A false pretext", "An invented report is pressure and a lie."),
+      ],
+      bye: "I'm being rushed and caught on my words. Goodbye.",
+      why: "The client's polite excuse was used for pressure.",
+    },
+    embarrassed: {
+      line: "Hello... Listen, I feel awkward about how this turned out.",
+      opts: [
+        m("It's all fine, no hard feelings. Thank you for answering. Would you tell me how things went for you?", "Removing the awkwardness", "You took away the guilt and invited a conversation."),
+        m("No problem. I just wanted to know how you are.", "Warm acceptance", "Warm, but without a question about what happened."),
+        m("It was unpleasant for me too that you didn't answer, I spent time on you.", "Blame", "A reproach after an apology closes the conversation."),
+        m("You should have felt awkward before leaving. Now decide quickly while I'm holding a place for you.", "False scarcity", "An invented “place” destroys the remaining trust."),
+      ],
+      bye: "I apologised and I'm being scolded. Don't write anymore.",
+      why: "The client's apology was met with a reproach and invented scarcity.",
+    },
+    blank: {
+      line: "Yes? Who is this? Oh, from the presentation. I remember. And?",
+      opts: [
+        m("Hello. Yes, after the presentation. I'm not calling to sell: I want to understand whether you have any questions.", "An honest goal", "You immediately removed the suspicion that something is being pushed on them."),
+        m("Hello. I'll briefly recall what we talked about and ask how you are.", "A reminder + a question", "Good, but “I'll recall” easily sounds like repeating the presentation."),
+        m("What do you mean “and”? We agreed that you would think and answer.", "Pressure", "Presenting an agreement is pressure."),
+        m("I held the best price for you, I can confirm it only today.", "False scarcity", "An invented “best price” destroys trust."),
+      ],
+      bye: "You're annoying me. Don't call.",
+      why: "A cold client got pressure instead of an honest goal.",
+    },
+    cool: {
+      line: "I haven't decided anything yet. Let's not do this now.",
+      opts: [
+        m("Understood. Just one question: what should I clarify to make it easier for you to decide? No obligation.", "Accepting the pause", "You accepted “not now” and offered help."),
+        m("Okay, I won't rush you. If questions appear, write.", "Respect for the pause", "Right, but the contact is left to chance."),
+        m("“Not now”: when is that? Let's set tomorrow so we don't lose it.", "Pressure", "Demanding a date from someone asking for a pause is pressure."),
+        m("Not deciding now means losing: that's how it always is with such offers.", "False scarcity", "Frightening with loss is manipulation."),
+      ],
+      bye: "I'm told “you'll lose” when I asked for a pause. Don't write.",
+      why: "The request for a pause was met with pressure and intimidation.",
+    },
+  },
+  closers: {
+    pause: {
+      line: "Let's do it like this: I'll write myself when I'm ready. In a month or two.",
+      opts: [
+        m("Agreed. Let's fix it: I'll write once in a month, briefly. Does that suit you?", "Fixing a soft date", "You accepted the pause and anchored it with a date, without pressure."),
+        m("Okay, I'll be waiting. If you have questions sooner, write.", "An open door", "Correct, but there's no date and the link may break."),
+        m("A month is long, let's at least do a week, while you remember everything.", "Pressure on the date", "The client named a date and you are shortening it."),
+        m("In a month prices will go up, so it's better to decide now.", "Invented scarcity", "An invented price rise destroys the trust you earned."),
+      ],
+    },
+    proof: {
+      line: "Send me what you showed at the presentation, I'll look at it once more.",
+      opts: [
+        m("I'll send payments and terms in writing today. And let's agree: on Thursday I'll write to answer questions.", "A concrete next step", "A letter with a date of the next contact does not get lost."),
+        m("I'll send it right after the conversation.", "Quick fulfilment", "Good, but you didn't set a next step."),
+        m("It's all the same as at the presentation, there's no point retelling it, you already know everything.", "Ignoring the request", "The client asks for a document and you refuse to give it."),
+        m("I'll send it, but the offer is valid only until tomorrow, so look quickly.", "False scarcity", "A fake deadline together with a letter sounds absurd."),
+      ],
+    },
+    again: {
+      line: "Okay. Let's go over it once more, only briefly and to the point. What do I get?",
+      opts: [
+        m("Briefly: payments are {tierPrice} at the start and {sub}, all in writing. And after that, {next}.", "A short digest", "You fit it into two sentences and named the payments."),
+        m("Briefly: entry {tierPrice}, then {sub}. The rest in writing.", "Payments stated directly", "Honest, but with no next step."),
+        m("The same as at the presentation, only shorter: first the company, then points, tiers, subscription, network and business.", "Monologue", "“Briefly” turned into the same long story."),
+        m("We register now while the window is open, later it will be harder and pricier.", "False scarcity", "An invented window destroys trust at the finish."),
+      ],
+    },
+  },
+  briefing:
+    "{days} you gave a presentation. The client listened attentively and said at the end: “{promise}”. Since then {tries}. Channel: {channel}. The goal: not to push but to resume the conversation and agree on a next step. The client is sceptical and slightly irritated.",
+  hint: "The client answered, but is on guard. Don't ask “why did you vanish”: find out what really happened.",
+  days: ["Two days ago", "A week ago", "Three weeks ago"],
+  promises: ["I need to think a day", "I'll consult and let you know", "I'll write this evening", "I'll send an answer tomorrow", "I'll call this week", "I need to digest it all"],
+  tries: ["you wrote once and got no answer", "you wrote twice and called, and nobody picks up", "you tried to get in touch three times and got no answer"],
+  hidden: {
+    g_embarrassed: "The client felt awkward saying “no” to your face and decided simply to vanish.",
+    g_spouse_no: "The client was not supported at home and did not know how to tell you.",
+    g_googled: "After the presentation the client found bad reviews online and got scared.",
+    g_friend_warned: "An acquaintance the client trusts talked them out of joining.",
+    g_money_shame: "The client has no spare money now and is ashamed to admit it.",
+    g_busy_life: "Work, family and health piled up on the client: they were not avoiding you, they just did not come up for air.",
+    g_pressured: "At the presentation the client felt pressured, and that killed the wish to communicate.",
+    g_cooled: "The emotions after the presentation passed and the interest cooled: the client doesn't see why they need it.",
+    g_competitor: "The client has already chosen a similar offer from another consultant and is embarrassed to say so.",
+    g_overwhelmed: "There was too much information at the presentation, the client got confused and was afraid of a mistake.",
+  },
+  intro: {
+    title: "THE DIVERS",
+    text: "Clients who listened to the presentation, said “I need to think” and vanished. Your job is to bring them back into the conversation without pushing: find the real reason for the silence and agree on a small next step. They are all slightly irritated and sceptical.",
+  },
+};

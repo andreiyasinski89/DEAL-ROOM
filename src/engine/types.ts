@@ -2,7 +2,7 @@ export type Quality = "excellent" | "good" | "neutral" | "weak" | "critical_erro
 export type Mood = "neutral" | "interested" | "doubtful" | "irritated" | "warm" | "reset";
 export type Outcome = "sale" | "partial" | "lost";
 export type Level = 1 | 2 | 3 | 4 | 5;
-export type Niche = "member_elite" | "member_turbo" | "recruiting" | "cold" | "repeat" | "family" | "business" | "social";
+export type Niche = "member_elite" | "member_turbo" | "recruiting" | "cold" | "repeat" | "family" | "business" | "social" | "ghost";
 export type Channel = "call" | "meeting" | "chat" | "zoom";
 
 export type Effects = {

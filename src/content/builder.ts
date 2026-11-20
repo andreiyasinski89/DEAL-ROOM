@@ -13,6 +13,8 @@ import type {
 import { beats as ruBeats, type BeatTag, type Opt, type Beat, type Tag } from "./data/beats";
 import { mistakeCode, type MistakeCode } from "./data/mistakes";
 import { CLOSER_CODES, EVENTS, OPENER_CODES, QUALITIES, STORY_CODES, type MoveSkeleton } from "./data/moves";
+import { isGhostTag, ghostBeats as ruGhostBeats, type GhostTag } from "./data/ghost";
+import { GHOST_CLOSER_CODES, GHOST_OPENER_CODES, GHOST_CLOSER_IDS, type GhostCloserId, type GhostOpenerId, type CloserId, type OpenerId } from "./data/moves";
 import { hash01, variantsFor } from "./variants";
 import { tierFacts, type Tier } from "./data/mwr";
 import type { Vocab } from "./data/vocab";
@@ -26,8 +28,10 @@ export type CaseSpec = {
   tier: Tier;
   channel: Channel;
   persona: Persona;
-  /** Ordered objection beats (without the hidden one). */
-  tags: BeatTag[];
+  /** Ordered objection beats (without the hidden one). For a "diver" case the first one is the real reason of the silence. */
+  tags: (BeatTag | GhostTag)[];
+  /** Set for the "Divers" block: clients who vanished after the presentation. */
+  ghost?: { opener: GhostOpenerId; closer: "default" | CloserId | GhostCloserId; days: 0 | 1 | 2; promise: number; tries: 0 | 1 | 2 };
   /** Hidden objection revealed only if the player earned trust (levels 2–5). */
   hidden?: BeatTag;
   /** Index used to vary phrasing deterministically. */
@@ -40,6 +44,14 @@ const START: Record<Level, { trust: number; interest: number; irritation: number
   3: { trust: 35, interest: 25, irritation: 15 },
   4: { trust: 30, interest: 25, irritation: 20 },
   5: { trust: 25, interest: 20, irritation: 25 },
+};
+/** Divers are guarded and a bit irritated from the start (about 45 of 100), and sceptical. */
+const GHOST_START: Record<Level, { trust: number; interest: number; irritation: number }> = {
+  1: { trust: 32, interest: 28, irritation: 40 },
+  2: { trust: 32, interest: 28, irritation: 40 },
+  3: { trust: 30, interest: 25, irritation: 44 },
+  4: { trust: 27, interest: 22, irritation: 48 },
+  5: { trust: 24, interest: 20, irritation: 52 },
 };
 /** Negative effects are scaled by level: forgiving at level 1, harsh at level 5. */
 const NEG: Record<Level, number> = { 1: 0.7, 2: 0.85, 3: 1, 4: 1.15, 5: 1.3 };
@@ -163,18 +175,20 @@ export function buildScenario(spec: CaseSpec, pack: ContentPack = ruPack): Scena
   };
 
   /** One objection beat: client node, pushback node and its own GAME OVER ending. */
-  const addBeat = (id: string, tag: BeatTag, progress: string | ConditionalNext[], seed: number, reveal = false, extra: { lead?: string; aNext?: string } = {}) => {
-    const base = pack.beats[tag];
-    const alt = pack.extras.beatsAlt[tag];
-    const ralt = ruPack.extras.beatsAlt[tag];
+  const addBeat = (id: string, tag: BeatTag | GhostTag, progress: string | ConditionalNext[], seed: number, reveal = false, extra: { lead?: string; aNext?: string } = {}) => {
+    const ghostTag = isGhostTag(tag);
+    const base = ghostTag ? pack.ghost.beats[tag] : pack.beats[tag as BeatTag];
+    const alt = ghostTag ? undefined : pack.extras.beatsAlt[tag as BeatTag];
+    const ralt = ghostTag ? undefined : ruPack.extras.beatsAlt[tag as BeatTag];
     // one more wording of the client line and of the pushback; every answer may come in its second wording
-    const b: Beat = { ...base, soft: [...base.soft, alt.soft], hard: [...base.hard, alt.hard], push: [...base.push, alt.push] };
-    const r: Beat = ruBeats[tag];
-    const altOf = (slot: number) => R(`${id}|o${slot}`) < 0.5;
-    const opt = (slot: 0 | 1 | 2 | 3): Opt => (altOf(slot) ? alt.alt[slot] : base.opts[slot]);
-    const ropt = (slot: 0 | 1 | 2 | 3): Opt => (altOf(slot) ? ralt.alt[slot] : r.opts[slot]);
+    const b: Beat = alt ? { ...base, soft: [...base.soft, alt.soft], hard: [...base.hard, alt.hard], push: [...base.push, alt.push] } : base;
+    const r: Beat = ghostTag ? ruGhostBeats[tag] : ruBeats[tag as BeatTag];
+    const altOf = (slot: number) => !!alt && R(`${id}|o${slot}`) < 0.5;
+    const opt = (slot: 0 | 1 | 2 | 3): Opt => (alt && altOf(slot) ? alt.alt[slot] : base.opts[slot]);
+    const ropt = (slot: 0 | 1 | 2 | 3): Opt => (ralt && altOf(slot) ? ralt.alt[slot] : r.opts[slot]);
     // the persona's voice colours every other line, not all of them
-    const v = seed % 2 === 0 ? voice(seed) : { pre: "", post: "" };
+    // (the confession of a "diver" is told in the client's own words, without the persona's stock phrases)
+    const v = seed % 2 === 0 && !(spec.ghost && id === "b1") ? voice(seed) : { pre: "", post: "" };
     const lines = hard ? b.hard : b.soft;
     const say = lines[Math.floor(R(`${id}|say`) * lines.length)];
     const lostId = `lost_${id}`;
@@ -241,7 +255,18 @@ export function buildScenario(spec: CaseSpec, pack: ContentPack = ruPack): Scena
     { trust: Math.round(-6 * NEG[level]), interest: -2, irritation: Math.round(8 * NEG[level]) },
     { trust: Math.round(-18 * NEG[level]), interest: -6, irritation: Math.round(15 * NEG[level]) },
   ];
-  if (V.opening === "default") {
+  const ghostOpener = spec.ghost ? pack.ghost.openers[V.opening as GhostOpenerId] : undefined;
+  if (spec.ghost && ghostOpener) {
+    nodes.open = {
+      type: "client",
+      id: "open",
+      mood: "doubtful",
+      text: f(ghostOpener.line),
+      hint: pack.ghost.hint,
+      choices: four(ghostOpener.opts, GHOST_OPENER_CODES, [ids[0], ids[0], ids[0], hard ? "lost_open" : ids[0]], openFx),
+    };
+    if (hard) end("lost_open", "lost", tpl.lostBye.replace("{bye}", ghostOpener.bye), tpl.gameOver.replace("{why}", ghostOpener.why), "reset");
+  } else if (V.opening === "default") {
     nodes.open = {
       type: "client",
       id: "open",
@@ -284,7 +309,7 @@ export function buildScenario(spec: CaseSpec, pack: ContentPack = ruPack): Scena
       ],
     };
   } else if (V.opening !== "straight") {
-    const op = pack.extras.openers[V.opening];
+    const op = pack.extras.openers[V.opening as OpenerId];
     nodes.open = {
       type: "client",
       id: "open",
@@ -294,7 +319,7 @@ export function buildScenario(spec: CaseSpec, pack: ContentPack = ruPack): Scena
       choices: four(op.opts, OPENER_CODES, [ids[0], ids[0], ids[0], hard ? "lost_open" : ids[0]], openFx),
     };
   }
-  if (hard && V.opening !== "straight") end("lost_open", "lost", tpl.open.lostText, tpl.open.lostReason, "reset");
+  if (hard && !spec.ghost && V.opening !== "straight") end("lost_open", "lost", tpl.open.lostText, tpl.open.lostReason, "reset");
 
   // objection beats (the first one carries the greeting when the client starts with the objection)
   spec.tags.forEach((tag, i) => {
@@ -327,7 +352,7 @@ export function buildScenario(spec: CaseSpec, pack: ContentPack = ruPack): Scena
 
   if (j >= 0) {
     const hiddenTag = spec.hidden ?? "spouse_third_party";
-    const stallTag: BeatTag = spec.tags.includes("stall") ? "think_about_it" : "stall";
+    const stallTag: BeatTag = (spec.tags as string[]).includes("stall") ? "think_about_it" : "stall";
     addBeat("h", hiddenTag, gap(j), spec.seed + 11, true);
     addBeat("s", stallTag, gap(j), spec.seed + 13);
   }
@@ -408,14 +433,16 @@ export function buildScenario(spec: CaseSpec, pack: ContentPack = ruPack): Scena
       ],
     };
   } else {
-    const cl = pack.extras.closers[V.closing];
+    const isGhostCloser = (GHOST_CLOSER_IDS as readonly string[]).includes(V.closing);
+    const cl = isGhostCloser ? pack.ghost.closers[V.closing as GhostCloserId] : pack.extras.closers[V.closing as CloserId];
+    const clCodes = isGhostCloser ? GHOST_CLOSER_CODES[V.closing as GhostCloserId] : CLOSER_CODES[V.closing as CloserId];
     nodes.close = {
       type: "client",
       id: "close",
       mood: "warm",
       text: f(cl.line),
       hint: tpl.hint.close,
-      choices: four(cl.opts, CLOSER_CODES[V.closing], [closeA, closeB, "partial_vague", "lost_close"], closeFx),
+      choices: four(cl.opts, clCodes, [closeA, closeB, "partial_vague", "lost_close"], closeFx),
     };
   }
   const E = tpl.endings;
@@ -439,27 +466,36 @@ export function scenarioMeta(spec: CaseSpec, pack: ContentPack = ruPack): Omit<S
   const retain = vocab.mode === "retain";
   const hasHidden = level >= 2; // the hidden-objection branch exists from level 2
   const V = variantsFor(spec);
-  const hiddenLabel = hasHidden ? pack.beats[spec.hidden ?? "spouse_third_party"].label : null;
+  const g = spec.ghost;
+  const firstTag = spec.tags[0];
+  const hiddenLabel = hasHidden && !g ? pack.beats[spec.hidden ?? "spouse_third_party"].label : null;
   const tagsOut: string[] = [...spec.tags];
-  if (hasHidden && spec.hidden) tagsOut.push(spec.hidden);
-  if (hasHidden) tagsOut.push("hidden_objection");
+  if (hasHidden && !g && spec.hidden) tagsOut.push(spec.hidden);
+  if (hasHidden && !g) tagsOut.push("hidden_objection");
+  const firstLabel = isGhostTag(firstTag) ? pack.ghost.beats[firstTag].label : pack.beats[firstTag].label;
+  /** The situation of a "diver": when, what was said, how many attempts have already failed. */
+  const ghostBriefing = g
+    ? pack.ghost.briefing.replace("{days}", pack.ghost.days[g.days]).replace("{promise}", pack.ghost.promises[g.promise % 6]).replace("{tries}", pack.ghost.tries[g.tries])
+    : "";
 
   return {
     id: spec.id,
-    title: f(tpl.title.replace("{label}", pack.beats[spec.tags[0]].label)),
+    title: f(tpl.title.replace("{label}", firstLabel)),
     level,
-    niche: vocab.niche,
+    niche: g ? "ghost" : vocab.niche,
     channel: spec.channel,
     persona,
     objectionTags: [...new Set(tagsOut)] as Tag[],
     briefing: f(
-      `${persona.name}, ${persona.age}, ${persona.profession}. ${tpl.briefing.channelWord}: ${tpl.channel[spec.channel]}. ${vocab.brief} ${retain ? tpl.briefing.firstStep : tpl.briefing.goal} ${tpl.briefing.known}: ${lcFirst(persona.pain)}.`,
+      g
+        ? `${persona.name}, ${persona.age}, ${persona.profession}. ${ghostBriefing.replace("{channel}", tpl.channel[spec.channel])} ${tpl.briefing.known}: ${lcFirst(persona.pain)}.`
+        : `${persona.name}, ${persona.age}, ${persona.profession}. ${tpl.briefing.channelWord}: ${tpl.channel[spec.channel]}. ${vocab.brief} ${retain ? tpl.briefing.firstStep : tpl.briefing.goal} ${tpl.briefing.known}: ${lcFirst(persona.pain)}.`,
     ),
     hiddenContext: f(
-      `${persona.hiddenMotive}.${hiddenLabel ? ` ${tpl.hidden.objection}: ${hiddenLabel}.` : ""} ${tpl.hidden.red} — ${lcFirst(persona.redButton)}. ${tpl.hidden.gold} — ${lcFirst(persona.goldenKey)}. ${tpl.hidden.facts}${level === 5 ? ` ${tpl.hidden.level5}` : ""}`,
+      `${g ? pack.ghost.hidden[firstTag as GhostTag] : `${persona.hiddenMotive}.`}${hiddenLabel ? ` ${tpl.hidden.objection}: ${hiddenLabel}.` : ""} ${tpl.hidden.red} — ${lcFirst(persona.redButton)}. ${tpl.hidden.gold} — ${lcFirst(persona.goldenKey)}. ${tpl.hidden.facts}${level === 5 ? ` ${tpl.hidden.level5}` : ""}`,
     ),
     autoEnd: tpl.autoEnd,
-    initialState: { ...START[level], flags: {} },
+    initialState: { ...(g ? GHOST_START[level] : START[level]), flags: {} },
     startNodeId: V.opening === "straight" ? "b1" : "open",
     estimatedTurns: spec.tags.length + (hasHidden ? 1 : 0) + 2 + Object.keys(V.events).length + (V.story ? 1 : 0),
   };

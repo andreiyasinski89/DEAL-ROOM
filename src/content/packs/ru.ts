@@ -1,4 +1,5 @@
 import { ruExtras } from "./ruExtras";
+import { ruGhost } from "./ruGhost";
 import { RU_AUTO_END } from "../../engine/engine";
 import { beats } from "../data/beats";
 import { personas } from "../data/personas";
@@ -76,8 +77,8 @@ const tpl: Tpl = {
   },
   endings: {
     saleClean: {
-      sell: { text: "{name}: «Договорились. {next} — давайте. Если цифры сойдутся — оформляем {tier}».", reason: "SALE CLOSED: клиент согласился на проверяемый шаг и оформление по результату." },
-      retain: { text: "{name}: «Договорились. {next} — давайте. Спасибо, что без давления».", reason: "SALE CLOSED: клиент остаётся на связи, всё прояснено честно и без давления." },
+      sell: { text: "{name}: «Договорились — {next}. Давайте. Если цифры сойдутся — оформляем {tier}».", reason: "SALE CLOSED: клиент согласился на проверяемый шаг и оформление по результату." },
+      retain: { text: "{name}: «Договорились — {next}. Давайте. Спасибо, что без давления».", reason: "SALE CLOSED: клиент остаётся на связи, всё прояснено честно и без давления." },
     },
     saleSoft: {
       sell: { text: "{name}: «Хорошо, оформляем {tier}. Условия пришлите письменно».", reason: "SALE CLOSED: оформлен {tier} при полном понимании платежей: {tierPrice} ({terms}) и {sub}." },
@@ -103,4 +104,4 @@ const tpl: Tpl = {
   },
 };
 
-export const ruPack: ContentPack = { lang: "ru", beats, vocab, personas: personaText, tpl, mini: null, extras: ruExtras };
+export const ruPack: ContentPack = { lang: "ru", beats, vocab, personas: personaText, tpl, mini: null, extras: ruExtras, ghost: ruGhost };

@@ -40,7 +40,7 @@ function skeleton(s: Scenario) {
   };
 }
 
-const KNOWN = new Set(["name", "nameVoc", "product", "renewPoints", "terms", "renew", "n", "productAcc", "next", "proof", "third", "thirdWho", "tier", "tierPrice", "tierPoints", "fee", "sub", "bye", "why", "label"]);
+const KNOWN = new Set(["name", "nameVoc", "product", "renewPoints", "terms", "renew", "n", "days", "promise", "tries", "channel", "productAcc", "next", "proof", "third", "thirdWho", "tier", "tierPrice", "tierPoints", "fee", "sub", "bye", "why", "label"]);
 
 /** Every string inside a value, with its path (for readable failures). */
 function strings(v: unknown, path = "", out: [string, string][] = []): [string, string][] {
@@ -52,7 +52,7 @@ function strings(v: unknown, path = "", out: [string, string][] = []): [string, 
 
 describe.each(PACKS)("content pack: $lang", (pack) => {
   const lib = libs.get(pack.lang)!;
-  const json = strings([lib.allScenarios, lib.tutorialCase]).map(([, v]) => v).join("\n");
+  const json = strings([lib.allScenarios, lib.ghostScenarios, lib.tutorialCase]).map(([, v]) => v).join("\n");
 
   it("has every objection beat with the same shape as the Russian source", () => {
     expect(Object.keys(pack.beats).sort()).toEqual(Object.keys(ruBeats).sort());
@@ -80,7 +80,7 @@ describe.each(PACKS)("content pack: $lang", (pack) => {
 
   it("has no empty texts and only known placeholders", () => {
     const bad: string[] = [];
-    const source = { beats: pack.beats, vocab: pack.vocab, personas: pack.personas, tpl: pack.tpl, mini: pack.mini, extras: pack.extras };
+    const source = { beats: pack.beats, vocab: pack.vocab, personas: pack.personas, tpl: pack.tpl, mini: pack.mini, extras: pack.extras, ghost: pack.ghost };
     for (const [path, s] of strings(source)) {
       if (!s.trim() && !/voice\.\w+\.(pre|post)/.test(path)) bad.push(`${path}: empty`);
       for (const m of s.matchAll(/\{([^{}|]*)\}/g)) if (!KNOWN.has(m[1])) bad.push(`${path}: {${m[1]}}`);
@@ -96,6 +96,7 @@ describe.each(PACKS)("content pack: $lang", (pack) => {
     }
     const base = ru.allScenarios.map(skeleton);
     expect(lib.allScenarios.map(skeleton)).toEqual(base);
+    expect(lib.ghostScenarios.map(skeleton)).toEqual(ru.ghostScenarios.map(skeleton));
     expect(parseScenario(lib.tutorialCase).ok).toBe(true);
   });
 
@@ -128,7 +129,7 @@ describe.each(PACKS)("content pack: $lang", (pack) => {
 
   it("every case states prices, the fee, the subscription and that there are no guarantees", () => {
     const noGuarantee = { en: /no guarantees/, pl: /gwarancji nie ma/, uk: /гарантій немає/ }[pack.lang as "en" | "pl" | "uk"];
-    for (const s of lib.allScenarios) {
+    for (const s of [...lib.allScenarios, ...lib.ghostScenarios]) {
       const t = JSON.stringify(s);
       expect(t, s.id).toMatch(/\$340|\$590/);
       expect(t, s.id).toContain("$100");
@@ -145,7 +146,7 @@ describe.each(PACKS)("content pack: $lang", (pack) => {
       uk: /(?<!не )гарантую|окупиться|повернуть усе|без наслідків/i,
     }[pack.lang as "en" | "pl" | "uk"];
     const hits: string[] = [];
-    for (const s of lib.allScenarios)
+    for (const s of [...lib.allScenarios, ...lib.ghostScenarios])
       for (const n of Object.values(s.nodes))
         if (n.type === "client")
           for (const c of n.choices)
